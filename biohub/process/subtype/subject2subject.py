@@ -4,6 +4,8 @@ from biohub.project import Project
 
 from multiprocessing import Pool
 import random
+import pyslurm
+import time
 
 class ProcessStoS(Process):
 
@@ -14,6 +16,7 @@ class ProcessStoS(Process):
             processOutlines: set = set(),
             **extraAttrs) -> dict:
 
+        #  Proceso único
         if isinstance(self.entity, Subject):
 
             return super().run(options = options,
@@ -22,6 +25,7 @@ class ProcessStoS(Process):
                                processOutlines = processOutlines,
                                **extraAttrs)
 
+        #  Varios procesos
         else:
 
             #  Memoria compartida
@@ -38,9 +42,7 @@ class ProcessStoS(Process):
                                        processOutlines,
                                        extraAttrs])
 
-                with Pool(self.threads // self.coresPerTask) as pool:
-
-
+                with Pool(self.simultaneousTasks) as pool:
                     results = pool.starmap(runFuction, parameters)
 
                 aux = {}
@@ -53,41 +55,47 @@ class ProcessStoS(Process):
             #  Memoria distribuida
             else:
 
-                for index in range(0, len(self.entity.subjects), self.tasksPerNode):
+                jobIds = set()
 
-                    subjects = [subject.id for subject in self.entity.subjects[index : index + self.tasksPerNode]]
+                for index, subject in enumerate(self.entity.subjects):
 
-                    jobName = f"BHtmp_{index:02}_{random.randint(0, 99):02}"
+                    sbatchOptions = {"job-name": f"BHtmp_{index:03}_{self.id}",
+                                     "ntasks": 1,
+                                     "cpus-per-task": self.coresPerTask,
+                                     "output": f"BHtmp_{index:03}_{self.id}.out"}
 
-                    #  sbatch
-                    preamble = ["#!/bin/sh",
-                                f"#SBATCH --ntasks={self.coresPerTask}",
-                                f"#SBATCH--job-name={jobName}"]
+                    pythonOrder = ["python -c"]
 
-                    preamble = "\n".join(preamble)
+                    #  Imports
+                    pythonOrder += [f"\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
+                                    "from biohub.subject import Subject;"]
 
-                    msg = ["python -c"]
+                    #  Load subject
+                    pythonOrder += [f"subject = Subject(path = '{self.entity.path.parent.parent}/subjects/{subject.id}/biohub_subject.xml');"]
 
-                    #  imports
-                    msg += [f"\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
-                            "from biohub.utils import EntityCreator;",
-                            "from biohub.subject import Subject;"]
+                    #  Process execution
+                    pythonOrder += [f"{self.__class__.__name__}(entity = subject, threads = {self.threadsPerTask}).run()\""]
 
-                    #  project
-                    msg += [f"project = EntityCreator().createProject('tmp_{index}',",
-                            f"'{self.entity.path.parent}',"
-                            f"subjects =",
-                            "[" + ", ".join([f"'{subject}'"for subject in subjects]) + "]);"]
+                    pythonOrder = " ".join(pythonOrder)
 
-                    #  process
-                    msg += [f"{self.__class__.__name__}(entity = project, threads = {self.coresPerNode}, coresPerTask = {self.coresPerTask}).run()\""]
+                    sbatchOptions["wrap"] = pythonOrder
 
-                    msg = " ".join(msg)
+                    jobId = pyslurm.job().submit_batch_job(sbatchOptions)
 
-                    with open(f"{jobName}.slurm", "w") as slurm:
-                        slurm.write(f"{preamble}\n\n{msg}")
+                    jobIds.add(jobId)
 
-                    self.runCommand(f"sbatch {jobName}.slurm")
+                while True:
+
+                    time.sleep(10)
+
+                    jobs = set(pyslurm.job().get().keys())
+
+                    if len(jobIds & jobs) == 0:
+                        break
+
+                return {}
+
+
 
 def runFuction(subject,
                process,
@@ -98,7 +106,7 @@ def runFuction(subject,
                extraAttrs):
 
     result = process.__class__(entity = subject,
-                               threads = process.coresPerTask,
+                               threads = process.threadsPerTask,
                                save = process.save,
                                duplicate = process.duplicate).run(options = options,
                                                                   inputs = inputs,

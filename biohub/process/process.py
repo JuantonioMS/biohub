@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess
 from datetime import datetime
 import rich
-from typing import Union
+from typing import Union, Any
 
 
 import copy
@@ -37,15 +37,37 @@ class Process(BioHubClass):
 
         super().__init__(xmlElement, **attrs)
 
+        if not hasattr(self, "simultaneousTasks"): self.simultaneousTasks = 1
+
         if not hasattr(self, "threads"): self.threads = 1
-        if not hasattr(self, "nodes"): self.nodes = False
-        if not hasattr(self, "tasks"): self.tasks = 1
-        if not hasattr(self, "coresPerNode"): self.coresPerNode = 40
-        if not hasattr(self, "coresPerTask"): self.coresPerTask = self.threads // self.tasks
-        if not hasattr(self, "tasksPerNode"): self.tasksPerNode = self.coresPerNode // self.coresPerTask
+        if not hasattr(self, "threadsPerCore"): self.threadsPerCore = 2
+
+        if not hasattr(self, "cores"): self.cores = 1 if self.threads < 3 else self.threads // self.threadsPerCore
+
+        if not hasattr(self, "threadsPerTask"): self.threadsPerTask = self.threads
+        if not hasattr(self, "coresPerTask"): self.coresPerTask = self.cores
+
+        if not hasattr(self, "distributedMemory"): self.distributedMemory = False
 
     def newId(self) -> str:
         return "bhPR" + super().newId()
+
+
+
+
+    def __setattr__(self, attr: str, value: Any) -> None:
+
+        #  Atributos que son atributos del elemento XML
+        if attr == "duration":
+
+            self._xmlElement.attrib[attr] = str(value)
+
+        else: super().__setattr__(attr, value)
+
+
+
+
+
 
 
     def __getattribute__(self, attr: str):
@@ -73,6 +95,10 @@ class Process(BioHubClass):
                             aux[file.text] = None
 
             return aux
+
+        if attr == "duration":
+            try: return self._xmlElement.attrib[attr]
+            except KeyError: return ""
 
         else: return super().__getattribute__(attr)
 
@@ -160,8 +186,8 @@ class Process(BioHubClass):
 
     @property
     def specialAttrs(self) -> set:
-        return super().specialAttrs.union({"framework", "tool", "route",
-                                            "env", "options", "inputs", "outputs"})
+        return super().specialAttrs.union({"framework", "tool", "route", "duration",
+                                           "env", "options", "inputs", "outputs"})
 
     @property
     def processSpecialAttrs(self) -> set:
@@ -926,8 +952,10 @@ class Process(BioHubClass):
     #%%  12. Add process duration_______________________________________________________________________________________
 
 
-    # TODO
     def _addDuration(self, process, date):
+
+        process.duration = date - process.date
+
         return process
 
 
@@ -940,7 +968,11 @@ class Process(BioHubClass):
 
         self.entity.addProcess(process)
 
+        ids = [output.id for output in outputs.values()]
+
         for output in outputs.values():
+
+            output.biohubFile.links = {bhId for bhId in ids if bhId != output.id}
 
             self.entity.addFile(output.biohubFile)
 

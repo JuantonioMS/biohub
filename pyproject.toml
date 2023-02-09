@@ -12,6 +12,7 @@ rich = "^13.3.1"
 pattern = "^3.6.0"
 datetime = "^5.0"
 pyyaml = "^6.0"
+cython = "^0.29.33"
 
 
 [build-system]
