@@ -48,6 +48,7 @@ class Process(BioHubClass):
         if not hasattr(self, "coresPerTask"): self.coresPerTask = self.cores
 
         if not hasattr(self, "distributedMemory"): self.distributedMemory = False
+        if not hasattr(self, "coresPerNode"): self.coresPerNode = 40
 
     def newId(self) -> str:
         return "bhPR" + super().newId()

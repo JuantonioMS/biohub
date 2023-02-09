@@ -29,7 +29,7 @@ class ProcessStoS(Process):
         else:
 
             #  Memoria compartida
-            if not self.nodes:
+            if not self.distributedMemory:
 
                 parameters = []
                 for subject in self.entity.subjects:
@@ -57,25 +57,29 @@ class ProcessStoS(Process):
 
                 jobIds = set()
 
-                for index, subject in enumerate(self.entity.subjects):
+                subjects = [subject.id for subject in self.entity.subjects]
+
+                for index in range(0, len(subjects), (step := self.coresPerNode // self.coresPerTask)):
+
+                    selectedSubjects = subjects[index : index + step]
 
                     sbatchOptions = {"job-name": f"BHtmp_{index:03}_{self.id}",
                                      "ntasks": 1,
                                      "cpus-per-task": self.coresPerTask,
-                                     "output": f"BHtmp_{index:03}_{self.id}.out",
-                                     "mem": "10GB"}
+                                     "output": f"BHtmp_{index:03}_{self.id}.out"}
 
                     pythonOrder = ["python -c"]
 
                     #  Imports
                     pythonOrder += [f"\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
-                                    "from biohub.subject import Subject;"]
+                                    "from biohub.utils import EntityCreator;"]
 
-                    #  Load subject
-                    pythonOrder += [f"subject = Subject(path = '{self.entity.path.parent.parent}/subjects/{subject.id}/biohub_subject.xml');"]
+                    selectedSubjects = ", ".join([f"'{subject}'" for subject in selectedSubjects])
+
+                    pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:03}', '{self.entity.path.parent}', subjects = [{selectedSubjects}])"]
 
                     #  Process execution
-                    pythonOrder += [f"{self.__class__.__name__}(entity = subject, threads = {self.threadsPerTask}).run()\""]
+                    pythonOrder += [f"{self.__class__.__name__}(entity = project, simultaneousTasks = {step}, threadsPerTask = {self.threadsPerTask}).run()\""]
 
                     pythonOrder = " ".join(pythonOrder)
 
@@ -95,6 +99,8 @@ class ProcessStoS(Process):
                     if len(jobIds & jobs) == 0:
                         break
 
+                self.runCommand(f"rm *_{self.id}.out")
+                self.runCommand(f"rm -rf {self.entity.path.parent}/BHPR_{self.id}_*")
                 return {}
 
 
