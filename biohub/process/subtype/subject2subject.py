@@ -62,7 +62,8 @@ class ProcessStoS(Process):
                     sbatchOptions = {"job-name": f"BHtmp_{index:03}_{self.id}",
                                      "ntasks": 1,
                                      "cpus-per-task": self.coresPerTask,
-                                     "output": f"BHtmp_{index:03}_{self.id}.out"}
+                                     "output": f"BHtmp_{index:03}_{self.id}.out",
+                                     "mem": "10GB"}
 
                     pythonOrder = ["python -c"]
 
