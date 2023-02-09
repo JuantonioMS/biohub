@@ -6,7 +6,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.slurm
+playground*
+*.out
 # C extensions
 *.so
 
