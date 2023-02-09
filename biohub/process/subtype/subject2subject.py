@@ -59,7 +59,11 @@ class ProcessStoS(Process):
 
                 subjects = [subject.id for subject in self.entity.subjects]
 
-                for index in range(0, len(subjects), (step := self.coresPerNode // self.coresPerTask)):
+                step = self.coresPerNode // self.coresPerTask
+                print(step, len(subjects))
+
+                for index in range(0, len(subjects), step):
+                    print("----->", index)
 
                     selectedSubjects = subjects[index : index + step]
 
@@ -89,6 +93,7 @@ class ProcessStoS(Process):
 
                     jobIds.add(jobId)
 
+                print("----------------------> Todos lanzados")
                 while True:
 
                     time.sleep(2)
