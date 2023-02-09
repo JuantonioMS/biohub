@@ -91,7 +91,7 @@ class ProcessStoS(Process):
 
                 while True:
 
-                    time.sleep(10)
+                    time.sleep(2)
 
                     jobs = set(pyslurm.job().get().keys())
 
