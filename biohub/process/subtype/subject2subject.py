@@ -91,6 +91,7 @@ class ProcessStoS(Process):
 
                     jobs = set(pyslurm.job().get().keys())
 
+                    print("CHECK:", len(jobIds & jobs))
                     if len(jobIds & jobs) == 0:
                         break
 
