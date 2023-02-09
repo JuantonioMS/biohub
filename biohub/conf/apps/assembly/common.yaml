@@ -1,0 +1,14 @@
+---
+
+# --- Outlines
+  outlines:
+
+    common:
+
+      process:
+        - "assembly"
+
+      output:
+        - "assembly"
+
+...

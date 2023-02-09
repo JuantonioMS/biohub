@@ -1,0 +1,78 @@
+---
+
+# --- Options
+  envs: biohub.resfinder
+
+  options:
+
+    common:
+
+      --acquired:
+        alternative: "-acq"
+        default: True
+
+# --- Outlines
+  outlines:
+
+    common:
+
+      output: ["gene resistence"]
+      process: ["gene resistence"]
+
+# --- Inputs
+  inputs:
+
+    common:
+
+      -ifa:
+        outlines:
+          required: ["genome"]
+
+# --- Outputs
+  outputs:
+
+    common:
+
+      pheno_table:
+        temporal: "pheno_table.txt"
+        extension: ".txt"
+        outlines:
+          - "phonotipic table"
+
+      hit_genome:
+        temporal: "ResFinder_Hit_in_genome_seq.fsa"
+        extension: ".fasta"
+        outlines:
+          - "sequence hit in genome"
+
+      resistance_genes:
+        temporal: "ResFinder_Resistance_gene_seq.fsa"
+        extension: ".fasta"
+        outlines:
+          - "resistance gene sequence"
+
+      results:
+        temporal: "ResFinder_results.txt"
+        extension: ".txt"
+        outlines:
+          - "results"
+
+      results_tab:
+        temporal: "ResFinder_results_tab.txt"
+        extension: ".txt"
+        outlines:
+          - "results tab"
+
+      results_table:
+        temporal: "ResFinder_results_table.txt"
+        extension: ".txt"
+        outlines:
+          - "results table"
+
+      results_json:
+        temporal: "std_format_under_development.json"
+        extension: ".json"
+        outlines:
+          - "results json"
+
+...

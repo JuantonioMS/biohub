@@ -1,0 +1,14 @@
+---
+
+# --- Outlines
+  outlines:
+
+    common:
+
+      process:
+        - "operation"
+
+      output:
+        - "operation"
+
+...

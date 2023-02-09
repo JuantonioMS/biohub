@@ -1,0 +1,41 @@
+---
+
+# --- Options
+  envs: biohub.mlst
+
+  options:
+
+    threads: ["--threads"]
+
+    common:
+
+      --label:
+        default: "eval##self.entity.name"
+
+# --- Outlines
+  outlines:
+
+    common:
+
+      output: ["mlst profile"]
+      process: ["mlst profile"]
+
+# --- Inputs
+  inputs:
+
+    common:
+
+      genome:
+        outlines:
+          required: ["genome"]
+
+# --- Outputs
+  outputs:
+
+    common:
+
+      --json:
+        temporal: "mlst_profile.json"
+        extension: ".json"
+
+...

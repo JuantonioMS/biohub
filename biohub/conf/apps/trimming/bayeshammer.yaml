@@ -1,0 +1,89 @@
+---
+
+# --- Info
+  info:
+    defaultRoute: "paired"
+    envs: biohub.spades
+
+# --- Execution
+  execution:
+
+    instruct:
+      common: "spades.py"
+
+    sentence:
+      common: "PRinstruct PRinputs PRoptions"
+
+# --- Options
+  options:
+
+    threads:
+      threads:
+        name: "--threads"
+        alternative: "-t"
+
+    common:
+      onlyTrimming:
+        name: "--only-error-correction"
+        value: True
+
+      outputDirectory:
+        name: "-o"
+        value: "eval##self.temporalDirectory"
+
+# --- Outlines
+  outlines:
+
+    common:
+
+      output: ["reads"]
+
+# --- Inputs
+  inputs:
+
+    paired:
+
+      forward:
+        inputName: "-1"
+        outlines:
+          required: ["reads", "forward"]
+          optimal: ["raw", "illumina"]
+
+      reverse:
+        inputName: "-2"
+        outlines:
+          required: ["reads", "reverse"]
+          optimal: ["raw", "illumina"]
+
+
+    single:
+
+      single:
+        inputName: "-s"
+        outlines:
+          required: ["reads"]
+          optimal: ["raw", "illumina"]
+
+# --- Outputs
+  outputs:
+
+    paired:
+
+      forward:
+        temporal: "NaN"
+        extension: ".fq.gz"
+        outlines: ["forward"]
+
+      reverse:
+        temporal: "NaN"
+        extension: ".fq.gz"
+        outlines: ["reverse"]
+
+    single:
+
+      single:
+        temporal: "NaN"
+        extension: ".fq.gz"
+        outlines: ["single"]
+
+...

@@ -1,0 +1,14 @@
+---
+
+# --- Outlines
+  outlines:
+
+    common:
+
+      process:
+        - "polish"
+
+      output:
+        - "polished"
+
+...

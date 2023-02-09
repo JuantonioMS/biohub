@@ -1,0 +1,11 @@
+---
+
+# --- Outlines
+  outlines:
+
+    common:
+
+      output: ["loaded"]
+      process: ["load"]
+
+...
