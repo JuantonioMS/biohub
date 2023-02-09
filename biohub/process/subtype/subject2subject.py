@@ -76,7 +76,7 @@ class ProcessStoS(Process):
 
                     selectedSubjects = ", ".join([f"'{subject}'" for subject in selectedSubjects])
 
-                    pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:03}', '{self.entity.path.parent}', subjects = [{selectedSubjects}])"]
+                    pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:03}', '{self.entity.path.parent}', subjects = [{selectedSubjects}]);"]
 
                     #  Process execution
                     pythonOrder += [f"{self.__class__.__name__}(entity = project, simultaneousTasks = {step}, threadsPerTask = {self.threadsPerTask}).run()\""]
@@ -95,7 +95,7 @@ class ProcessStoS(Process):
 
                     jobs = set(pyslurm.job().get().keys())
 
-                    print("CHECK:", len(jobIds & jobs))
+                    print("Jobs remaining:", len(jobIds & jobs))
                     if len(jobIds & jobs) == 0:
                         break
 
