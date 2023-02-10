@@ -128,6 +128,15 @@ class Output(FileIO):
 
 
     @property
+    def outputName(self) -> str:
+
+        """Get outputName option if setted, else get str()"""
+
+        try: return self._outputName
+        except AttributeError: return ""
+
+
+    @property
     def temporal(self) -> str:
 
         """Get temporal output file"""
@@ -138,4 +147,4 @@ class Output(FileIO):
 
 
     def __str__(self) -> str:
-        return f"{self.path}"
+        return f"{self.outputName} {self.temporal}" if self.outputName else f"{self.temporal}"

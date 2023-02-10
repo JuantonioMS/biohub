@@ -3,8 +3,6 @@ from biohub.subject import Subject
 from biohub.project import Project
 
 from multiprocessing import Pool
-import random
-import pyslurm
 import time
 
 class ProcessStoS(Process):
@@ -55,57 +53,62 @@ class ProcessStoS(Process):
             #  Memoria distribuida
             else:
 
-                jobIds = set()
+                jobNames = set()
 
                 subjects = [subject.id for subject in self.entity.subjects]
 
                 step = self.coresPerNode // self.coresPerTask
-                print(step, len(subjects))
 
                 for index in range(0, len(subjects), step):
-                    print("----->", index)
+
+                    jobName = f"BHtmp_{index:04}_{self.tool.capitalize()}{self.id}"
 
                     selectedSubjects = subjects[index : index + step]
 
-                    sbatchOptions = {"job-name": f"BHtmp_{index:03}_{self.id}",
-                                     "ntasks": 1,
-                                     "cpus-per-task": self.coresPerTask,
-                                     "output": f"BHtmp_{index:03}_{self.id}.out"}
+                    sbatchOptions = {"--job-name": jobName,
+                                     "--ntasks": step * self.coresPerTask,
+                                     "--output": f"{jobName}.out"}
 
                     pythonOrder = ["python -c"]
 
                     #  Imports
-                    pythonOrder += [f"\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
+                    pythonOrder += [f"\\\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
                                     "from biohub.utils import EntityCreator;"]
 
                     selectedSubjects = ", ".join([f"'{subject}'" for subject in selectedSubjects])
 
-                    pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:03}', './{self.entity.path.parent}', subjects = [{selectedSubjects}]);"]
+                    pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:04}', './{self.entity.path.parent}', subjects = [{selectedSubjects}]);"]
 
                     #  Process execution
-                    pythonOrder += [f"{self.__class__.__name__}(entity = project, simultaneousTasks = {step}, threadsPerTask = {self.threadsPerTask}).run()\""]
+                    pythonOrder += [f"{self.__class__.__name__}(entity = project, simultaneousTasks = {step}, threadsPerTask = {self.threadsPerTask}).run()\\\""]
 
                     pythonOrder = " ".join(pythonOrder)
 
-                    sbatchOptions["wrap"] = pythonOrder
+                    sbatchOptions["--wrap"] = "\"" + pythonOrder + "\""
 
-                    jobId = pyslurm.job().submit_batch_job(sbatchOptions)
+                    self.runCommand("sbatch", *[f"{key}={value}" for key, value in sbatchOptions.items()])
 
-                    jobIds.add(jobId)
+                    #jobId = pyslurm.job().submit_batch_job(sbatchOptions)
 
-                print("----------------------> Todos lanzados")
+                    jobNames.add(jobName)
+
+
                 while True:
 
                     time.sleep(2)
 
-                    jobs = set(pyslurm.job().get().keys())
+                    _, output = self.runCommand("squeue --format=\"%.100j\"",
+                                                   verbosity = False,
+                                                   captureOutput = True)
 
-                    print("Jobs remaining:", len(jobIds & jobs))
-                    if len(jobIds & jobs) == 0:
+                    jobs = set(list(map(lambda x: x.strip(), output.split("\n")))[1:-1])
+
+                    if len(jobNames & jobs) == 0:
                         break
 
-                self.runCommand(f"rm *_{self.id}.out")
+                self.runCommand(f"rm *_{self.tool.capitalize()}{self.id}.out")
                 self.runCommand(f"rm -rf {self.entity.path.parent}/BHPR_{self.id}_*")
+
                 return {}
 
 

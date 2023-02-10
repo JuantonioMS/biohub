@@ -1,16 +1,30 @@
 ---
 
-# --- Options
-  envs: biohub.mlst
+# --- Info
+  info:
+    defaultRoute: "common"
+    envs: "biohub.mlst"
 
+# --- Execution
+  execution:
+
+    instruct:
+      common: "mlst"
+
+    sentence:
+      common: "PRinstruct PRoptions PRoutputs PRinputs"
+
+# --- Options
   options:
 
-    threads: ["--threads"]
+    threads:
+      threads:
+        name: "--threads"
 
     common:
-
-      --label:
-        default: "eval##self.entity.name"
+      labelName:
+        name: "--label"
+        value: "eval##self.entity.name"
 
 # --- Outlines
   outlines:
@@ -18,7 +32,8 @@
     common:
 
       output: ["mlst profile"]
-      process: ["mlst profile"]
+      process: ["mlst profiling"]
+
 
 # --- Inputs
   inputs:
@@ -34,8 +49,9 @@
 
     common:
 
-      --json:
-        temporal: "mlst_profile.json"
+      mlstProfile:
+        outputName: "--json"
+        temporal: "eval## str(self.temporalDirectory) + '/' + 'mlst_profile.json'"
         extension: ".json"
 
 ...

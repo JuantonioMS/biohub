@@ -3,7 +3,7 @@
 # --- Info
   info:
     defaultRoute: "paired"
-    envs: biohub.unicycler
+    envs: "biohub.unicycler"
 
 # --- Execution
   execution:
@@ -63,7 +63,7 @@
     common:
 
       genome:
-        temporal: "assembly.fasta"
+        temporal: "eval##str(self.temporalDirectory) + '/' + 'assembly.fasta'"
         extension: ".fasta"
         outlines: ["genome"]
 

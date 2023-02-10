@@ -107,21 +107,21 @@ class Process(BioHubClass):
     #  _________________________CLI Run Methods_________________________
 
 
-    def runCommand(self, *args, captureOutput: bool = False) -> None:
+    def runCommand(self, *args, captureOutput: bool = False, verbosity: bool = True) -> None:
 
         """
         Ejecuta comandos del sistema. Retorna el valor de ejecución resultante. Suele ser 0 el valor de todo correcto.
         Tiene la opción de capturar la salida si captureOuput es True y retorna el output.
         """
 
-        Process.commandPrint(*args)
+        if verbosity: Process.commandPrint(*args)
         output = subprocess.run(" ".join(args),
                                 shell = True,
                                 executable = "/bin/bash",
                                 capture_output = captureOutput)
 
         if captureOutput:
-            return output.returncode, output.stdout.encode("UTF8")
+            return output.returncode, output.stdout.decode("UTF8")
 
         else:
             return output.returncode
@@ -834,7 +834,7 @@ class Process(BioHubClass):
 
         process.outputs = {output.id for output in outputs.values()}
 
-        process.options = {str(option) for option in options.values() if option.role != "threads"}
+        process.options = {str(option) for option in options.values() if option.role not in ("threads", "outputDirectory")}
 
         return process
 
@@ -924,7 +924,7 @@ class Process(BioHubClass):
         for output in outputs.values():
 
             self.runCommand(f"mv",
-                            f"{self.temporalDirectory}/{output.temporal}",
+                            f"{output.temporal}",
                             f"{self.entity.path}/{output.path}")
 
         self._deleteTemporalDirectory()

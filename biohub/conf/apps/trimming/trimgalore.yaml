@@ -81,19 +81,19 @@
     paired:
 
       forward:
-        temporal: "eval##options['--basename'].value + '_val_1.fq.gz'"
+        temporal: "eval##str(self.temporalDirectory) + '/' + options['--basename'].value + '_val_1.fq.gz'"
         extension: ".fq.gz"
         outlines: ["forward"]
 
       reverse:
-        temporal: "eval##options['--basename'].value + '_val_2.fq.gz'"
+        temporal: "eval##str(self.temporalDirectory) + '/' + options['--basename'].value + '_val_2.fq.gz'"
         extension: ".fq.gz"
         outlines: ["reverse"]
 
     single:
 
       single:
-        temporal: "eval##options['--basename'].value + '_trimmed.fq.gz'"
+        temporal: "eval##str(self.temporalDirectory) + '/' + options['--basename'].value + '_trimmed.fq.gz'"
         extension: ".fq.gz"
         outlines: ["single"]
 
