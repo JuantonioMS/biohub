@@ -51,7 +51,7 @@
 
       mlstProfile:
         outputName: "--json"
-        temporal: "eval## str(self.temporalDirectory) + '/' + 'mlst_profile.json'"
+        temporal: "eval##str(self.temporalDirectory) + '/' + 'mlst_profile.json'"
         extension: ".json"
 
 ...

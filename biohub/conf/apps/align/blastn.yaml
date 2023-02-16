@@ -1,0 +1,46 @@
+---
+
+# --- Info
+  info:
+    defaultRoute: "common"
+    envs: "biohub.blast"
+
+
+# --- Options
+  options:
+
+    threads:
+      threads:
+        name: "-num_threads"
+
+    common:
+      outputFormat:
+        name: "-outfmt"
+        value: 5
+
+# --- Inputs
+  inputs:
+
+    common:
+
+      query:
+        inputName: "-query"
+        outlines:
+          required: ["query"]
+
+      database:
+        inputName: "-in"
+        outlines:
+          required: ["genome"]
+
+# --- Outputs
+  outputs:
+
+    common:
+
+      genome:
+        temporal: "eval##str(self.temporalDirectory) + '/' + 'blast_result'"
+        extension: ".xml"
+        outlines: ["blastn result"]
+
+...

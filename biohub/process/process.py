@@ -599,7 +599,7 @@ class Process(BioHubClass):
 
 
         optimalFieldView = [(field, value) for field in optimal for value in optimal[field]]
-        while optimalFieldView:
+        while True:
 
             fieldView = copy.deepcopy(required)
             for field, value in optimalFieldView:
@@ -618,6 +618,8 @@ class Process(BioHubClass):
 
             else:
                 optimalFieldView = optimalFieldView[:-1]
+
+            if len(optimalFieldView) == 0: break
 
         return None
 
@@ -907,7 +909,7 @@ class Process(BioHubClass):
     def _coreProcess(self,
                      inputs: dict = {},
                      outputs: dict = {},
-                     options: str = "") -> None:
+                     options: dict = {}) -> None:
 
         self.runCondaPackage(self.sentence.replace("PRinstruct", self.instruct)\
                                           .replace("PRoptions", " ".join([str(element) for element in options.values()]))\
