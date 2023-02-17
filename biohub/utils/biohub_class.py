@@ -9,6 +9,8 @@ from pattern.en import singularize
 CHARACTERS = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 NCHARS = 15
 
+DATEFORMAT = "%Y/%b/%d %H:%M:%S"
+
 
 class BioHubClass:
 
@@ -37,19 +39,20 @@ class BioHubClass:
         for attr, value in attrs.items():
             setattr(self, attr, value)
 
-        for attr in self.specialAttrs:
-            getattr(self, attr)
+        self.minimumBuild()
 
 
 
-    def newId(self):
-
-        biohubId = "".join(random.choices(CHARACTERS, k = NCHARS))
-
-        return biohubId
+    def newId(self) -> str:
+        return "".join(random.choices(CHARACTERS, k = NCHARS))
 
 
-    #  Getters__________________________________________________________________________________________________________
+
+    def minimumBuild(self) -> None:
+
+        if not hasattr(self, "id"): self.id = self.newId()
+        if not hasattr(self, "date"): self.date = datetime.now()
+
 
     @property
     def id(self) -> str:
@@ -71,88 +74,130 @@ class BioHubClass:
         return datetime.strptime(biohubDate, "%Y/%b/%d %H:%M:%S")
 
 
+    #%%  XML special tags_______________________________________________________________________________________________
+
+
     @property
-    def specialAttrs(self) -> set:
-        return {"id", "name", "date", "comment", "outlines", "tags"}
+    def _xmlElementTags(self) -> set: return {"id", "outlines", "tags"}
+
+    @property
+    def _xmlAttributeTags(self) -> set: return {"comment"}
+
+    @property
+    def _xmlSpecialTags(self) -> set: return {"date"}
 
 
-    #  Attributes management____________________________________________________________________________________________
+    #%%  Getters built-in methods_______________________________________________________________________________________
 
 
     def __getattribute__(self, attr: str) -> Any:
 
-        #  En el caso de que el atributo consultado se encuentre dentro de las palabras clave recogidas
-        #  dentro del elemento XML
-        if attr in super().__getattribute__("specialAttrs"):
-
-            #  Atributos que son atributos del elemento XML
-            if attr in {"date", "comment"}:
-
-                try:
-                    if attr == "date": return datetime.strptime(self._xmlElement.attrib[attr], "%Y/%b/%d %H:%M:%S")
-                    else: return self._xmlElement.attrib[attr]
-
-                except KeyError:
-                    try: return super().__getattribute__(attr)
-                    except AttributeError: return None
-
-            #  Si es un subelemento del elemento XML
-            else:
-
-                value = self._xmlElement.find(attr)
-
-                if value != None:
-
-                    if attr == "path": return Path(value.text)
-
-                    #  Es un elemento XML con sublementos XML
-                    elif len(list(value.iter())) > 1:
-                        return {subelement.text for subelement in value}
-
-                    #  Es un elemento XML final
-                    else: return value.text
-
-                #  Si la palabra no está definida dentro del elemento XML porque no existe esa información
-                else:
-
-                    try: return super().__getattribute__(attr)
-                    except AttributeError: return None
-
-        #  Si no es una palabra clave del elemento XML
+        if attr in super().__getattribute__("_xmlElementTags"): return self.__getXmlElementTag__(attr)
+        elif attr in super().__getattribute__("_xmlAttributeTags"): return self.__getXmlAttributeTag__(attr)
+        elif attr in super().__getattribute__("_xmlSpecialTags"): return self.__getXmlSpecialTag__(attr)
         else: return super().__getattribute__(attr)
 
 
 
+    def __getXmlElementTag__(self, attr: str) -> Any:
+
+        value = self._xmlElement.find(attr)
+
+        if value != None:
+
+            #  Nested element
+            if len(list(value.iter())) > 1:
+                return {subelement.text for subelement in value}
+
+            #  Single element
+            else:
+                return value.text
+
+
+        else:
+
+            try: return super().__getattribute__(attr)
+            except AttributeError: return None
+
+
+
+    def __getXmlAttributeTag__(self, attr: str) -> Any:
+
+        try: return self._xmlElement.attrib[attr]
+        except KeyError: return None
+
+
+
+    def __getXmlSpecialTag__(self, attr: str) -> Any:
+
+        if attr == "date":
+
+            try: return datetime.strptime(self._xmlElement.attrib[attr], DATEFORMAT)
+            except KeyError: return None
+
+        """
+        elif attr == "path":
+
+            try: return Path(self._xmlElement.find(attr).text)
+            except TypeError: return None
+        """
+
+    #%%  Setters built-in methods_______________________________________________________________________________________
+
+
     def __setattr__(self, attr: str, value: Any) -> None:
 
-        #  Atributos que son atributos del elemento XML
-        if attr in self.specialAttrs:
+        if attr in self._xmlElementTags: self.__setXmlElementTag__(attr, value)
+        elif attr in self._xmlAttributeTags: self.__setXmlAttributeTag__(attr, value)
+        elif attr in self._xmlSpecialTags: self.__setXmlSpecialTag__(attr, value)
+        else: super().__setattr__(attr, value)
 
-            if attr in {"date", "comment"}:
+
+
+    def __setXmlElementTag__(self, attr: str, value: Any) -> None:
+
+        if getattr(self, attr) is not None:
+            self._xmlElement.remove(attr)
+
+        subelement = ET.SubElement(self._xmlElement, attr)
+
+        if isinstance(value, (list, tuple, set)):
+
+            for subValue in value:
+
+                subsubelement = ET.SubElement(subelement, singularize((attr)))
+                subsubelement.text = subValue
+
+        else: subelement.text = str(value)
+
+
+
+    def __setXmlAttributeTag__(self, attr: str, value: Any) -> None:
+
+        self._xmlElement.attrib[attr] = str(value)
+
+
+
+    def __setXmlSpecialTag__(self, attr: str, value: Any) -> None:
+
+        if attr == "date":
+
+            if isinstance(value, datetime):
+                self._xmlElement.attrib[attr] = value.strftime(DATEFORMAT)
+
+            elif isinstance(value, str):
                 self._xmlElement.attrib[attr] = value
 
-            #  Si es un subelemento del elemento XML
-            else:
+        """
+        elif attr == "path":
 
-                if (aux := self._xmlElement.find(attr)) != None:
-                    self._xmlElement.remove(aux)
+            if getattr(self, attr) is not None:
+                self._xmlElement.remove(attr)
 
-                #  Es un dato iterable
-                if isinstance(value, (list, tuple, set)):
-                    subelement = ET.SubElement(self._xmlElement, attr)
+            subelement = ET.SubElement(self._xmlElement, attr)
+            subelement.text = str(value)
+        """
 
-                    for subvalue in value:
-                        subsubelement = ET.SubElement(subelement, singularize(attr))
-                        subsubelement.text = subvalue
-
-                #  Es un dato simple
-                else:
-
-                    subelement = ET.SubElement(self._xmlElement, attr)
-
-                    subelement.text = str(value)
-
-        else: super().__setattr__(attr, value)
 
 
     #  Magic methods____________________________________________________________________________________________________

@@ -21,7 +21,7 @@ class BioHubContainer(BioHubClass):
             path = Path(path)
 
         self._xml = Xml(path = path)
-        
+
         self.path = path.parent
 
         super().__init__(xmlElement = self._xml.get(tag = "metadata")[0],
@@ -80,24 +80,22 @@ class BioHubContainer(BioHubClass):
     def selectPipeline(self, **filt) -> list: return self.selectInfoBlock("pipeline", **filt)
 
 
-    #  Getters__________________________________________________________________________________________________________
-
-    @property
-    def specialAttrs(self) -> set:
-        return super().specialAttrs | {"name"}
+    #%%  XML special tags_______________________________________________________________________________________________
 
 
     @property
-    def containerSpecialAttrs(self) -> set:
-        return {"files", "processes", "pipelines"}
+    def _xmlElementTags(self) -> set: return {"name"} | super()._xmlElementTags
+
+    @property
+    def _xmlSpecialTags(self) -> set: return {"files", "processes", "pipelines"} | super()._xmlSpecialTags
 
 
-    #  Attributes management____________________________________________________________________________________________
+    #%%  Getters built-in methods_______________________________________________________________________________________
 
 
-    def __getattribute__(self, attr: str) -> Any:
+    def __getXmlSpecialTag__(self, attr: str) -> Any:
 
-        if attr in super().__getattribute__("containerSpecialAttrs"):
+        if attr in {"files", "processes", "pipelines"}:
 
             from biohub.file import File
             from biohub.process import Process
@@ -105,14 +103,21 @@ class BioHubContainer(BioHubClass):
             aux = {}
             for subelement in self._xml.get(tag = attr)[0]:
 
+                #  Creating an instance with xml info
                 instance = locals()[subelement.tag.capitalize()](xmlElement = subelement, entity = self)
 
+                #  Adding to dictionary with id as key, instance as value
                 aux[subelement.find("id").text] = instance
 
             return aux
 
-        else:
-            return super().__getattribute__(attr)
+        else: return super().__getXmlSpecialTag__(attr)
+
+
+
+    def __setXmlSpecialTag__(self, attr: str, value: Any) -> None:
+        super().__setXmlSpecialTag__(attr, value)
+        # TODO here
 
 
     #  Saving methods___________________________________________________________________________________________________
