@@ -1,0 +1,26 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.resfinder"
+
+    },
+
+    "implementation" : {
+
+        "defaultRoute": "common",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "trim_galore"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs>"
+            }
+        ]
+    }
+}

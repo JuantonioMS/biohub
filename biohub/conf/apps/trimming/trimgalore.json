@@ -1,0 +1,119 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.trimgalore"
+    },
+
+    "implementation" : {
+
+        "defaultRoute": "paired",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "trim_galore"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs>"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--cores",
+            "alternativeName": "-j"
+        },
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--output_dir",
+            "alternativeName": "-o"
+        },
+        {
+            "route": "common",
+            "role": "temporalName",
+            "name": "--basename",
+            "value": "trimmed"
+        },
+        {
+            "route": "paired",
+            "role": "pairedFlag",
+            "name": "--paired",
+            "value": true
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "paired",
+            "role": "forward",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward"],
+                    "optimal": ["raw"]
+                }
+            ]
+        },
+        {
+            "route": "paired",
+            "role": "reverse",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse"],
+                    "optimal": ["raw"]
+                }
+            ]
+        },
+        {
+            "route": "single",
+            "role": "single",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads"],
+                    "optimal": ["raw"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "paired",
+            "role": "forward",
+            "temporal": "->eval##options['temporalName'].value<-_val_1.fq.gz",
+            "extension": ".fq.gz",
+            "outlines": ["forward"]
+        },
+        {
+            "route": "paired",
+            "role": "reverse",
+            "temporal": "->eval##options['temporalName'].value<-_val_2.fq.gz",
+            "extension": ".fq.gz",
+            "outlines": ["reverse"]
+        },
+        {
+            "route": "single",
+            "role": "single",
+            "temporal": "->eval##options['temporalName'].value<-_trimmed.fq.gz",
+            "extension": ".fq.gz"
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["reads"],
+            "process": ["reads"]
+        }
+    ]
+}

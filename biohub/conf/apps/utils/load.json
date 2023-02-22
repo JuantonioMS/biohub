@@ -1,0 +1,9 @@
+{
+    "outlines": [
+        {
+            "route": "common",
+            "process": ["load"],
+            "output": ["loaded"]
+        }
+    ]
+}

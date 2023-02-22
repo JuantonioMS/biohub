@@ -1,0 +1,9 @@
+{
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["annotation"],
+            "process": ["annotation"]
+        }
+    ]
+}

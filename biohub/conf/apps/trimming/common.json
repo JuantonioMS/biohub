@@ -1,0 +1,9 @@
+{
+    "outlines": [
+        {
+            "route": "common",
+            "process": ["trimming"],
+            "output": ["trimmed"]
+        }
+    ]
+}

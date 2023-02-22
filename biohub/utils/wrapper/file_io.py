@@ -1,8 +1,13 @@
-from typing import Any
+from typing import Union, Any
 from os.path import getsize
 from pathlib import Path
 
+from biohub.file import File
+
 from biohub.utils.wrapper import Wrapper
+
+DEFAULT_FILE = "file.txt"
+DEFAULT_EXTENSION = ".txt"
 
 
 class FileIO(Wrapper):
@@ -17,6 +22,12 @@ class FileIO(Wrapper):
         except AttributeError: return None
 
 
+    @biohubFile.setter
+    def biohubFile(self, value: Union[Path, File]) -> None:
+
+        self._biohubFile = value
+
+
     @property
     def path(self) -> Path:
 
@@ -29,6 +40,16 @@ class FileIO(Wrapper):
 
             try: return Path(self._pathPrefix, self.biohubFile.path)
             except AttributeError: return self.biohubFile.path
+
+    @property
+    def pathPrefix(self) -> Path:
+
+        try: return self._pathPrefix
+        except AttributeError: return Path()
+
+    @pathPrefix.setter
+    def pathPrefix(self, value: Path) -> Path:
+        self._pathPrefix = Path(value)
 
 
     @property
@@ -84,6 +105,17 @@ class FileIO(Wrapper):
         else:
             return self.biohubFile.size
 
+    @property
+    def evalAttributes(self) -> set:
+        return {"name"} | super().evalAttributes
+
+
+    @property
+    def name(self):
+
+        try: return self._name
+        except AttributeError: return ""
+
 
     @property
     def exists(self) -> bool:
@@ -95,7 +127,15 @@ class FileIO(Wrapper):
 
     def __hash__(self) -> int: return hash(self.id)
 
-    def __str__(self) -> str: return self.id
+
+    def __str__(self) -> str:
+        msg = self.format
+
+        if self.name: msg = msg.replace("<name>", self.name)
+        else: msg = msg.replace("<name>", "")
+
+        return msg
+
 
     def __eq__(self, other: object) -> bool:
 
@@ -108,19 +148,18 @@ class FileIO(Wrapper):
 
 class Input(FileIO):
 
-
     @property
-    def inputName(self) -> str:
-
-        """Get inputName option if setted, else get str()"""
-
-        try: return self._inputName
-        except AttributeError: return ""
-
+    def selection(self):
+        try: return self._selection
+        except AttributeError: return []
 
 
     def __str__(self) -> str:
-        return f"{self.inputName} {self.path}" if self.inputName else f"{self.path}"
+
+        msg = super().__str__().replace("<value>", str(self.path))
+
+        return msg.strip()
+
 
 
 
@@ -128,12 +167,8 @@ class Output(FileIO):
 
 
     @property
-    def outputName(self) -> str:
-
-        """Get outputName option if setted, else get str()"""
-
-        try: return self._outputName
-        except AttributeError: return ""
+    def evalAttributes(self) -> set:
+        return {"extension", "temporal"} | super().evalAttributes
 
 
     @property
@@ -142,9 +177,39 @@ class Output(FileIO):
         """Get temporal output file"""
 
         try: return self._temporal
-        except AttributeError: return None
+        except AttributeError: return DEFAULT_FILE
 
+    @temporal.setter
+    def temporal(self, value: str) -> None:
+        self._temporal = value
+
+
+    @property
+    def outlines(self) -> set:
+
+        try: return self._outlines
+        except AttributeError: return set()
+
+
+    @outlines.setter
+    def outlines(self, value: set) -> None:
+
+        self._outlines = value
+
+
+    @property
+    def extension(self) -> str:
+
+        try: return self._extension
+        except AttributeError: return DEFAULT_EXTENSION
+
+    @extension.setter
+    def extension(self, value: str) -> None:
+        self._extension = value
 
 
     def __str__(self) -> str:
-        return f"{self.outputName} {self.temporal}" if self.outputName else f"{self.temporal}"
+
+        msg = super().__str__().replace("<value>", str(self.temporal))
+
+        return msg.strip()

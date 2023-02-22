@@ -116,8 +116,13 @@ class BioHubContainer(BioHubClass):
 
 
     def __setXmlSpecialTag__(self, attr: str, value: Any) -> None:
-        super().__setXmlSpecialTag__(attr, value)
-        # TODO here
+
+        if attr in {"files", "processes", "pipelines"}:
+
+            if getattr(self, attr) is None:
+                ET.SubElement(self._xml.root, attr)
+
+        else: super().__setXmlSpecialTag__(attr, value)
 
 
     #  Saving methods___________________________________________________________________________________________________

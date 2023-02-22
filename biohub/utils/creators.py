@@ -100,7 +100,7 @@ class EntityCreator:
                         shell = True,
                         executable = "/bin/bash")
 
-        project = ET.Element("subject")
+        project = ET.Element("project")
         metadata = ET.SubElement(project, "metadata")
 
         metadata.attrib["date"] = datetime.now().strftime("%Y/%b/%d %H:%M:%S")

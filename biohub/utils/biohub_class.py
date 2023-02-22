@@ -28,7 +28,6 @@ class BioHubClass:
         if not xmlElement:
             xmlElement = ET.Element("default")
 
-
         self._xmlElement = xmlElement
 
         #  Si es un elemento por defecto, se cambia el nombre al de la clase
@@ -50,28 +49,11 @@ class BioHubClass:
 
     def minimumBuild(self) -> None:
 
-        if not hasattr(self, "id"): self.id = self.newId()
-        if not hasattr(self, "date"): self.date = datetime.now()
+        if self.id is None:
+            self.id = self.newId()
 
-
-    @property
-    def id(self) -> str:
-
-        biohubId = self.newId()
-
-        self.id = biohubId
-
-        return biohubId
-
-
-    @property
-    def date(self) -> datetime:
-
-        biohubDate = datetime.now().strftime("%Y/%b/%d %H:%M:%S")
-
-        self.date = biohubDate
-
-        return datetime.strptime(biohubDate, "%Y/%b/%d %H:%M:%S")
+        if self.date is None:
+            self.date = datetime.now()
 
 
     #%%  XML special tags_______________________________________________________________________________________________
@@ -132,15 +114,10 @@ class BioHubClass:
 
         if attr == "date":
 
+
             try: return datetime.strptime(self._xmlElement.attrib[attr], DATEFORMAT)
             except KeyError: return None
 
-        """
-        elif attr == "path":
-
-            try: return Path(self._xmlElement.find(attr).text)
-            except TypeError: return None
-        """
 
     #%%  Setters built-in methods_______________________________________________________________________________________
 
@@ -187,17 +164,6 @@ class BioHubClass:
 
             elif isinstance(value, str):
                 self._xmlElement.attrib[attr] = value
-
-        """
-        elif attr == "path":
-
-            if getattr(self, attr) is not None:
-                self._xmlElement.remove(attr)
-
-            subelement = ET.SubElement(self._xmlElement, attr)
-            subelement.text = str(value)
-        """
-
 
 
     #  Magic methods____________________________________________________________________________________________________

@@ -1,10 +1,13 @@
 from xml.etree import ElementTree as ET
 from pathlib import Path
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 import rich
 from typing import Union, Any
 
+from pattern.en import singularize
+
+import json
 
 import copy
 
@@ -15,9 +18,14 @@ from biohub.utils.wrapper import Input, Output, Option
 from biohub.file import File
 
 
-CONFDIRECTORY = Path(Path(__file__).parent, "../conf")
+APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../conf"), "apps")
 
-APPSDIRECTORY = Path(CONFDIRECTORY, "apps")
+DEFAULT_TYPE = "system"
+DEFAULT_ENVIRONMENT = "base"
+DEFAULT_ROUTE = "common"
+DEFAULT_SENTENCE = "<command> <inputs> <options>"
+
+DEFAULT_EXCLUDED_OPTIONS = ("threads", "outputDirectory")
 
 class Process(BioHubClass):
 
@@ -57,52 +65,175 @@ class Process(BioHubClass):
 
 
 
-    def __setattr__(self, attr: str, value: Any) -> None:
+    def minimumBuild(self) -> None:
 
-        #  Atributos que son atributos del elemento XML
+        if self.framework is None:
+            self.framework = self.__class__.__base__.__name__.lower()
+
+        if self.tool is None:
+            self.tool = self.__class__.__name__.lower()
+
+        if self.type is None:
+
+            try: self.type = self.jsonInfo["info"]["type"]
+            except KeyError: self.type = DEFAULT_TYPE
+
+
+        if self.environment is None:
+
+            try: self.environment = self.jsonInfo["info"]["environment"]
+            except KeyError: self.environment = DEFAULT_ENVIRONMENT
+
+        if self.route is None:
+
+            try: self.route = self.jsonInfo["implementation"]["defaultRoute"]
+            except KeyError: self.route = DEFAULT_ROUTE
+
+        super().minimumBuild()
+
+
+
+    @property
+    def jsonInfo(self) -> dict:
+
+        try: return json.load(open(f"{APPS_DIRECTORY}/{self.framework}/{self.tool}.json"))
+        except FileNotFoundError: return {}
+
+
+    #%%  XML special tags_______________________________________________________________________________________________
+
+
+    @property
+    def _xmlElementTags(self) -> set: return {"framework", "tool", "route",
+                                              "type", "environment"} | super()._xmlElementTags
+
+    @property
+    def _xmlSpecialTags(self) -> set:
+        return {"duration", "inputs", "outputs", "options"} | super()._xmlSpecialTags
+
+
+    #%%  Getters built-in methods_______________________________________________________________________________________
+
+    def __getXmlSpecialTag__(self, attr: str) -> Any:
+
         if attr == "duration":
 
-            self._xmlElement.attrib[attr] = str(value)
+            try:
 
-        else: super().__setattr__(attr, value)
+                duration = self._xmlElement.attrib[attr]
+
+                hours, minutes, seconds = duration.split(":")
+                seconds, microseconds = seconds.split(".")
+
+                return timedelta(hours = int(hours),
+                                 minutes = int(minutes),
+                                 seconds = int(seconds),
+                                 microseconds = int(microseconds))
+
+            except KeyError: return None
 
 
-
-
-
-
-
-    def __getattribute__(self, attr: str):
-
-        """
-        Modificado para retornar de forma diferente los inputs y outputs como objectos Files
-        """
-
-        if attr in super().__getattribute__("processSpecialAttrs"):
-
-            files = self._xmlElement.find(attr)
+        elif attr in {"inputs", "outputs"}:
 
             aux = {}
-            if files is not None:
-                for file in files:
 
-                    if "/" in file.text: #  Si es un fichero externo se retorna el Path
-                        aux[file.text] = Path(file.text)
-                    else: #  Si es un fichero BioHub se retorna el objeto
+            element = self._xmlElement.find(attr)
 
-                        if file.text in self.entity.files:
-                            aux[file.text] = self.entity.files[file.text]
+            if element is not None:
+                for subelement in element:
 
-                        else: #  Si el fichero ya no existe en la fuente, retorna None
-                            aux[file.text] = None
+                    #  It is a Path
+                    if "/" in subelement.text:
+                        aux[subelement.attrib["role"]] = Input(biohubFile = Path(subelement.text),
+                                                               role = subelement.attrib["role"])
+
+                    #  Is is an ID
+                    else:
+
+                        if attr == "inputs":
+                            wrapper = Input(biohubFile = self.entity.files[subelement.text],
+                                            role = subelement.attrib["role"])
+                        else:
+
+                            wrapper = Output(biohubFile = self.entity.files[subelement.text],
+                                             role = subelement.attrib["role"])
+
+                        aux[subelement.attrib["role"]] = wrapper
 
             return aux
 
-        if attr == "duration":
-            try: return self._xmlElement.attrib[attr]
-            except KeyError: return ""
 
-        else: return super().__getattribute__(attr)
+        elif attr == "options":
+
+            aux = {}
+
+            element = self._xmlElement.find(attr)
+
+            if element is not None:
+
+                for subelement in element:
+
+                    role = subelement.attrib["role"]
+
+                    for char in (" ", ":", "="):
+
+                        if char in subelement.text:
+
+                            name, value = subelement.text.split(char)
+                            format = f"<name>{char}<value>"
+
+                            aux[role] = Option(name = name,
+                                               value = value,
+                                               format = format,
+                                               role = role)
+
+                            break
+
+                    else:
+                        name, value = subelement.text, True
+
+                        aux[role] = Option(name = name,
+                                           value = value,
+                                           role = role)
+
+            return aux
+
+        else: return super().__getXmlSpecialTag__(attr)
+
+
+    #%%  Setters built-in methods_______________________________________________________________________________________
+
+
+    def __setXmlSpecialTag__(self, attr: str, value: Any) -> None:
+
+
+        if attr == "duration":
+
+            if isinstance(value, timedelta):
+
+                hours = int(value.total_seconds()//3600)
+                minutes = f"{int(value.total_seconds()/60%60):0>2}"
+                seconds = f"{int(value.total_seconds()%60):0>2}"
+                microseconds = f"{value.microseconds:0>6}"
+
+                self._xmlElement.attrib[attr] = f"{hours}:{minutes}:{seconds}.{microseconds}"
+
+        elif attr in {"inputs", "outputs", "options"}:
+
+            container = ET.SubElement(self._xmlElement, attr)
+
+            for subValue in value.values():
+
+                subelement = ET.SubElement(container, singularize(attr))
+                subelement.attrib["role"] = subValue.role
+
+                if attr != "options": subelement.text = subValue.id
+                else: subelement.text = str(subValue)
+
+        else: return super().__setXmlSpecialTag__(attr, value)
+
+
+    #%%  _______________________________________________________________________________________________________________
 
 
     #  _________________________CLI Run Methods_________________________
@@ -139,7 +270,7 @@ class Process(BioHubClass):
         condaShell = "/".join(subprocess.getoutput("which conda").split("/")[:-2])
 
         if not env:
-            env = self.env
+            env = self.environment
 
         #  Ruta completa a la shell de conda
         condaShell = f"{condaShell}/etc/profile.d/conda.sh"
@@ -158,6 +289,15 @@ class Process(BioHubClass):
 
         else:
             return output.returncode
+
+
+    #  TODO
+    def runSingularityPackage(self, *args):
+        return ""
+
+    #  TODO
+    def runSystemPackage(self, *args):
+        return ""
 
 
     #%% Prints__________________________________________________________________________________________________________
@@ -179,80 +319,6 @@ class Process(BioHubClass):
 
 
     @property
-    def toolYamlInfo(self) -> dict:
-        return readYaml(f"{APPSDIRECTORY}/{self.framework}/{self.tool}.yaml")
-
-    @property
-    def frameworkYamlInfo(self) -> dict:
-        return readYaml(f"{APPSDIRECTORY}/{self.framework}/common.yaml")
-
-    @property
-    def specialAttrs(self) -> set:
-        return super().specialAttrs.union({"framework", "tool", "route", "duration",
-                                           "env", "options", "inputs", "outputs"})
-
-    @property
-    def processSpecialAttrs(self) -> set:
-        return {"inputs", "outputs"}
-
-
-    @property
-    def framework(self) -> str:
-
-        """Marco de trabajo del proceso (ej. Unicycler -> assembly)"""
-
-        framework = self.__class__.__base__.__name__.lower()
-
-        self.framework = framework
-
-        return framework
-
-
-
-    @property
-    def tool(self) -> str:
-
-        """Nombre de la herramienta del proceso (ej. Unicycler -> unicycler)"""
-
-
-        tool = self.__class__.__name__.lower()
-
-        self.tool = tool
-
-        return tool
-
-
-
-    @property
-    def env(self) -> str:
-
-        """Nombre del entorno de conda que tiene la herramienta (ej. Unicycler -> biohub.unicycler)
-        Si no existe un entorno para esa herramienta, se retorna 'base'"""
-
-        try: auxEnv = self.toolYamlInfo["info"]["envs"]
-        except KeyError: auxEnv = "base" #  Si no está definido
-
-        self.env = auxEnv
-
-        return auxEnv
-
-
-
-    @property
-    def route(self) -> str:
-
-        """Ruta por defecto del proceso. Si no está especificada, por defecto es common"""
-
-        try: auxRoute = self.toolYamlInfo["info"]["defaultRoute"]
-        except KeyError: auxRoute = "common" #  Si no está definido
-
-        self.route = auxRoute
-
-        return auxRoute
-
-
-
-    @property
     def temporalDirectory(self) -> Path:
         return Path(self.entity.path, "files/tmp")
 
@@ -266,19 +332,19 @@ class Process(BioHubClass):
         aux = {"process" : set(),
                "output"  : set()}
 
+        try: frameworkInfo = json.load(open(f"{APPS_DIRECTORY}/{self.framework}/common.json"))
+        except FileNotFoundError: frameworkInfo = {}
 
-        if "outlines" in self.toolYamlInfo:
+        for info in (self.jsonInfo, frameworkInfo):
 
-            for route in ("common", self.route):
-                for keyWord in aux.keys():
+            if "outlines" in info:
 
-                    try: aux[keyWord] |= set(self.toolYamlInfo["outlines"][route][keyWord])
-                    except KeyError: pass
+                for element in info["outlines"]:
+                    if element["route"] in (self.route, "common"):
+                        for keyWord in ("process", "output"):
 
-        if "outlines" in self.frameworkYamlInfo:
-
-            for keyWord in self.frameworkYamlInfo["outlines"]["common"]:
-                aux[keyWord] |= set(self.frameworkYamlInfo["outlines"]["common"][keyWord])
+                            try: aux[keyWord] |= set(element[keyWord])
+                            except KeyError: pass
 
         return aux
 
@@ -330,10 +396,10 @@ class Process(BioHubClass):
                                    **extraAttrs)
 
         #  4. Aplicamos los condicionales para eliminar aquellos que no cumplan la condición
-        inputs, outputs, options = self._applyEvalSentences(entity = self.entity,
-                                                            inputs = inputs,
+        inputs, outputs, options = self._applyEvalSentences(inputs = inputs,
                                                             outputs = outputs,
-                                                            options = options)
+                                                            options = options,
+                                                            **extraAttrs)
 
         #  5. Eliminamos los elementos condicionales no resueltos satisfactoriamente
         inputs, outputs, options = self._purgeConditionals(inputs = inputs,
@@ -385,7 +451,7 @@ class Process(BioHubClass):
                              outputs = outputs)
 
         #  14. Retornar los outputs
-        return self._extractOutputs(outputs)
+        return self.extractOutputs(process)
 
 
     #%%  1. Set options_________________________________________________________________________________________________
@@ -398,31 +464,20 @@ class Process(BioHubClass):
 
         auxDefaultOptions = {}
 
-        #  Get all options for process
-        try: allOptions = self.toolYamlInfo["options"]
-        except KeyError: allOptions = {}
+        try: allOptions = self.jsonInfo["options"]
+        except KeyError: allOptions = []
 
-        #  Select common route options
-        for route in ("threads", "common", self.route):
+        for element in allOptions:
 
-            #  Step 1. Threads options
-            #  Step 2. Common route options
-            #  Step 3. Specific route options
+            if element["route"] in ("common", self.route):
 
-            try:
+                if element["role"] == "threads":
+                    element["value"] = self.threads
 
-                for role, optionInfo in allOptions[route].items():
+                elif element["role"] == "outputDirectory":
+                    element["value"] = self.temporalDirectory
 
-                    if route == "threads":
-                        auxDefaultOptions[optionInfo["name"]] = Option(role = role,
-                                                                       value = self.threads,
-                                                                       **optionInfo)
-
-                    else:
-                        auxDefaultOptions[optionInfo["name"]] = Option(role = role,
-                                                                       **optionInfo)
-
-            except KeyError: pass
+                auxDefaultOptions[element["role"]] = Option(**element)
 
         return auxDefaultOptions
 
@@ -436,19 +491,43 @@ class Process(BioHubClass):
 
         auxOptions = {}
 
+        count = 1
+
         for key, value in options.items():
 
             if isinstance(value, Option): #  El usuario a seteado la opción con el Wrapper
-                options[value.name] = value
+                options[value.role] = value
 
             else: #  El usuario ha indicado la opción con el estilo <name> : <value>
-                options[key] = Option(name = key, value = value)
+                options[f"unknown_{count}"] = Option(role = f"unknown_{count}",
+                                                     name = key,
+                                                     value = value)
+                count += 1
 
 
-        for name, option in self.defaultOptions.items():
 
-            if not any([option.name in list(options.keys()), option.alternative in list(options.keys())]):
-                auxOptions[name] = option
+        rolesToDel = []
+        for defaultRole, defaultOption in self.defaultOptions.items():
+
+
+            if not any([defaultOption.name in [userOption.name for userOption in options.values()],
+                        defaultOption.alternativeName in [userOption.name for userOption in options.values()]]):
+
+                auxOptions[defaultRole] = defaultOption
+
+
+            else:
+                for userRole, userOption in options.items():
+                    if any([defaultOption.name == userOption.name, defaultOption.alternativeName == userOption.name]):
+
+                        userOption._role = defaultOption.role
+                        userOption._alternativeName = defaultOption.alternativeName
+
+                        options[defaultRole] = userOption
+                        rolesToDel.append(userRole)
+
+        for roleToDel in rolesToDel:
+            del options[roleToDel]
 
         auxOptions.update(options)
 
@@ -459,25 +538,21 @@ class Process(BioHubClass):
 
 
     @property
-    def defaultInputs(self):
+    def defaultInputs(self) -> dict:
+
+        """Get default options for common route and specfic route from conf/apps/<tool>.yaml"""
 
         auxDefaultInputs = {}
 
-        try: allInputs = self.toolYamlInfo["inputs"]
-        except KeyError: allInputs = {}
+        try: allInputs = self.jsonInfo["inputs"]
+        except KeyError: allInputs = []
 
         for route in ("common", self.route):
+            for element in allInputs:
 
-            #  Step 1. Common route inputs
-            #  Step 2. Specific route inptus
+                if element["route"] == route:
 
-            try:
-
-                for role, inputInfo in allInputs[route].items():
-
-                    auxDefaultInputs[role] = inputInfo
-
-            except KeyError: pass
+                    auxDefaultInputs[element["role"]] = Input(**element)
 
         return auxDefaultInputs
 
@@ -494,9 +569,9 @@ class Process(BioHubClass):
         inputs = self._createPendingInputs(**inputs)
 
         if any(input is None for input in inputs.values()):
-            return {}
-        else:
-            return inputs
+            inputs = {}
+
+        return inputs
 
 
 
@@ -529,18 +604,18 @@ class Process(BioHubClass):
 
         auxInputs = {}
 
-        for role, input in defaultInputs.items():
+        for role, defaultInput in defaultInputs.items():
 
             if role in inputs: #  El usuario ha definido el input
 
                 #  Si existe un prefijo para el input y el usuario no lo ha definido previamente (via Wrapper)
-                if "inputName" in input and not hasattr(inputs[role], "_inputsName"):
-                    setattr(inputs[role], "_inputName", input["inputName"]) #  Setea el inputName
+                if defaultInput.name and not inputs[role].name:
+                    inputs[role]._name = defaultInput.name
 
                 auxInputs[role] = inputs[role] #  Cargamos el input
 
             #  Si no ha definido el input
-            else: auxInputs[role] = input
+            else: auxInputs[role] = defaultInput
 
         return auxInputs
 
@@ -550,54 +625,53 @@ class Process(BioHubClass):
 
         auxInputs = {}
 
-        for role, inputInfo in inputs.items():
+        for role, input in inputs.items():
 
-            if isinstance(inputInfo, Input): auxInputs[role] = inputInfo
-
+            if input.evalPending: auxInputs[role] = input
             else:
-
-                if not "condition" in inputInfo:
-                    auxInputs[role] = self._createInput(role, inputInfo)
+                if hasattr(input, "_biohubFile"):
+                    auxInputs[role] = input
 
                 else:
-                    auxInputs[role] = inputInfo
+                    auxInputs[role] = self._createInput(input)
 
         return auxInputs
 
 
 
-    def _createInput(self,
-                     role: str,
-                     inputInfo: dict) -> Union[Input, None]:
+    def _createInput(self, input: Input) -> Union[Input, None]:
 
-        input = self._selectInput(inputInfo)
+        file = self._selectInput(input.selection)
 
-        if input:
+        if file: input.biohubFile = file
+        else: input = None
 
-            input = Input(role = role,
-                          biohubFile = input,
-                          pathPrefix = self.entity.path,
-                          **inputInfo)
+        input.pathPrefix = self.entity.path
 
         return input
 
 
 
-    def _selectInput(self, inputInfo: dict) -> any:
+    def _selectInput(self, info: list) -> Union[File, None]:
 
-        required, optimal = {}, {}
+        field = {"required" : {},
+                 "optimal"  : {}}
 
-        for field in inputInfo:
+        for element in info:
 
-            #  No son elementos que podamos buscar
-            if field not in ("inputName", "condition"):
+            for priority in ("required", "optimal"):
 
-                try: required[field] = set(inputInfo[field]["required"])
+                try:
+
+                    value = element[priority]
+
+                    if isinstance(value, list): field[priority][element["target"]] = set(value)
+                    else: field[priority][element["target"]] = value
+
                 except KeyError: pass
 
-                try: optimal[field] = inputInfo[field]["optimal"]
-                except KeyError: pass
 
+        required, optimal = field["required"], field["optimal"]
 
         optimalFieldView = [(field, value) for field in optimal for value in optimal[field]]
         while True:
@@ -625,31 +699,27 @@ class Process(BioHubClass):
         return None
 
 
-
     #%%  3. Set outputs_________________________________________________________________________________________________
 
 
     @property
-    def defaultOutputs(self):
+    def defaultOutputs(self) -> dict:
 
         auxDefaultOutputs = {}
 
-        try: allOutputs = self.toolYamlInfo["outputs"]
-        except KeyError: allOutputs = {}
+        try: allOutputs = self.jsonInfo["outputs"]
+        except KeyError: allOutputs = []
 
+        for element in allOutputs:
 
-        for route in ("common", self.route):
+            if element["route"] in ("common", self.route):
 
-            #  Step 1. Common route inputs
-            #  Step 2. Specific route inptus
+                element["temporal"] = str(self.temporalDirectory) + "/" + element["temporal"]
 
-            try:
+                try: element["outlines"] = set(element["outlines"])
+                except KeyError: element["outlines"] = set()
 
-                for role, outputInfo in allOutputs[route].items():
-
-                    auxDefaultOutputs[role] = outputInfo
-
-            except KeyError: pass
+                auxDefaultOutputs[element["role"]] = Output(**element)
 
         return auxDefaultOutputs
 
@@ -661,136 +731,93 @@ class Process(BioHubClass):
                     outputOutlines: set = set(),
                     **extraAttrs) -> dict:
 
-        outputs = self._createOutputs(outputOutlines = outputOutlines,
-                                      **extraAttrs)
-
-        return outputs
-
-
-
-    def _createOutputs(self,
-                       outputOutlines: set = set(),
-                       **extraAttrs) -> dict:
-
         auxOutputs = {}
 
-        for role, outputInfo in self.defaultOutputs.items():
+        for role, output in self.defaultOutputs.items():
 
-            if not any(["eval##" in outputInfo["temporal"],
-                        "eval##" in outputInfo["extension"],
-                        "condition" in outputInfo]):
+            #  Update file outlines
+            output.outlines = self.defaultOutputOutlines | output.outlines | outputOutlines
 
-                auxOutputs[role] = self._createOutput(role,
-                                                      outputInfo,
-                                                      outputOutlines = outputOutlines,
-                                                      **extraAttrs)
+            if output.evalPending:
+                auxOutputs[role] = output
 
-            else: auxOutputs[role] = outputInfo
+            else:
+                auxOutputs[role] = self._createOutput(output, **extraAttrs)
 
         return auxOutputs
 
 
+    def _createOutput(self, output: Output, **extraAttrs) -> Output:
 
-    def _createOutput(self,
-                      role: str,
-                      outputInfo: dict,
-                      outputOutlines: set = set(),
-                      **extraAttrs) -> Output:
+        file = File(path = Path(f"files/{File().newId()}{output.extension}"),
+                    outlines = output.outlines,
+                    **extraAttrs)
 
-        output = File(path = Path(f"files/{File().newId()}{outputInfo['extension']}"),
-                      outlines = self.defaultOutputOutlines |\
-                                 (set(outputInfo["outlines"]) if "outlines" in outputInfo else set()) |\
-                                 outputOutlines if isinstance(outputOutlines, set) else set(outputOutlines),
-                      **extraAttrs)
+        output.biohubFile = file
+        output.pathPrefix = self.entity.path
 
-        return Output(biohubFile = output, role = role, **outputInfo)
+        return output
+
 
 
     #%%  4. Eval sentences______________________________________________________________________________________________
 
 
     def _applyEvalSentences(self,
-                            entity: str = None,
                             inputs: dict = {},
                             outputs: dict = {},
-                            options: dict = {}) -> tuple:
+                            options: dict = {},
+                            **extraAttrs) -> tuple:
 
         count = True
         while count:
 
             count = 0
 
-            #  Sección de las opciones
-            for optionName, option in options.items():
+            for section in options, inputs, outputs: #  Para cada sección que puede variar
+                for role, wrap in section.items(): #  Para cada elemento
+                    if wrap.evalPending: #  Si tiene sentencias que evaluar
 
-                if any([isinstance(option.condition, str), False if not isinstance(option.value, str) else "eval##" in option.value]):
-                    for word in ("condition", "value"):
+                        for attr in wrap.evalAttributes: #  Para cada atributo que puede tener una sentencia
 
-                        if isinstance(info := getattr(option, word), str) and "eval##" in info:
-                            try:
+                            value = getattr(wrap, attr)
 
-                                result = evalSentence(info,
-                                                    entity = entity,
-                                                    inputs = inputs,
-                                                    outputs = outputs,
-                                                    options = options,
-                                                    self = self)
+                            if isinstance(value, str) and "eval##" in value:
 
-                                setattr(option, f"_{word}", result)
+                                sentence = "->" + value.split("->")[1].split("<-")[0] + "<-"
 
-                            except (NameError, AttributeError, KeyError, IndexError): break
+                                try:
 
-                    else:
-                        count += 1
+                                    result = evalSentence(sentence[2:-2],
+                                                          entity = self.entity,
+                                                          inputs = inputs,
+                                                          outputs = outputs,
+                                                          options = options,
+                                                          self = self)
+
+                                except (NameError, AttributeError, KeyError, IndexError): break
+
+                                #  Si la sentencia es toda la expresión (puede generar un dato diferente a str)
+                                if len(sentence) == len(value):
+                                    value = result
+
+                                else: #  Si es una cadena más larga, se remplaza la sentencia por el resultado
+                                    value = value.replace(sentence, str(result))
+
+                                #  Actualización del valor en el wrap
+                                setattr(wrap, attr, value)
+
+                                if not wrap.evalPending and wrap.condition: #  Si no quedan más sentencias por evaluar
+
+                                    #  Podemos crear el Output completo
+                                    if isinstance(wrap, Output):
+                                        outputs[role] = self._createOutput(wrap, **extraAttrs)
+
+                                    #  Podemos crear el Input completo
+                                    elif isinstance(wrap, Input): inputs[role] = self._createInput(wrap)
 
 
-            #  Sección de los inputs
-            for inputRole, inputInfo in inputs.items():
-
-                if isinstance(inputInfo, dict): #  Está pendiente de definir el Input
-                    for word in ("inputName", "condition"):
-
-                        if word in inputInfo and "eval##" in inputInfo[word]:
-
-                            try:
-                                result = evalSentence(inputInfo[word],
-                                                      entity = entity,
-                                                      inputs = inputs,
-                                                      outputs = outputs,
-                                                      options = options,
-                                                      self = self)
-
-                                inputInfo[word] = result
-
-                            except (NameError, AttributeError, KeyError, IndexError): break
-
-                    else:
-                        inputs[inputRole] = self._createInput(inputRole, inputInfo)
-                        count += 1
-
-            #  Sección de los outputs
-            for outputRole, outputInfo in outputs.items():
-
-                if isinstance(outputInfo, dict): #  Está pendiente de definir el Output
-                    for word in ("temporal", "condition", "extension"):
-
-                        if word in outputInfo and "eval##" in outputInfo[word]:
-
-                            try:
-                                result = evalSentence(outputInfo[word],
-                                                      entity = entity,
-                                                      inputs = inputs,
-                                                      outputs = outputs,
-                                                      options = options,
-                                                      self = self)
-
-                                outputInfo[word] = result
-
-                            except (NameError, AttributeError, KeyError, IndexError): break
-
-                    else:
-                        outputs[outputRole] = self._createOutput(outputRole, outputInfo)
-                        count += 1
+                        else: count += 1 #  Añadimos una señal de que algo se ha conseguido
 
         return inputs, outputs, options
 
@@ -803,14 +830,15 @@ class Process(BioHubClass):
                            outputs: dict = {},
                            options: dict = {}):
 
-        auxInputs = {key: value for key, value in inputs.items() \
-                                if isinstance(value, Input) and value.condition == True}
-        auxOutputs = {key: value for key, value in outputs.items() \
-                                 if isinstance(value, Output) and value.condition == True}
-        auxOptions = {key: value for key, value in options.items() \
-                                 if isinstance(value, Option) and value.condition == True}
+        aux = {"inputs"  : {},
+               "outputs" : {},
+               "options" : {}}
 
-        return auxInputs, auxOutputs, auxOptions
+        for field, section, dataType in zip(aux.keys(), (inputs, outputs, options), (Input, Output, Option)):
+
+            aux[field] = {key: value for key, value in section.items() \
+                                     if isinstance(value, dataType) and value.condition == True}
+        return aux["inputs"], aux["outputs"], aux["options"]
 
 
     #%%  6. Define process______________________________________________________________________________________________
@@ -833,11 +861,15 @@ class Process(BioHubClass):
 
         process.outlines = self.defaultProcessOutlines | processOutlines
 
-        process.inputs = {input.id for input in inputs.values()}
+        outputIds = {output.id for output in outputs.values()}
+        for output in outputs.values():
+            output = outputIds - {output.id}
 
-        process.outputs = {output.id for output in outputs.values()}
+        process.inputs = inputs
 
-        process.options = {str(option) for option in options.values() if option.role not in ("threads", "outputDirectory")}
+        process.outputs = outputs
+
+        process.options = {key : value for key, value in options.items() if value.role not in DEFAULT_EXCLUDED_OPTIONS}
 
         return process
 
@@ -859,33 +891,62 @@ class Process(BioHubClass):
     #%%  8. Extract duplicated outputs__________________________________________________________________________________
 
 
-    def extractOutputsFromProcess(self, process) -> dict:
-        return process.outputs
+    def extractOutputs(self, process) -> dict:
+
+        if not hasattr(process, "entity"):
+            process.entity = self.entity
+
+        return {role : output.biohubFile for role, output in process.outputs.items()}
 
 
     #%%  9. Run process_________________________________________________________________________________________________
 
 
     @property
-    def instruct(self) -> str:
+    def command(self) -> str:
+
+        aux = ""
 
         for route in (self.route, "common"):
 
-            try: return self.toolYamlInfo["execution"]["instruct"][route]
-            except KeyError: continue
+            if not aux:
 
-        return self.tool
+                try:
+                    for element in self.jsonInfo["implementation"]["commands"]:
+
+                        if element["route"] == route:
+                            aux = element["command"]
+                            break
+
+                except KeyError: continue
+
+        if not aux: aux = self.tool
+
+        return aux
 
 
     @property
     def sentence(self) -> str:
 
+        aux = ""
+
         for route in (self.route, "common"):
 
-            try: return self.toolYamlInfo["execution"]["sentence"][route]
-            except KeyError: continue
+            if not aux:
 
-        return "PRinstruct PRinputs PRoptions"
+                try:
+                    for element in self.jsonInfo["implementation"]["sentences"]:
+
+                        if element["route"] == route:
+                            aux = element["sentence"]
+                            break
+
+                except KeyError: continue
+
+        if not aux: aux = DEFAULT_SENTENCE
+
+        return aux
+
 
 
     def _runProcess(self,
@@ -912,10 +973,24 @@ class Process(BioHubClass):
                      outputs: dict = {},
                      options: dict = {}) -> None:
 
-        self.runCondaPackage(self.sentence.replace("PRinstruct", self.instruct)\
-                                          .replace("PRoptions", " ".join([str(element) for element in options.values()]))\
-                                          .replace("PRinputs", " ".join([str(element) for element in inputs.values()]))\
-                                          .replace("PRoutputs", " ".join([str(element) for element in outputs.values()])))
+        sentence = self.sentence.replace("<command>", self.command)\
+                                .replace("<inputs>", " ".join([str(element) for element in inputs.values()]))\
+                                .replace("<outputs>", " ".join([str(element) for element in outputs.values()]))\
+                                .replace("<options>", " ".join([str(element) for element in options.values()]))
+
+        if self.type == "system":
+
+            self.runSystemPackage(sentence)
+
+        elif self.type == "anaconda":
+
+            self.runCondaPackage(sentence)
+
+        elif self.type == "singularity":
+
+            self.runSingularityPackage(sentence)
+
+        else: pass
 
 
     #%%  10. Move files_________________________________________________________________________________________________
@@ -924,14 +999,18 @@ class Process(BioHubClass):
     def _moveFiles(self,
                    outputs: dict) -> None:
 
+        self._transferTemporalFiles(outputs)
+
+        self._deleteTemporalDirectory()
+
+
+    def _transferTemporalFiles(self, outputs: dict) -> None:
+
         for output in outputs.values():
 
             self.runCommand(f"mv",
                             f"{output.temporal}",
-                            f"{self.entity.path}/{output.path}")
-
-        self._deleteTemporalDirectory()
-
+                            f"{output.path}")
 
 
     def _deleteTemporalDirectory(self) -> None:
@@ -946,9 +1025,7 @@ class Process(BioHubClass):
 
         for output in outputs.values():
 
-            path = Path(self.entity.path, output.biohubFile.path)
-
-            if not path.exists(): return False
+            if not Path(output.path).exists(): return False
 
         return True
 
@@ -972,27 +1049,15 @@ class Process(BioHubClass):
 
         self.entity.addProcess(process)
 
-        ids = [output.id for output in outputs.values()]
-
         for output in outputs.values():
-
-            output.biohubFile.links = {bhId for bhId in ids if bhId != output.id}
 
             self.entity.addFile(output.biohubFile)
 
         self.entity.save()
 
-
-    #%%  14. Extract outputs____________________________________________________________________________________________
-
-
-    def _extractOutputs(self,
-                        outputs: dict) -> dict:
-
-        return {role : output.biohubFile for role, output in outputs.items()}
+        process.entity = self.entity
 
 
-    #%%
 
 
     #%%  Comparator

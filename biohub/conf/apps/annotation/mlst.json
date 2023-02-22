@@ -1,0 +1,70 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.mlst"
+    },
+
+    "implementation" : {
+
+        "defaultRoute": "common",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "mlst"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <outputs> <inputs>"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads"
+        },
+        {
+            "route": "common",
+            "role": "labelName",
+            "name": "--label",
+            "value": "->eval##self.entity.name<-"
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "common",
+            "role": "genome",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "common",
+            "role": "mlst profile",
+            "name": "--json",
+            "temporal": "mlst_profile.json",
+            "extension": ".json"
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["mlst profile"],
+            "process": ["mlst profiling"]
+        }
+    ]
+}

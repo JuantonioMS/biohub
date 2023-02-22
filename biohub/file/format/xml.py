@@ -6,7 +6,7 @@ class Xml(File):
 
 
     def __init__(self,
-                 xmlElement: ET.Element = ET.Element("default"),
+                 xmlElement: ET.Element = ET.Element("file"),
                  **attrs) -> None:
 
         super().__init__(xmlElement, **attrs)

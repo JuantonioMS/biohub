@@ -1,0 +1,279 @@
+{
+    "$id": "https://example.com/demo",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Conf file",
+    "description": "Configuration file for BioHub HPC platform",
+    "type": "object",
+    "properties": {
+
+        "info": {
+            "description": "Process info block",
+            "type": "object",
+            "properties": {
+
+                "type": {
+                    "description": "Process type <conda, singularity, system>",
+                    "type": "string",
+                    "enum": ["conda", "singularity", "system"]
+                },
+
+                "environment": {
+                    "description": "Sentence between preamble and execution sentence",
+                    "type": ["string", "array"]
+                }
+
+            },
+            "additionalProperties": false
+        },
+
+        "build": {
+            "description": "Process build block",
+            "type": ["string", "array"]
+        },
+
+        "implementation": {
+            "description": "Process implementation block",
+            "type": "object",
+            "properties": {
+
+                "defaultRoute": {
+                    "description": "TODO",
+                    "type": "string"
+                },
+
+                "commands": {
+                    "description": "TODO",
+                    "type": "array",
+                    "items": {
+                        "description": "TODO",
+                        "type": "object",
+                        "properties": {
+
+                            "route": {
+                                "description": "TODO",
+                                "type": "string"
+                            },
+
+                            "command": {
+                                "description": "TODO",
+                                "type": "string"
+                            }
+
+                        },
+                        "required": ["command"],
+                        "additionalProperties": false
+                    }
+                },
+
+                "sentences": {
+                    "description": "TODO",
+                    "type": "array"
+                }
+
+            },
+            "required": ["commands"],
+            "additionalProperties": false
+        },
+
+        "options": {
+            "description": "Process default options block",
+            "type": "array",
+            "items": {
+                "description": "TODO",
+                "type": "object",
+                "properties": {
+
+                    "route": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "role": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "name": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "alternativeName": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "value": {
+                        "description": "TODO",
+                        "type": ["number", "string", "bool"]
+                    },
+
+                    "format": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "condition": {
+                        "description": "TODO",
+                        "type": "string"
+                    }
+
+                },
+                "required": ["name", "value"],
+                "additionalProperties": false
+            }
+        },
+
+        "inputs": {
+            "description": "Process default inputs block",
+            "type": "array",
+            "items": {
+                "description": "TODO",
+                "type": "object",
+                "properties": {
+
+                    "route": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "role": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "name": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "alternativeName": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "selection": {
+                        "description": "TODO",
+                        "type": "array",
+                        "items": {
+                            "description": "TODO",
+                            "type": "object",
+                            "properties": {
+
+                                "target": {
+                                    "description": "TODO",
+                                    "type": "string",
+                                    "enum": ["outlines", "tags", "extension", "date", "comment"]
+                                },
+
+                                "required": {
+                                    "description": "TODO",
+                                    "type": ["array", "string"]
+                                },
+
+                                "optimal": {
+                                    "description": "TODO",
+                                    "type": ["array", "string"]
+                                }
+
+                            },
+                            "required": ["target", "required"],
+                            "additionalProperties": false
+                        }
+                    },
+
+                    "condition": {
+                        "description": "TODO",
+                        "type": "string"
+                    }
+
+                },
+                "required": ["selection"],
+                "additionalProperties": false
+
+            }
+        },
+
+        "outputs": {
+            "description": "Process default outputs block",
+            "type": "array",
+            "items": {
+                "description": "TODO",
+                "type": "object",
+                "properties": {
+
+                    "route": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "role": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "name": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "alternativeName": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "temporal": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "extension": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "outlines": {
+                        "description": "TODO",
+                        "type": ["array", "string"]
+                    }
+
+                },
+                "required": ["extension"],
+                "additionalProperties": false
+
+            }
+        },
+
+        "outlines": {
+            "description": "Process default outlines block",
+            "type": "array",
+            "items": {
+                "description": "TODO",
+                "type": "object",
+                "properties": {
+
+                    "route": {
+                        "description": "TODO",
+                        "type": "string"
+                    },
+
+                    "process": {
+                        "description": "TODO",
+                        "type": ["array", "string"]
+                    },
+
+                    "output": {
+                        "description": "TODO",
+                        "type": ["array", "string"]
+                    }
+
+                },
+                "additionalProperties": false
+            }
+        }
+
+
+    },
+    "required": ["implementation"],
+    "additionalProperties": false
+}

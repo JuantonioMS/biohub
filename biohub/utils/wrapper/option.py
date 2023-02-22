@@ -2,6 +2,7 @@ from typing import Any
 
 from biohub.utils.wrapper import Wrapper
 
+
 class Option(Wrapper):
 
 
@@ -13,9 +14,8 @@ class Option(Wrapper):
         return self._name
 
 
-
     @property
-    def alternative(self) -> str:
+    def alternativeName(self) -> str:
 
         """Nombre corto o alternativo. Sino, se retorna el nombre por defecto"""
 
@@ -26,7 +26,6 @@ class Option(Wrapper):
             return self.name
 
 
-
     @property
     def value(self) -> Any:
 
@@ -35,17 +34,24 @@ class Option(Wrapper):
         return self._value
 
 
+    @value.setter
+    def value(self, val: Any) -> None:
+        self._value = val
+
 
     @property
-    def format(self) -> str:
+    def evalAttributes(self) -> set:
+        return {"value"} | super().evalAttributes
 
-        "Tipo de formato. Por defecto <opcion valor>"
 
-        if hasattr(self, "_format"):
-            return self._format
-        else:
-            return "name value"
+    def __eq__(self, other: object) -> bool:
 
+        try: return self.name == other.name and self.value == other.value
+        except: return False
+
+
+    def __hash__(self) -> int:
+        return hash((self.name, self.value))
 
 
     def __str__(self) -> str:
@@ -57,4 +63,4 @@ class Option(Wrapper):
             return self.name
 
         else:
-            return self.format.replace("name", self.name).replace("value", f"{self.value}")
+            return self.format.replace("<name>", self.name).replace("<value>", f"{self.value}").strip()

@@ -3,7 +3,6 @@ from typing import Any
 from biohub.utils import BioHubContainer
 
 
-
 class Project(BioHubContainer):
 
 
@@ -15,7 +14,8 @@ class Project(BioHubContainer):
 
 
     @property
-    def _xmlSpecialTag(self) -> set: return {"subjects"} | super()._xmlSpecialTag
+    def _xmlSpecialTags(self) -> set:
+        return {"subjects"} | super()._xmlSpecialTags
 
 
     #%%  Getters built-in methods_______________________________________________________________________________________
@@ -51,9 +51,22 @@ class Project(BioHubContainer):
 
         if attr == "subjects":
 
+            from biohub.subject import Subject
+
+
             from xml.etree import ElementTree as ET
 
-            if getattr(self, attr) is None:
-                ET.SubElement(self._xml.root, "subjects")
+
+            if not self.subjects:
+
+                subjects = self._xml.root.find("subjects")
+
+                for subject in value:
+
+                    if isinstance(subject, Subject):
+                        ET.SubElement(subjects, subject.id)
+
+                    elif isinstance(subject, str):
+                        ET.SubElement(subjects, subject)
 
         else: super().__setXmlSpecialTag__(attr, value)

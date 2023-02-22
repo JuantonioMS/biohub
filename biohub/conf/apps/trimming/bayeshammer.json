@@ -1,0 +1,116 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.spades"
+    },
+
+    "implementation" : {
+
+        "defaultRoute": "paired illumina",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "spades.py"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads",
+            "alternativeName": "-t"
+        },
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "-o"
+        },
+        {
+            "route": "common",
+            "role": "onlyTrimmingFlag",
+            "name": "--only-error-correction",
+            "value": true
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "paired illumina",
+            "role": "forward",
+            "name": "-1",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward"],
+                    "optimal": ["raw", "illumina"]
+                }
+            ]
+        },
+        {
+            "route": "paired illumina",
+            "role": "reverse",
+            "name": "-2",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse"],
+                    "optimal": ["raw", "illumina"]
+                }
+            ]
+        },
+        {
+            "route": "single illumina",
+            "role": "single",
+            "name": "-s",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads"],
+                    "optimal": ["raw", "illumina"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "paired illumina",
+            "role": "forward",
+            "temporal": "NaN",
+            "extension": ".fq.gz",
+            "outlines": ["forward"]
+        },
+        {
+            "route": "paired illumina",
+            "role": "reverse",
+            "temporal": "NaN",
+            "extension": ".fq.gz",
+            "outlines": ["reverse"]
+        },
+        {
+            "route": "single illumina",
+            "role": "single",
+            "temporal": "NaN",
+            "extension": ".fq.gz"
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["reads"],
+            "process": ["reads"]
+        },
+        {
+            "route": "paired illumina",
+            "output": ["illumina"]
+        },
+        {
+            "route": "single illumina",
+            "output": ["illumina"]
+        }
+    ]
+}

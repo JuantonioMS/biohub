@@ -1,0 +1,73 @@
+{
+    "info" : {
+        "type" : "conda",
+        "environment": ["base"]
+    },
+
+    "build" : [
+        "conda env list"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "special",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "head"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs> > <outputs>"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "line number",
+            "name": "--lines",
+            "alternativeName": "-n",
+            "value": 5,
+            "format": "<name> <value>",
+            "condition": "eval##True"
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "common",
+            "role": "input role",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["required"],
+                    "optimal": ["optimal"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "common",
+            "role": "output role",
+            "temporal": "output.txt",
+            "extension": ".txt",
+            "outlines": ["output outline"]
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "process": ["process outline"],
+            "output": ["output outline"]
+        }
+    ]
+}

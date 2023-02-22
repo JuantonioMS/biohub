@@ -1,21 +1,66 @@
 from os.path import getsize
 
+from typing import Any
+
+from pathlib import Path
+
+from xml.etree import ElementTree as ET
+
 from biohub.utils import BioHubClass
 
 class File(BioHubClass):
+
+    def __init__(self,
+                 xmlElement: ET.Element = ET.Element("file"),
+                 **attrs) -> None:
+
+        super().__init__(xmlElement, **attrs)
 
 
     def newId(self):
 
         return "bhFL" + super().newId()
 
-
-    #  Getters__________________________________________________________________________________________________________
-
+    @property
+    def _xmlElementTags(self) -> set: return {"links"} | super()._xmlElementTags
 
     @property
-    def specialAttrs(self) -> set:
-        return super().specialAttrs.union({"path", "links"})
+    def _xmlSpecialTags(self) -> set: return {"path"} | super()._xmlSpecialTags
+
+
+
+    def __getXmlSpecialTag__(self, attr: str) -> Any:
+
+        if attr == "path":
+
+            element = self._xmlElement.find(attr)
+
+            if element is not None:
+                return Path(element.text)
+
+            else:
+                return None
+
+        else: return super().__getXmlSpecialTag__(attr)
+
+
+
+    def __setXmlSpecialTag__(self, attr: str, value: Any) -> None:
+
+        if attr == "path":
+
+            if getattr(self, attr) is not None:
+                self._xmlElement.remove(attr)
+
+            subelement = ET.SubElement(self._xmlElement, attr)
+            subelement.text = str(value)
+
+        else: return super().__setXmlSpecialTag__(attr, value)
+
+
+
+
+    #  Getters__________________________________________________________________________________________________________
 
 
     @property

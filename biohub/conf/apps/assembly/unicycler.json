@@ -1,0 +1,102 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.unicycler"
+    },
+
+    "implementation" : {
+
+        "defaultRoute": "paired illumina",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "unicycler"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <inputs> <options>"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads",
+            "alternativeName": "-t"
+        },
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--out",
+            "alternativeName": "-o"
+        },
+        {
+            "route": "common",
+            "role": "outputDeep",
+            "name": "--keep",
+            "value": 0
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "paired illumina",
+            "role": "forward",
+            "name": "-1",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward"],
+                    "optimal": ["trimmed", "illumina"]
+                }
+            ]
+        },
+        {
+            "route": "paired illumina",
+            "role": "reverse",
+            "name": "-2",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse"],
+                    "optimal": ["trimmed", "illumina"]
+                }
+            ]
+        },
+        {
+            "route": "single illumina",
+            "role": "single",
+            "name": "-s",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads"],
+                    "optimal": ["trimmed", "illumina"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "common",
+            "role": "genome",
+            "temporal": "assembly.fasta",
+            "extension": ".fasta",
+            "outlines": ["genome"]
+        },
+        {
+            "route": "common",
+            "role": "genome graph",
+            "temporal": "assembly.gfa",
+            "extension": ".gfa",
+            "outlines": ["genome graph"]
+        }
+    ]
+}
