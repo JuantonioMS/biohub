@@ -4,6 +4,10 @@
         "environment": "biohub.trimgalore"
     },
 
+    "build": [
+        "/home/virtualvikings/.bhconda/bin/conda create -y -n biohub.trimgalore trim-galore"
+    ],
+
     "implementation" : {
 
         "defaultRoute": "paired",

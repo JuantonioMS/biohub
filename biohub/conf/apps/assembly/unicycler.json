@@ -4,6 +4,10 @@
         "environment": "biohub.unicycler"
     },
 
+    "build": [
+        "/home/virtualvikings/.bhconda/bin/conda create -y -n biohub.unicycler unicycler"
+    ],
+
     "implementation" : {
 
         "defaultRoute": "paired illumina",

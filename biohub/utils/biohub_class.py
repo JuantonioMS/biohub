@@ -5,11 +5,13 @@ from xml.etree import ElementTree as ET
 from pathlib import Path
 from pattern.en import singularize
 
+import toml
+CONF_INFO = toml.load(Path(Path(Path(__file__).parent, "../conf"), "general/conf.toml"))
 
-CHARACTERS = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
-NCHARS = 15
+CHARACTERS = CONF_INFO["id"]["characters"]
+NCHARS = CONF_INFO["id"]["length"]
 
-DATEFORMAT = "%Y/%b/%d %H:%M:%S"
+DATEFORMAT = CONF_INFO["default"]["date"]["format"]
 
 
 class BioHubClass:

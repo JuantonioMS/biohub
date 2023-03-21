@@ -2,17 +2,16 @@
     "info" : {
         "type" : "anaconda",
         "environment": "biohub.resfinder"
-
     },
 
     "implementation" : {
 
-        "defaultRoute": "common",
+        "defaultRoute": "genome",
 
         "commands": [
             {
                 "route": "common",
-                "command": "trim_galore"
+                "command": "run_resfinder.py"
             }
         ],
 
@@ -22,5 +21,96 @@
                 "sentence": "<command> <options> <inputs>"
             }
         ]
-    }
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--outputPath",
+            "alternativeName": "-o"
+        },
+        {
+            "route": "common",
+            "role": "acquiredResistanceGenesFlag",
+            "name": "--acquired",
+            "alternativeName": "-acq",
+            "value": true
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "genome",
+            "role": "genome",
+            "name": "--inputfasta",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "common",
+            "role": "phenotipic table",
+            "temporal": "pheno_table.txt",
+            "extension": ".txt",
+            "outlines": ["phenotipic table"]
+        },
+        {
+            "route": "common",
+            "role": "sequence hit in genome",
+            "temporal": "ResFinder_Hit_in_genome_seq.fsa",
+            "extension": ".fasta",
+            "outlines": ["sequence hit in genome"]
+        },
+        {
+            "route": "common",
+            "role": "resistance gene sequence",
+            "temporal": "ResFinder_Resistance_gene_seq.fsa",
+            "extension": ".fasta",
+            "outlines": ["resistance gene sequence"]
+        },
+        {
+            "route": "common",
+            "role": "results raw",
+            "temporal": "ResFinder_results.txt",
+            "extension": ".txt",
+            "outlines": ["results raw"]
+        },
+        {
+            "route": "common",
+            "role": "results tab",
+            "temporal": "ResFinder_results_tab.txt",
+            "extension": ".txt",
+            "outlines": ["results tab"]
+        },
+        {
+            "route": "common",
+            "role": "results table",
+            "temporal": "ResFinder_results_table.txt",
+            "extension": ".txt",
+            "outlines": ["results table"]
+        },
+        {
+            "route": "common",
+            "role": "results json",
+            "temporal": "std_format_under_development.json",
+            "extension": ".json",
+            "outlines": ["results json"]
+        }
+
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["resistance genes"],
+            "process": ["resistance genes"]
+        }
+    ]
 }

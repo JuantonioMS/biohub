@@ -20,12 +20,15 @@ from biohub.file import File
 
 APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../conf"), "apps")
 
-DEFAULT_TYPE = "system"
-DEFAULT_ENVIRONMENT = "base"
-DEFAULT_ROUTE = "common"
-DEFAULT_SENTENCE = "<command> <inputs> <options>"
+import toml
+CONF_INFO = toml.load(Path(Path(Path(__file__).parent, "../conf"), "general/conf.toml"))
 
-DEFAULT_EXCLUDED_OPTIONS = ("threads", "outputDirectory")
+DEFAULT_TYPE = CONF_INFO["default"]["process"]["type"]
+DEFAULT_ENVIRONMENT = CONF_INFO["default"]["process"]["enviromment"]
+DEFAULT_ROUTE = CONF_INFO["default"]["process"]["route"]
+DEFAULT_ROLE = CONF_INFO["default"]["process"]["role"]
+DEFAULT_SENTENCE = CONF_INFO["default"]["process"]["sentence"]
+DEFAULT_EXCLUDED_OPTIONS = set(CONF_INFO["default"]["process"]["optionRolesExcluded"])
 
 class Process(BioHubClass):
 
@@ -275,17 +278,25 @@ class Process(BioHubClass):
         #  Ruta completa a la shell de conda
         condaShell = f"{condaShell}/etc/profile.d/conda.sh"
 
-        # Montando la llamada al paquete junto a la inicializacion de la shell y el entorno
-        commandLine = " && ".join([f"{condaShell}"] + [f"conda activate {env}"] + [" ".join(args)])
+        condaShell = "/home/virtualvikings/.bhconda/etc/profile.d/conda.sh"
 
-        Process.commandPrint(commandLine)
-        output = subprocess.run(f". {commandLine}",
+        # Montando la llamada al paquete junto a la inicializacion de la shell y el entorno
+        commandLine = " && ".join([f"{condaShell}",
+                                   f"/home/virtualvikings/.bhconda/bin/conda activate {env}",
+                                   " ".join(args)])
+
+        commandLine = f"/home/virtualvikings/.bhconda/bin/conda run -n {env} {' '.join(args)}"
+
+        Process.commandPrint(f"{commandLine}")
+
+
+        output = subprocess.run(f"{commandLine}",
                                 shell = True,
                                 executable = "/bin/bash",
                                 capture_output = captureOutput)
 
         if captureOutput:
-            return output.returncode, output.stdout.encode("UTF8")
+            return output.returncode, output.stdout.decode("UTF8")
 
         else:
             return output.returncode
@@ -377,6 +388,8 @@ class Process(BioHubClass):
             processOutlines: set = set(),
             **extraAttrs) -> dict:
 
+        self._checkAppBuild()
+
         timeStart = datetime.now()
 
         #  1. Seteando las opciones
@@ -452,6 +465,23 @@ class Process(BioHubClass):
 
         #  14. Retornar los outputs
         return self.extractOutputs(process)
+
+
+    #%%  0. Check app build_____________________________________________________________________________________________
+
+
+    def _checkAppBuild(self):
+
+        if self.type == "anaconda":
+            self._checkAppBuildAnaconda()
+
+
+    def _checkAppBuildAnaconda(self):
+
+        _, result = self.runCommand("/home/virtualvikings/.bhconda/bin/conda env list", captureOutput = True)
+
+        if not any([self.environment in i for i in result.split("\n")]):
+            self.runCommand(*self.jsonInfo["build"])
 
 
     #%%  1. Set options_________________________________________________________________________________________________

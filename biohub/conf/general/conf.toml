@@ -1,0 +1,32 @@
+[id]
+length = 20
+characters = """\
+             0123456789\
+             abcdefghijklmnopqrstuvwxyz\
+             ABCDEFGHIJKLMNOPQRSTUVWXYZ\
+             """
+
+[id.prefix]
+subject = "bhSubject_"
+project = "bhProject_"
+file = "bhFile_"
+process = "bhProcess_"
+pipeline = "bhPipeline_"
+
+#  Valores por defecto
+[default]
+
+[default.process]
+type = "system"
+enviromment = "base"
+route = "common"
+role = "unknown"
+sentence = "<command> <inputs> <options>"
+
+optionRolesExcluded = ["threads", "outputDirectory"]
+
+[default.temporalDirectory]
+name = "tmp"
+
+[default.date]
+format = "%Y/%b/%d %H:%M:%S"
