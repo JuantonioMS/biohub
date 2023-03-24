@@ -12,13 +12,21 @@ import json
 import copy
 
 from biohub.utils import BioHubClass
-from biohub.utils import verifyPath, readYaml, evalSentence
+from biohub.utils import verifyPath, evalSentence
 from biohub.utils.wrapper import Input, Output, Option
 
 from biohub.file import File
 
 
 APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../conf"), "apps")
+
+from biohub.conf.general.constant import DEFAULT_PROCESS_ENVIROMMENT, \
+                                         DEFAULT_PROCESS_ROLE, \
+                                         DEFAULT_PROCESS_ROLES_EXCLUDED, \
+                                         DEFAULT_PROCESS_ROUTE, \
+                                         DEFAULT_PROCESS_SENTENCE, \
+                                         DEFAULT_PROCESS_TEMPORAL_NAME, \
+                                         DEFAULT_PROCESS_TYPE
 
 import toml
 CONF_INFO = toml.load(Path(Path(Path(__file__).parent, "../conf"), "general/conf.toml"))
@@ -63,11 +71,6 @@ class Process(BioHubClass):
 
 
 
-    def newId(self) -> str:
-        return "bhPR" + super().newId()
-
-
-
     def minimumBuild(self) -> None:
 
         if self.framework is None:
@@ -79,18 +82,18 @@ class Process(BioHubClass):
         if self.type is None:
 
             try: self.type = self.jsonInfo["info"]["type"]
-            except KeyError: self.type = DEFAULT_TYPE
+            except KeyError: self.type = DEFAULT_PROCESS_TYPE
 
 
         if self.environment is None:
 
             try: self.environment = self.jsonInfo["info"]["environment"]
-            except KeyError: self.environment = DEFAULT_ENVIRONMENT
+            except KeyError: self.environment = DEFAULT_PROCESS_ENVIROMMENT
 
         if self.route is None:
 
             try: self.route = self.jsonInfo["implementation"]["defaultRoute"]
-            except KeyError: self.route = DEFAULT_ROUTE
+            except KeyError: self.route = DEFAULT_PROCESS_ROUTE
 
         super().minimumBuild()
 
@@ -379,6 +382,7 @@ class Process(BioHubClass):
 
 
 #%%  Run methods____________________________________________________________________________________________________
+
 
 
     def run(self,

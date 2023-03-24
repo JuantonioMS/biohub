@@ -1,17 +1,11 @@
 from datetime import datetime
 import random
-from typing import Any
+from typing import Any, Union
 from xml.etree import ElementTree as ET
 from pathlib import Path
 from pattern.en import singularize
 
-import toml
-CONF_INFO = toml.load(Path(Path(Path(__file__).parent, "../conf"), "general/conf.toml"))
-
-CHARACTERS = CONF_INFO["id"]["characters"]
-NCHARS = CONF_INFO["id"]["length"]
-
-DATEFORMAT = CONF_INFO["default"]["date"]["format"]
+from biohub.conf.general.constant import ID_LENGTH, ID_CHARACTERS, ID_PREFIX, DEFAULT_DATE_FORMAT
 
 
 class BioHubClass:
@@ -22,7 +16,7 @@ class BioHubClass:
                  **attrs) -> None:
 
         #  IMPOTANTE!!
-        #  Parece ser que al instancia un ET.Element() se usa el mismo sitio de memoria en el que ya se había
+        #  Parece ser que al instancia un ET.Element() usa el mismo sitio de memoria en el que ya se había
         #  instanciado uno. Esto hacia que nuevas instancias cogieran información de otros objetos creados de la misma
         #  clase. Es por este motivo que cada inicialización de un clase va a importar la orden completa.
         from xml.etree import ElementTree as ET
@@ -44,8 +38,29 @@ class BioHubClass:
 
 
 
-    def newId(self) -> str:
-        return "".join(random.choices(CHARACTERS, k = NCHARS))
+    def newId(self, prefix: Union[bool, str] = False) -> str:
+
+        """ Generación de IDs
+
+        Genera de forma aleatoria una cadena de caracteres de una longitud N seleccionando caracteres
+        de una cadena X. Estos parámetros se indican
+        """
+
+        coreId = "".join(random.choices(ID_CHARACTERS, k = ID_LENGTH))
+
+        if isinstance(prefix, str):
+            return prefix + coreId
+
+        else:
+
+            for className in self.__class__.__mro__:
+
+                className = className.__name__.split(".")[-1]
+
+                if className in ID_PREFIX:
+                    return ID_PREFIX[className] + coreId
+
+            return ID_PREFIX["Unknown"] + coreId
 
 
 
@@ -117,7 +132,7 @@ class BioHubClass:
         if attr == "date":
 
 
-            try: return datetime.strptime(self._xmlElement.attrib[attr], DATEFORMAT)
+            try: return datetime.strptime(self._xmlElement.attrib[attr], DEFAULT_DATE_FORMAT)
             except KeyError: return None
 
 
@@ -162,13 +177,13 @@ class BioHubClass:
         if attr == "date":
 
             if isinstance(value, datetime):
-                self._xmlElement.attrib[attr] = value.strftime(DATEFORMAT)
+                self._xmlElement.attrib[attr] = value.strftime(DEFAULT_DATE_FORMAT)
 
             elif isinstance(value, str):
                 self._xmlElement.attrib[attr] = value
 
 
-    #  Magic methods____________________________________________________________________________________________________
+    #%%  Magic methods__________________________________________________________________________________________________
 
 
     def __hash__(self) -> int: return hash(self.id)

@@ -5,11 +5,6 @@ from biohub.utils import BioHubContainer
 
 class Project(BioHubContainer):
 
-
-    def newId(self):
-        return "bhPJ" + super().newId()
-
-
     #%%  XML special tags_______________________________________________________________________________________________
 
 
