@@ -38,7 +38,7 @@ class FileIO(Wrapper):
 
         else:
 
-            try: return Path(self._pathPrefix, self.biohubFile.path)
+            try: return Path(self.pathPrefix, self.biohubFile.path)
             except AttributeError: return self.biohubFile.path
 
     @property

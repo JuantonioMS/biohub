@@ -151,7 +151,7 @@ class BioHubClass:
     def __setXmlElementTag__(self, attr: str, value: Any) -> None:
 
         if getattr(self, attr) is not None:
-            self._xmlElement.remove(attr)
+            self._xmlElement.remove(self._xmlElement.find(attr))
 
         subelement = ET.SubElement(self._xmlElement, attr)
 

@@ -1,4 +1,4 @@
-from biohub.process.utils import Utils
+from biohub.process.apps.utils import Utils
 from biohub.utils.wrapper import Output
 
 from biohub.file import File

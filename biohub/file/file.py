@@ -17,12 +17,9 @@ class File(BioHubClass):
         super().__init__(xmlElement, **attrs)
 
 
-    def newId(self):
-
-        return "bhFL" + super().newId()
-
     @property
     def _xmlElementTags(self) -> set: return {"links"} | super()._xmlElementTags
+
 
     @property
     def _xmlSpecialTags(self) -> set: return {"path"} | super()._xmlSpecialTags

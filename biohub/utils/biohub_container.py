@@ -7,6 +7,7 @@ from xml.dom import minidom
 import subprocess
 from biohub.utils import BioHubClass
 
+import logging
 
 class BioHubContainer(BioHubClass):
 
@@ -33,6 +34,43 @@ class BioHubContainer(BioHubClass):
             subprocess.call(f"mkdir {Path(self.path, 'files')}",
                             shell = True,
                             executable = "/bin/bash")
+
+
+    @property
+    def logger(self):
+
+        auxLogger = logging.Logger(f"{self.id} ({self.name})")
+        auxLogger.setLevel(logging.INFO)
+
+        terminalHandler = logging.StreamHandler()
+        terminalHandler.setLevel(logging.INFO)
+
+        containerHandler = logging.FileHandler(f"{self.path}/logging.log", encoding = "utf-8")
+        containerHandler.setLevel(logging.INFO)
+
+        globalHandler = logging.FileHandler(f"biohub_logging.log", encoding = "utf-8")
+        globalHandler.setLevel(logging.INFO)
+
+        fmt = ["[log]",
+               "%(asctime)s :: %(levelname)s",
+               "%(message)s",
+               "%(filename)s (line %(lineno)s) :: %(name)s\n"]
+
+        formatter = logging.Formatter("\n".join(fmt),
+                                      datefmt = '%d/%b/%Y %H:%M:%S')
+
+        globalFmt = "[log] %(asctime)s :: %(name)s :: %(levelname)s :: %(message)s :: (%(filename)s line:%(lineno)s)"
+        globalFormatter = logging.Formatter(globalFmt, datefmt='%d/%b/%Y %H:%M:%S')
+
+        containerHandler.setFormatter(formatter)
+        terminalHandler.setFormatter(globalFormatter)
+        globalHandler.setFormatter(globalFormatter)
+
+        auxLogger.addHandler(containerHandler)
+        auxLogger.addHandler(terminalHandler)
+        auxLogger.addHandler(globalHandler)
+
+        return auxLogger
 
 
     #  Add info_________________________________________________________________________________________________________

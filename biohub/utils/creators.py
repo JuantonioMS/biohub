@@ -40,7 +40,7 @@ class EntityCreator:
 
         newName = name
 
-        newId = "bhSJ" + "".join(random.choices(CHARACTERS, k = NCHARS))
+        newId = "bhSubject_" + "".join(random.choices(CHARACTERS, k = NCHARS))
 
         subprocess.call(f"mkdir {verifyPath(path)}/{newId}",
                         shell = True,
@@ -91,7 +91,7 @@ class EntityCreator:
 
         newName = name
 
-        newId = "bhPJ" + "".join(random.choices(CHARACTERS, k = NCHARS))
+        newId = "bhProject_" + "".join(random.choices(CHARACTERS, k = NCHARS))
 
         subprocess.call(f"mkdir {verifyPath(path)}/{newName}",
                         shell = True,
