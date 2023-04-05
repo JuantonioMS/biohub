@@ -26,14 +26,6 @@ class Utils:
 
 
 
-    def _addDuration(self, process, date):
-
-        process.duration = date - process.date
-
-        return process
-
-
-
     def _applyEvalSentences(self,
                             inputs: dict = {},
                             outputs: dict = {},

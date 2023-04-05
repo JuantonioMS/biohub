@@ -1,7 +1,26 @@
 import subprocess
 
+from biohub.conf.general.constant import CONDA_ALIAS
 
 class Commands:
+
+    @property
+    def biohubConda(self) -> str:
+
+        alias = subprocess.run(f"/bin/bash -i -c alias -p",
+                               shell = True,
+                               executable = "/bin/bash",
+                               capture_output= True).stdout.decode("UTF8").split("\n")
+
+        try:
+            return {element.split("=")[0].split(" ")[-1] : element.split("=")[-1].replace("'", "") for element in alias}[CONDA_ALIAS]
+        except KeyError:
+            return "/".join(subprocess.getoutput("which conda").split("/")[:-2]) + "/bin/conda"
+
+
+    @property
+    def biohubCondaShell(self) -> str:
+        return "/".join(self.biohubConda.split("/")[:-2]) + "/etc/profile.d/conda.sh"
 
 
     def runCommand(self, *args, verbosity: bool = True) -> None:

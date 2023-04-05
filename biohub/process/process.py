@@ -1,17 +1,13 @@
 from xml.etree import ElementTree as ET
 from pathlib import Path
-from datetime import datetime, timedelta
-import rich
+from datetime import datetime
 from typing import Any
 
-from pattern.en import singularize
-
 from biohub.utils import BioHubClass
-from biohub.utils.wrapper import Input, Output, Option
-from biohub.process.modules import Commands, Properties, \
+from biohub.process.modules import Commands, Properties, XmlMethods,\
                                    Options, Inputs, Outputs, \
                                    Utils, Clone, \
-                                   Implementation, Transfer, \
+                                   Implementation, \
                                    Check, Save
 
 
@@ -23,10 +19,10 @@ from biohub.conf.general.constant import DEFAULT_PROCESS_ENVIROMMENT, \
 
 
 class Process(BioHubClass,
-              Commands, Properties,
+              Commands, Properties, XmlMethods,
               Options, Inputs, Outputs,
               Utils, Clone,
-              Implementation, Transfer,
+              Implementation,
               Check, Save):
 
     """Orientado de forma estándar a procesos Subject2Subject y Project2Project"""
@@ -87,137 +83,37 @@ class Process(BioHubClass,
         super().minimumBuild()
 
 
-    #%%  XML section
+    #%%  XML section____________________________________________________________________________________________________
+
 
     @property
     def _xmlElementTags(self) -> set: return {"framework", "tool", "route",
                                               "type", "environment"} | super()._xmlElementTags
+
 
     @property
     def _xmlSpecialTags(self) -> set:
         return {"duration", "inputs", "outputs", "options"} | super()._xmlSpecialTags
 
 
+
     def __getXmlSpecialTag__(self, attr: str) -> Any:
 
-        if attr == "duration":
-
-            try:
-
-                duration = self._xmlElement.attrib[attr]
-
-                hours, minutes, seconds = duration.split(":")
-                seconds, microseconds = seconds.split(".")
-
-                return timedelta(hours = int(hours),
-                                 minutes = int(minutes),
-                                 seconds = int(seconds),
-                                 microseconds = int(microseconds))
-
-            except KeyError: return None
-
-
-        elif attr in {"inputs", "outputs"}:
-
-            aux = {}
-
-            element = self._xmlElement.find(attr)
-
-            if element is not None:
-                for subelement in element:
-
-                    #  It is a Path
-                    if "/" in subelement.text:
-                        aux[subelement.attrib["role"]] = Input(biohubFile = Path(subelement.text),
-                                                               role = subelement.attrib["role"])
-
-                    #  Is is an ID
-                    else:
-
-                        if attr == "inputs":
-                            wrapper = Input(biohubFile = self.entity.files[subelement.text],
-                                            role = subelement.attrib["role"])
-                        else:
-
-                            wrapper = Output(biohubFile = self.entity.files[subelement.text],
-                                             role = subelement.attrib["role"])
-
-                        aux[subelement.attrib["role"]] = wrapper
-
-            return aux
-
-
-        elif attr == "options":
-
-            aux = {}
-
-            element = self._xmlElement.find(attr)
-
-            if element is not None:
-
-                for subelement in element:
-
-                    role = subelement.attrib["role"]
-
-                    for char in (" ", ":", "="):
-
-                        if char in subelement.text:
-
-                            name, value = subelement.text.split(char)
-                            format = f"<name>{char}<value>"
-
-                            aux[role] = Option(name = name,
-                                               value = value,
-                                               format = format,
-                                               role = role)
-
-                            break
-
-                    else:
-                        name, value = subelement.text, True
-
-                        aux[role] = Option(name = name,
-                                           value = value,
-                                           role = role)
-
-            return aux
-
+        if attr == "duration": return self.__getXmlDuration__(attr)
+        elif attr in {"inputs", "outputs"}: return self.__getXmlIOFiles__(attr)
+        elif attr == "options": return self.__getXmlOptions__(attr)
         else: return super().__getXmlSpecialTag__(attr)
 
-
-    #%%  Setters built-in methods_______________________________________________________________________________________
 
 
     def __setXmlSpecialTag__(self, attr: str, value: Any) -> None:
 
-
-        if attr == "duration":
-
-            if isinstance(value, timedelta):
-
-                hours = int(value.total_seconds()//3600)
-                minutes = f"{int(value.total_seconds()/60%60):0>2}"
-                seconds = f"{int(value.total_seconds()%60):0>2}"
-                microseconds = f"{value.microseconds:0>6}"
-
-                self._xmlElement.attrib[attr] = f"{hours}:{minutes}:{seconds}.{microseconds}"
-
-        elif attr in {"inputs", "outputs", "options"}:
-
-            container = ET.SubElement(self._xmlElement, attr)
-
-            for subValue in value.values():
-
-                subelement = ET.SubElement(container, singularize(attr))
-                subelement.attrib["role"] = subValue.role
-
-                if attr != "options": subelement.text = subValue.id
-                else: subelement.text = str(subValue)
-
+        if attr == "duration": self.__setXmlDuration__(attr, value)
+        elif attr in {"inputs", "outputs", "options"}: self.__setXmlWrapper__(attr, value)
         else: return super().__setXmlSpecialTag__(attr, value)
 
 
-#%%  Run methods____________________________________________________________________________________________________
+#%%  Run methods________________________________________________________________________________________________________
 
 
     def run(self,
@@ -227,7 +123,7 @@ class Process(BioHubClass,
             processOutlines: set = set(),
             **extraAttrs) -> dict:
 
-        self.entity.logger.info(f"Process {self.id} :: RUN :: Process description\n\tFramework: {self.framework}\n\tTool: {self.tool}\n")
+        self.entity.logger.info(f"Process {self.id} :: RUN :: Process description\tFramework: {self.framework}\tTool: {self.tool}")
 
         #self._checkAppBuild()
 
@@ -262,11 +158,13 @@ class Process(BioHubClass,
                                                             **extraAttrs)
 
         #  5. Eliminamos los elementos condicionales no resueltos satisfactoriamente
+        self.entity.logger.info(f"Process {self.id} :: UTILS :: Removing not successful conditions")
         inputs, outputs, options = self._purgeConditionals(inputs = inputs,
                                                            outputs = outputs,
                                                            options = options)
 
         #  6. Definiendo el proceso
+        self.entity.logger.info(f"Process {self.id} :: CLONE :: Cloning process info for XML Element")
         process = self._setProcess(inputs = inputs,
                                   outputs = outputs,
                                   options = options,
@@ -280,37 +178,46 @@ class Process(BioHubClass,
         if not self.duplicate:
 
             #  7. Buscando duplicados
+            self.entity.logger.info(f"Process {self.id} :: UTILS :: Looking for duplicated processes")
             processDuplicated = self.findDuplicatedProcesses(process)
 
             #  8. Retornando los outputs del duplicado
             if processDuplicated:
+                self.entity.logger.info(f"Process {self.id} :: UTILS :: Process is already done, avoiding execution")
                 return self.extractOutputsFromProcess(processDuplicated[0]) #  TODO Implementar el retorno de outputs de procesos duplicados
 
         #  9. Ejecución del proceso
+        self.entity.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Executing process implementation")
         self._runProcess(inputs = inputs,
                          outputs = outputs,
                          options = options)
 
         #  10. Mover los archivos resultado del directorio temporal a la carpeta
+        self.entity.logger.info(f"Process {self.id} :: SAVE :: Moving files from temporal directory to BioHub directory")
         self._moveFiles(outputs)
 
         #  11. Chequear los resultados del proceso
+        self.entity.logger.info(f"Process {self.id} :: CHECK :: Checking process status")
         allRight = self._checkStatus(process = process,
                                      outputs = outputs)
 
         if not allRight:
+            self.entity.logger.error(f"Process {self.id} :: CHECK :: Process execution not successful")
             return {}
 
         if self.save:
 
             #  12. Se añade la duración del proceso
+            self.entity.logger.info(f"Process {self.id} :: SAVE :: Add process runtime to process info")
             process = self._addDuration(process, datetime.now())
 
             #  13. Guardar en la entidad tanto el proceso como los outputs
+            self.entity.logger.info(f"Process {self.id} :: SAVE :: Saving process info into BioHub container entity")
             self._saveRecord(process = process,
                              outputs = outputs)
 
         #  14. Retornar los outputs
+        self.entity.logger.info(f"Process {self.id} :: UTILS :: Returning process outputs")
         return self.extractOutputs(process)
 
 

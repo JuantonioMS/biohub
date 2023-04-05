@@ -55,8 +55,6 @@ class Implementation:
                     outputs: dict = {},
                     options: dict = {}) -> None:
 
-        self.entity.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Executing process implementation")
-
         self.entity.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Creating temporal directory {self.temporalDirectory}")
         self._createTemporalDirectory()
 
