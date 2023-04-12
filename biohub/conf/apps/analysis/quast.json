@@ -1,0 +1,76 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.quast"
+    },
+
+    "build": [
+        "conda create -y -n biohub.fastqc fastqc"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "genome",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "quast"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs>"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads",
+            "alternativeName": "-t"
+        },
+
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--output-dir",
+            "alternativeName": "-o"
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "genome",
+            "role": "genome",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+
+        {
+            "route": "genome",
+            "role": "report",
+            "temporal": "report.tsv",
+            "extension": ".tsv"
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["assembly quality"],
+            "process": ["assembly quality"]
+        }
+    ]
+}

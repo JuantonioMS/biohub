@@ -1,0 +1,93 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.prokka"
+    },
+
+    "implementation" : {
+
+        "defaultRoute": "genome",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "prokka"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs>"
+            }
+        ]
+    },
+
+    "options": [
+
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--outdir"
+        },
+
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--cpus"
+        },
+
+        {
+            "route": "common",
+            "role": "forceOutputdir",
+            "name": "--force",
+            "value": true
+        },
+
+        {
+            "route": "common",
+            "role": "prefixName",
+            "name": "--prefix",
+            "value": "mock_name"
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "genome",
+            "role": "genome",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "common",
+            "role": "genes gbk format",
+            "temporal": "->eval##options['prefixName'].value<-.gbk",
+            "extension": ".gbk",
+            "outlines": ["gbk"]
+        },
+
+        {
+            "route": "common",
+            "role": "genes gff format",
+            "temporal": "->eval##options['prefixName'].value<-.gff",
+            "extension": ".gff",
+            "outlines": ["gff"]
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["genes"],
+            "process": ["genes"]
+        }
+    ]
+}
