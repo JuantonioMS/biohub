@@ -5,7 +5,7 @@ from typing import Any
 
 from biohub.utils import BioHubClass
 from biohub.process.modules import Commands, Properties, XmlMethods,\
-                                   Options, Inputs, Outputs, \
+                                   Build, Options, Inputs, Outputs, \
                                    Utils, Clone, \
                                    Implementation, \
                                    Check, Save
@@ -20,7 +20,7 @@ from biohub.conf.general.constant import DEFAULT_PROCESS_ENVIROMMENT, \
 
 class Process(BioHubClass,
               Commands, Properties, XmlMethods,
-              Options, Inputs, Outputs,
+              Build, Options, Inputs, Outputs,
               Utils, Clone,
               Implementation,
               Check, Save):
@@ -125,6 +125,7 @@ class Process(BioHubClass,
 
         self.entity.logger.info(f"Process {self.id} :: RUN :: Process description\tFramework: {self.framework}\tTool: {self.tool}")
 
+        #self.entity.logger.info(f"Process {self.id} :: BUILD :: Ckecking tool setup")
         #self._checkAppBuild()
 
         timeStart = datetime.now()

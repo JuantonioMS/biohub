@@ -1,0 +1,65 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.plasmidfinder"
+    },
+
+    "implementation" : {
+
+        "defaultRoute": "genome",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "plasmidfinder.py"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs>"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--outputPath",
+            "alternativeName": "-o"
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "genome",
+            "role": "genome",
+            "name": "--infile",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "genome",
+            "role": "plasmid hits",
+            "temporal": "data.json",
+            "extension": ".json"
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["plasmids"],
+            "process": ["plasmids"]
+        }
+    ]
+}

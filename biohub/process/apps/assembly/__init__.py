@@ -1,4 +1,4 @@
 class Assembly:
     pass
 
-from biohub.process.assembly.unicycler import Unicycler
+from biohub.process.apps.assembly.unicycler import Unicycler

@@ -2,6 +2,7 @@ from biohub.process.modules.commands import Commands
 from biohub.process.modules.properties import Properties
 from biohub.process.modules.xml_methods import XmlMethods
 
+from biohub.process.modules.build import Build
 from biohub.process.modules.options import Options
 from biohub.process.modules.inputs import Inputs
 from biohub.process.modules.outputs import Outputs

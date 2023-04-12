@@ -1,5 +1,5 @@
 from biohub.process import ProcessStoS
-from biohub.process.assembly import Assembly
+from biohub.process.apps.assembly import Assembly
 
 
 class Unicycler(Assembly, ProcessStoS):

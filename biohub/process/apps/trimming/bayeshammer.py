@@ -1,5 +1,5 @@
 from biohub.process import ProcessStoS
-from biohub.process.trimming import Trimming
+from biohub.process.apps.trimming import Trimming
 from biohub.utils import readYaml
 
 class BayesHammer(Trimming, ProcessStoS):

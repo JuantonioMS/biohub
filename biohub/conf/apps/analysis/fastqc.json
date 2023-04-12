@@ -1,0 +1,176 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.fastqc"
+    },
+
+    "build": [
+        "conda create -y -n biohub.fastqc fastqc"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "raw illumina paired",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "fastqc"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs>"
+            }
+        ]
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads"
+        },
+
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--outdir",
+            "alternativeName": "-o"
+        },
+
+        {
+            "route": "common",
+            "role": "noGroup",
+            "name": "--nogroup",
+            "value": true
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "raw illumina paired",
+            "role": "forward",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward"],
+                    "optimal": ["raw", "illumina"]
+                }
+            ]
+        },
+
+        {
+            "route": "raw illumina paired",
+            "role": "reverse",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse"],
+                    "optimal": ["raw", "illumina"]
+                }
+            ]
+        },
+
+        {
+            "route": "trimmed illumina paired",
+            "role": "forward",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward"],
+                    "optimal": ["trimmed", "illumina"]
+                }
+            ]
+        },
+
+        {
+            "route": "trimmed illumina paired",
+            "role": "reverse",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse"],
+                    "optimal": ["trimmed", "illumina"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+
+        {
+            "route": "raw illumina paired",
+            "role": "forward html",
+            "temporal": "->eval##inputs['forward'].stem<-_fastqc.html",
+            "extension": ".html",
+            "outlines": ["forward", "raw", "html"]
+        },
+
+        {
+            "route": "raw illumina paired",
+            "role": "reverse html",
+            "temporal": "->eval##inputs['reverse'].stem<-_fastqc.html",
+            "extension": ".html",
+            "outlines": ["reverse", "raw", "html"]
+        },
+
+        {
+            "route": "raw illumina paired",
+            "role": "forward zip",
+            "temporal": "->eval##inputs['forward'].stem<-_fastqc.zip",
+            "extension": ".zip",
+            "outlines": ["forward", "raw", "zip"]
+        },
+
+        {
+            "route": "raw illumina paired",
+            "role": "reverse zip",
+            "temporal": "->eval##inputs['reverse'].stem<-_fastqc.zip",
+            "extension": ".zip",
+            "outlines": ["reverse", "raw", "zip"]
+        },
+
+        {
+            "route": "trimmed illumina paired",
+            "role": "forward html",
+            "temporal": "->eval##inputs['forward'].stem<-_fastqc.html",
+            "extension": ".html",
+            "outlines": ["forward", "trimmed", "html"]
+        },
+
+        {
+            "route": "trimmed illumina paired",
+            "role": "reverse html",
+            "temporal": "->eval##inputs['reverse'].stem<-_fastqc.html",
+            "extension": ".html",
+            "outlines": ["reverse", "trimmed", "html"]
+        },
+
+        {
+            "route": "trimmed illumina paired",
+            "role": "forward zip",
+            "temporal": "->eval##inputs['forward'].stem<-_fastqc.zip",
+            "extension": ".zip",
+            "outlines": ["forward", "trimmed", "zip"]
+        },
+
+        {
+            "route": "trimmed illumina paired",
+            "role": "reverse zip",
+            "temporal": "->eval##inputs['reverse'].stem<-_fastqc.zip",
+            "extension": ".zip",
+            "outlines": ["reverse", "trimmed", "zip"]
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["reads quality"],
+            "process": ["reads quality"]
+        }
+    ]
+}

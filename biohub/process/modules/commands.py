@@ -2,7 +2,10 @@ import subprocess
 
 from biohub.conf.general.constant import CONDA_ALIAS
 
+from pathlib import Path
+
 class Commands:
+
 
     @property
     def biohubConda(self) -> str:
@@ -13,6 +16,7 @@ class Commands:
                                capture_output= True).stdout.decode("UTF8").split("\n")
 
         try:
+            raise KeyError
             return {element.split("=")[0].split(" ")[-1] : element.split("=")[-1].replace("'", "") for element in alias}[CONDA_ALIAS]
         except KeyError:
             return "/".join(subprocess.getoutput("which conda").split("/")[:-2]) + "/bin/conda"
@@ -21,6 +25,11 @@ class Commands:
     @property
     def biohubCondaShell(self) -> str:
         return "/".join(self.biohubConda.split("/")[:-2]) + "/etc/profile.d/conda.sh"
+
+
+    @property
+    def biohubCondaPath(self) -> Path:
+        return Path(self.biohubConda[:-2])
 
 
     def runCommand(self, *args, verbosity: bool = True) -> None:
@@ -69,8 +78,9 @@ class Commands:
 
         #condaShell = "/home/virtualvikings/.bhconda/etc/profile.d/conda.sh"
 
+        # TODO
         # Montando la llamada al paquete junto a la inicializacion de la shell y el entorno
-        command = ". " + " && ".join([f"{condaShell}",
+        command = ". " + " && ".join([f"{self.biohubCondaShell}",
                                       f"conda activate {env}",
                                       " ".join(args)])
 

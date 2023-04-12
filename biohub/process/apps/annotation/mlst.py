@@ -1,5 +1,5 @@
 from biohub.process import ProcessStoS
-from biohub.process.annotation import Annotation
+from biohub.process.apps.annotation import Annotation
 
 
 class Mlst(Annotation, ProcessStoS):
