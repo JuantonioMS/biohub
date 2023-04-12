@@ -227,7 +227,7 @@ class Process(BioHubClass,
 
     def __eq__(self, other: object) -> bool:
 
-        toCompare = ["framework", "tool", "env", "route",
+        toCompare = ["framework", "tool", "environment", "route",
                      "options", "inputs"]
 
         for attr in toCompare:
