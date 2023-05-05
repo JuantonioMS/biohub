@@ -1,8 +1,16 @@
 class Annotation:
     pass
 
+#  Sequence Type
 from biohub.process.apps.annotation.mlst import Mlst
-from biohub.process.apps.annotation.resfinder import ResFinder
-from biohub.process.apps.annotation.plasmidfinder import PlasmidFinder
+
+#  Functional genes
 from biohub.process.apps.annotation.prokka import Prokka
+
+#  Antibiotic Resistance Genes
+from biohub.process.apps.annotation.resfinder import ResFinder
 from biohub.process.apps.annotation.amrfinder import AMRFinder
+from biohub.process.apps.annotation.abricate import Abricate
+
+#  Plasmids
+from biohub.process.apps.annotation.plasmidfinder import PlasmidFinder

@@ -1,0 +1,133 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.abricate"
+    },
+
+    "build": [
+        "conda create -y -p ->eval##self.environment<- abricate"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "argannot",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "abricate"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs> > <outputs>"
+            }
+        ]
+    },
+
+    "options": [
+
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads"
+        },
+
+        {
+            "route": "argannot",
+            "role": "database",
+            "name": "--db",
+            "value": "argannot"
+        },
+
+        {
+            "route": "ncbi",
+            "role": "database",
+            "name": "--db",
+            "value": "ncbi"
+        },
+
+        {
+            "route": "card",
+            "role": "database",
+            "name": "--db",
+            "value": "card"
+        },
+
+        {
+            "route": "resfinder",
+            "role": "database",
+            "name": "--db",
+            "value": "resfinder"
+        },
+
+        {
+            "route": "megares",
+            "role": "database",
+            "name": "--db",
+            "value": "megares"
+        },
+
+        {
+            "route": "plasmidfinder",
+            "role": "database",
+            "name": "--db",
+            "value": "plasmidfinder"
+        },
+
+        {
+            "route": "ecoli_vf",
+            "role": "database",
+            "name": "--db",
+            "value": "ecoli_vf"
+        },
+
+        {
+            "route": "vfdb",
+            "role": "database",
+            "name": "--db",
+            "value": "vfdb"
+        },
+
+        {
+            "route": "ecoh",
+            "role": "database",
+            "name": "--db",
+            "value": "ecoh"
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "common",
+            "role": "genome",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+
+        {
+            "route": "common",
+            "role": "resistenace table",
+            "temporal": "table.tsv",
+            "extension": ".tsv"
+        }
+
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["resistance genes"],
+            "process": ["resistance genes"]
+        }
+    ]
+}
