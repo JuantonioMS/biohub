@@ -1,3 +1,5 @@
+from biohub.utils import evalSentence
+
 class Build:
 
 
@@ -9,8 +11,19 @@ class Build:
 
     def _checkAppBuildAnaconda(self):
 
-        _, result = self.runCommand("conda env list")
+        _, result = self.runCommand("conda env list", verbosity = False)
 
-        if not any([self.environment in i for i in result.split("\n")]):
-            self.entity.logger.info(f"Process {self.id} :: BUILD :: Installing conda env")
-            self.runCommand(*self.jsonInfo["build"])
+        if not any([self.environment.split("/")[-1] in i for i in result.split("\n")]):
+
+
+            self.entity.logger.info(f"Process {self.id} :: BUILD :: Installing conda env {self.environment}")
+
+            for command in self.jsonInfo["build"]:
+
+                while "eval##" in command:
+                    sentence = "->" + command.split("->")[1].split("<-")[0] + "<-"
+                    result = evalSentence(sentence[2:-2],
+                                          self = self)
+                    command = command.replace(sentence, result)
+
+                self.runCommand(command)

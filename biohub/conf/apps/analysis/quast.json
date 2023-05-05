@@ -5,7 +5,7 @@
     },
 
     "build": [
-        "conda create -y -n biohub.fastqc fastqc"
+        "conda create -y -p ->eval##self.environment<- quast"
     ],
 
     "implementation" : {

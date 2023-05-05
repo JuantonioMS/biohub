@@ -4,6 +4,10 @@
         "environment": "biohub.spades"
     },
 
+    "build": [
+        "conda create -y -p ->eval##self.environment<- spades"
+    ],
+
     "implementation" : {
 
         "defaultRoute": "paired illumina",

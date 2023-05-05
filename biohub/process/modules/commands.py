@@ -1,38 +1,15 @@
 import subprocess
 
-from biohub.conf.general.constant import CONDA_ALIAS
-
 from pathlib import Path
 
 class Commands:
 
 
-    @property
-    def biohubConda(self) -> str:
-
-        alias = subprocess.run(f"/bin/bash -i -c alias -p",
-                               shell = True,
-                               executable = "/bin/bash",
-                               capture_output= True).stdout.decode("UTF8").split("\n")
-
-        try:
-            raise KeyError
-            return {element.split("=")[0].split(" ")[-1] : element.split("=")[-1].replace("'", "") for element in alias}[CONDA_ALIAS]
-        except KeyError:
-            return "/".join(subprocess.getoutput("which conda").split("/")[:-2]) + "/bin/conda"
+    #%%  GENERAL COMMAND SECTION________________________________________________________________________________________
 
 
-    @property
-    def biohubCondaShell(self) -> str:
-        return "/".join(self.biohubConda.split("/")[:-2]) + "/etc/profile.d/conda.sh"
-
-
-    @property
-    def biohubCondaPath(self) -> Path:
-        return Path(self.biohubConda[:-2])
-
-
-    def runCommand(self, *args, verbosity: bool = True) -> None:
+    def runCommand(self, *args,
+                   verbosity: bool = True) -> tuple:
 
         """
         Ejecuta comandos del sistema. Retorna el valor de ejecución resultante. Suele ser 0 el valor de todo correcto.
@@ -47,10 +24,12 @@ class Commands:
                                 capture_output = True)
 
         outputMsg = (output.stdout.decode("UTF8") + "\n" + output.stderr.decode("UTF8")).strip("\n")
-        outputCode = output.returncode
+        outputCode = int(output.returncode)
 
         if verbosity and outputMsg:
-            self.entity.logger.info(f"Process {self.id} :: COMMANDS :: Command -> " + command + "\n" + "Output -> " + outputMsg)
+            self.entity.logger.info(f"Process {self.id} :: COMMANDS :: Command -> " + command +
+                                    "\n" +
+                                    "Output -> " + outputMsg)
 
         if outputCode != 0:
             self.entity.logger.warning(f"Process {self.id} :: COMMANDS :: Return code is not 0 (code {outputCode})")
@@ -58,8 +37,44 @@ class Commands:
         return outputCode, outputMsg
 
 
+    #%%  CONDA SECTION__________________________________________________________________________________________________
 
-    def runCondaPackage(self, *args, env: str = None, captureOutput: bool = True, verbosity: bool = True) -> None:
+
+    @property
+    def condaPath(self) -> Path:
+
+        """Return conda folder path, if it is not possible raise an error"""
+
+        try:
+            return Path("/".join(subprocess.getoutput("which conda").split("/")[:-2]))
+
+        except:
+            self.entity.logger.error(f"Process {self.id} :: COMMANDS :: No Anaconda/Miniconda found")
+            raise ProcessLookupError("No Anaconda/Miniconda installation found, please install. If it is installed " +
+                                     "check $PATH")
+
+
+    @property
+    def condaApp(self) -> Path:
+
+        """Return conda bin executable path"""
+
+        return Path(self.condaPath, "bin/conda")
+
+
+    @property
+    def condaShell(self) -> Path:
+
+        """Return conda shell path """
+
+        return Path(self.condaPath, "etc/profile.d/conda.sh")
+
+
+
+    def runCondaPackage(self, *args,
+                        environment: str = None,
+                        prefix: str = ".",
+                        verbosity: bool = True) -> tuple:
 
         """
         Ejecuta comandos recogidos en entornos conda de forma similar al método runCommand
@@ -67,34 +82,24 @@ class Commands:
 
         self.entity.logger.info(f"Process {self.id} :: COMMANDS :: Running conda command")
 
-        #  Búsqueda del shell de conda instalado en el sistema
-        condaShell = "/".join(subprocess.getoutput("which conda").split("/")[:-2])
+        if not environment:
+            environment = self.environment
 
-        if not env:
-            env = self.environment
+        return self.runCommand(prefix, f"{self.condaShell} && conda activate {environment} && ", *args,
+                               verbosity = verbosity)
 
-        #  Ruta completa a la shell de conda
-        condaShell = f"{condaShell}/etc/profile.d/conda.sh"
 
-        #condaShell = "/home/virtualvikings/.bhconda/etc/profile.d/conda.sh"
-
-        # TODO
-        # Montando la llamada al paquete junto a la inicializacion de la shell y el entorno
-        command = ". " + " && ".join([f"{self.biohubCondaShell}",
-                                      f"conda activate {env}",
-                                      " ".join(args)])
-
-        #commandLine = f"/home/virtualvikings/.bhconda/bin/conda run -n {env} {' '.join(args)}"
-
-        outputCode, outputMsg = self.runCommand(command, verbosity = verbosity)
-
-        return outputCode, outputMsg
+    #%%  SINGULARITY SECTION____________________________________________________________________________________________
 
 
     #  TODO
-    def runSingularityPackage(self, *args):
-        return ""
+    def runSingularityPackage(self):
+        pass
+
+
+    #%%  SYSTEM SECTION_________________________________________________________________________________________________
+
 
     #  TODO
-    def runSystemPackage(self, *args):
-        return ""
+    def runSystemPackage(self):
+        pass

@@ -18,7 +18,7 @@ class Options:
             if element["route"] in ("common", self.route):
 
                 if element["role"] == "threads":
-                    element["value"] = self.threads
+                    element["value"] = self.threadsPerTask
 
                 elif element["role"] == "outputDirectory":
                     element["value"] = self.temporalDirectory

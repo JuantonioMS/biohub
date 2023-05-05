@@ -5,7 +5,7 @@
     },
 
     "build": [
-        "/home/virtualvikings/.bhconda/bin/conda create -y -n biohub.unicycler unicycler"
+        "conda create -y -p ->eval##self.environment<- unicycler"
     ],
 
     "implementation" : {

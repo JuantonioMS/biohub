@@ -13,7 +13,7 @@ ID_PREFIX = {"Subject"  : "bhSubject_",
 
 # Alias del entorno conda para BioHub
 
-CONDA_ALIAS = "bhConda"
+CONDA_ENVS_PATH = "~/.biohub/conda_envs"
 
 
 #  Valores por defecto para parámetros relacionados con procesos

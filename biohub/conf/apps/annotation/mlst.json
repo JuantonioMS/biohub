@@ -4,6 +4,10 @@
         "environment": "biohub.mlst"
     },
 
+    "build": [
+        "conda create -y -p ->eval##self.environment<- mlst"
+    ],
+
     "implementation" : {
 
         "defaultRoute": "common",

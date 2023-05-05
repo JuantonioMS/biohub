@@ -7,6 +7,25 @@ import time
 
 class ProcessStoS(Process):
 
+    @staticmethod
+    def runWrapper(subject, process,
+                   options, inputs,
+                   outputOutlines,
+                   processOutlines,
+                   extraAttrs):
+
+        result = process.__class__(entity = subject,
+                                   threadsPerTask = process.threadsPerTask,
+                                   save = process.save,
+                                   duplicate = process.duplicate).run(options = options,
+                                                                      inputs = inputs,
+                                                                      outputOutlines = outputOutlines,
+                                                                      processOutlines = processOutlines,
+                                                                      **extraAttrs)
+
+        return result
+
+
     def run(self,
             options: dict = {},
             inputs: dict = {},
@@ -40,13 +59,13 @@ class ProcessStoS(Process):
                                        processOutlines,
                                        extraAttrs])
 
-                with Pool(self.simultaneousTasks) as pool:
-                    results = pool.starmap(runFuction, parameters)
+                with Pool(self.concurrentTasks) as pool:
+                    results = pool.starmap(self.runWrapper, parameters)
 
                 aux = {}
-                for result, parameter in zip(results, parameters):
+                #for result, parameter in zip(results, parameters):
 
-                    aux[parameter[0].id] = result
+                    #aux[parameter[0].id] = result
 
                 return aux
 
@@ -55,32 +74,35 @@ class ProcessStoS(Process):
 
                 jobNames = set()
 
-                subjects = [subject.id for subject in self.entity.subjects]
+                for subject in self.entity.subjects:
 
-                step = self.coresPerNode // self.coresPerTask
+                    jobName = f"BioHub_{self.tool.capitalize()}_{subject.id}_{self.id}"
 
-                for index in range(0, len(subjects), step):
+                    #selectedSubjects = subjects[index : index + step]
 
-                    jobName = f"BHtmp_{index:04}_{self.tool.capitalize()}{self.id}"
-
-                    selectedSubjects = subjects[index : index + step]
-
-                    sbatchOptions = {"--job-name": jobName,
-                                     "--ntasks": step * self.coresPerTask,
+                    sbatchOptions = {"--job-name" : jobName,
+                                     "--ntasks" : self.threadsPerTask // self.threadsPerCore,
+                                     "--mem" : self.memoryPerTask,
+                                     "--time" : self.timePerTask,
                                      "--output": f"{jobName}.out"}
 
                     pythonOrder = ["python -c"]
 
                     #  Imports
-                    pythonOrder += [f"\\\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
-                                    "from biohub.utils import EntityCreator;"]
+                    pythonOrder += [f"\\\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};", #  Tool import
+                                    "from biohub.subject import Subject;"]  #  Subject import
 
-                    selectedSubjects = ", ".join([f"'{subject}'" for subject in selectedSubjects])
+                    #pythonOrder += [f"\\\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
+                    #               "from biohub.utils import EntityCreator;"]
 
-                    pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:04}', './{self.entity.path.parent}', subjects = [{selectedSubjects}]);"]
+                    #selectedSubjects = ", ".join([f"'{subject}'" for subject in selectedSubjects])
+
+                    pythonOrder += [f"subject = Subject(path = './{self.entity.path.parent}../../subjects/{subject.id}/biohub_subject.xml');"]
+                    #pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:04}', './{self.entity.path.parent}', subjects = [{selectedSubjects}]);"]
 
                     #  Process execution
-                    pythonOrder += [f"{self.__class__.__name__}(entity = project, simultaneousTasks = {step}, threadsPerTask = {self.threadsPerTask}).run()\\\""]
+                    pythonOrder += [f"{self.__class__.__name__}(entity = subject, threadsPerTask = {self.threadsPerTask}).run()\\\""]
+                    #pythonOrder += [f"{self.__class__.__name__}(entity = project, simultaneousTasks = {step}, threadsPerTask = {self.threadsPerTask}).run()\\\""]
 
                     pythonOrder = " ".join(pythonOrder)
 
@@ -91,6 +113,7 @@ class ProcessStoS(Process):
                     #jobId = pyslurm.job().submit_batch_job(sbatchOptions)
 
                     jobNames.add(jobName)
+
 
 
                 while True:
@@ -106,27 +129,6 @@ class ProcessStoS(Process):
                     if len(jobNames & jobs) == 0:
                         break
 
-                self.runCommand(f"rm *_{self.tool.capitalize()}{self.id}.out")
-                self.runCommand(f"rm -rf {self.entity.path.parent}/BHPR_{self.id}_*")
+                self.runCommand(f"rm *_{self.id}.out")
 
                 return {}
-
-
-
-def runFuction(subject,
-               process,
-               options,
-               inputs,
-               outputOutlines,
-               processOutlines,
-               extraAttrs):
-
-    result = process.__class__(entity = subject,
-                               threads = process.threadsPerTask,
-                               save = process.save,
-                               duplicate = process.duplicate).run(options = options,
-                                                                  inputs = inputs,
-                                                                  outputOutlines = outputOutlines,
-                                                                  processOutlines = processOutlines,
-                                                                  **extraAttrs)
-    return result

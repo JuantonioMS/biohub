@@ -1,11 +1,12 @@
 {
+
     "info" : {
         "type" : "anaconda",
         "environment": "biohub.trimgalore"
     },
 
     "build": [
-        "/home/virtualvikings/.bhconda/bin/conda create -y -n biohub.trimgalore trim-galore"
+        "conda create -y -p ->eval##self.environment<- trim-galore"
     ],
 
     "implementation" : {
@@ -120,4 +121,5 @@
             "process": ["reads"]
         }
     ]
+
 }

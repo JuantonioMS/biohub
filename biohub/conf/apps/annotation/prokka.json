@@ -4,6 +4,10 @@
         "environment": "biohub.prokka"
     },
 
+    "build": [
+        "conda create -y -p ->eval##self.environment<- prokka"
+    ],
+
     "implementation" : {
 
         "defaultRoute": "genome",

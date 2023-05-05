@@ -15,7 +15,8 @@ APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../conf"), "apps")
 
 from biohub.conf.general.constant import DEFAULT_PROCESS_ENVIROMMENT, \
                                          DEFAULT_PROCESS_ROUTE, \
-                                         DEFAULT_PROCESS_TYPE
+                                         DEFAULT_PROCESS_TYPE, \
+                                         CONDA_ENVS_PATH
 
 
 class Process(BioHubClass,
@@ -41,6 +42,10 @@ class Process(BioHubClass,
 
         super().__init__(xmlElement, **attrs)
 
+        self._checkAppBuild()
+
+        self._resourceDistribution()
+
         if not hasattr(self, "simultaneousTasks"): self.simultaneousTasks = 1
 
         if not hasattr(self, "threads"): self.threads = 1
@@ -53,6 +58,22 @@ class Process(BioHubClass,
 
         if not hasattr(self, "distributedMemory"): self.distributedMemory = False
         if not hasattr(self, "coresPerNode"): self.coresPerNode = 40
+
+
+    def _resourceDistribution(self) -> None:
+
+        if not hasattr(self, "distributedMemory"): self.distributedMemory = False
+
+        if self.distributedMemory:
+            if not hasattr(self, "threadsPerCore"): self.threadsPerCore = 2
+            if not hasattr(self, "memoryPerTask"): self.memoryPerTask = "16GB"
+            if not hasattr(self, "timePerTask"): self.timePerTask = "10:00:00"
+
+        else:
+            if not hasattr(self, "concurrentTasks"): self.concurrentTasks = 1
+
+        if not hasattr(self, "threadsPerTask"): self.threadsPerTask = 1
+
 
 
 
@@ -72,7 +93,7 @@ class Process(BioHubClass,
 
         if self.environment is None:
 
-            try: self.environment = self.jsonInfo["info"]["environment"]
+            try: self.environment = CONDA_ENVS_PATH + "/" + self.jsonInfo["info"]["environment"]
             except KeyError: self.environment = DEFAULT_PROCESS_ENVIROMMENT
 
         if self.route is None:

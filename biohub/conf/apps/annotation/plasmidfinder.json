@@ -4,6 +4,10 @@
         "environment": "biohub.plasmidfinder"
     },
 
+    "build": [
+        "conda create -y -p ->eval##self.environment<- plasmidfinder"
+    ],
+
     "implementation" : {
 
         "defaultRoute": "genome",
