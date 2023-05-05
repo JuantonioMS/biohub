@@ -1,0 +1,79 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.amrfinder"
+    },
+
+    "build": [
+        "conda create -y -p ->eval##self.environment<- ncbi-amrfinderplus",
+        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && amrfinder --update"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "genome",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "amrfinder"
+            }
+        ],
+
+        "sentences": [
+            {
+                "route": "common",
+                "sentence": "<command> <options> <inputs> > <outputs>"
+            }
+        ]
+    },
+
+    "options": [
+
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads"
+        },
+
+        {
+            "route": "common",
+            "role": "extended results",
+            "name": "--plus",
+            "value": true
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "genome",
+            "role": "genome",
+            "name": "--nucleotide",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+
+        {
+            "route": "genome",
+            "role": "resistenace table",
+            "temporal": "table.tsv",
+            "extension": ".tsv"
+        }
+
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["resistance genes"],
+            "process": ["resistance genes"]
+        }
+    ]
+}
