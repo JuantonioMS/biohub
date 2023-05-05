@@ -38,16 +38,17 @@ class Options:
         self.entity.logger.info(f"Process {self.id} :: OPTIONS :: {len(options)} user options")
 
         auxOptions = {}
+
         count = 1
         for key, value in options.items():
 
             if isinstance(value, Option): #  El usuario a seteado la opción con el Wrapper
-                options[value.role] = value
+                auxOptions[value.role] = value
 
             else: #  El usuario ha indicado la opción con el estilo <name> : <value>
-                options[f"unknown_{count}"] = Option(role = f"unknown_{count}",
-                                                     name = key,
-                                                     value = value)
+                auxOptions[f"unknown_{count}"] = Option(role = f"unknown_{count}",
+                                                        name = key,
+                                                        value = value)
                 count += 1
 
 
@@ -56,26 +57,26 @@ class Options:
         for defaultRole, defaultOption in self.defaultOptions.items():
 
 
-            if not any([defaultOption.name in [userOption.name for userOption in options.values()],
-                        defaultOption.alternativeName in [userOption.name for userOption in options.values()]]):
+            if not any([defaultOption.name in [userOption.name for userOption in auxOptions.values()],
+                        defaultOption.alternativeName in [userOption.name for userOption in auxOptions.values()]]):
 
                 auxOptions[defaultRole] = defaultOption
 
 
             else:
-                for userRole, userOption in options.items():
+                for userRole, userOption in auxOptions.items():
                     if any([defaultOption.name == userOption.name, defaultOption.alternativeName == userOption.name]):
 
                         userOption._role = defaultOption.role
                         userOption._alternativeName = defaultOption.alternativeName
 
-                        options[defaultRole] = userOption
+                        auxOptions[defaultRole] = userOption
                         rolesToDel.append(userRole)
 
-        for roleToDel in rolesToDel:
-            del options[roleToDel]
+        #for roleToDel in rolesToDel:
+        #    del options[roleToDel]
 
-        auxOptions.update(options)
+        #auxOptions.update(options)
 
         self.entity.logger.info(f"Process {self.id} :: OPTIONS :: {len(auxOptions)} setted options")
 
