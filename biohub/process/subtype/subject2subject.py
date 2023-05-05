@@ -97,7 +97,7 @@ class ProcessStoS(Process):
 
                     #selectedSubjects = ", ".join([f"'{subject}'" for subject in selectedSubjects])
 
-                    pythonOrder += [f"subject = Subject(path = './{self.entity.path.parent}../../subjects/{subject.id}/biohub_subject.xml');"]
+                    pythonOrder += [f"subject = Subject(path = './{self.entity.path.parent}/../subjects/{subject.id}/biohub_subject.xml');"]
                     #pythonOrder += [f"project = EntityCreator().createProject('BHPRtmp_{self.id}_{index:04}', './{self.entity.path.parent}', subjects = [{selectedSubjects}]);"]
 
                     #  Process execution
@@ -121,8 +121,7 @@ class ProcessStoS(Process):
                     time.sleep(2)
 
                     _, output = self.runCommand("squeue --format=\"%.100j\"",
-                                                   verbosity = False,
-                                                   captureOutput = True)
+                                                   verbosity = False)
 
                     jobs = set(list(map(lambda x: x.strip(), output.split("\n")))[1:-1])
 

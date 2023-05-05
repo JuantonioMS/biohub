@@ -46,18 +46,6 @@ class Process(BioHubClass,
 
         self._resourceDistribution()
 
-        if not hasattr(self, "simultaneousTasks"): self.simultaneousTasks = 1
-
-        if not hasattr(self, "threads"): self.threads = 1
-        if not hasattr(self, "threadsPerCore"): self.threadsPerCore = 2
-
-        if not hasattr(self, "cores"): self.cores = 1 if self.threads < 3 else self.threads // self.threadsPerCore
-
-        if not hasattr(self, "threadsPerTask"): self.threadsPerTask = self.threads
-        if not hasattr(self, "coresPerTask"): self.coresPerTask = self.cores
-
-        if not hasattr(self, "distributedMemory"): self.distributedMemory = False
-        if not hasattr(self, "coresPerNode"): self.coresPerNode = 40
 
 
     def _resourceDistribution(self) -> None:
