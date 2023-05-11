@@ -131,3 +131,50 @@ class EntityCreator:
         project = Project(path = f"{verifyPath(path)}/{newName}/biohub_project.xml")
 
         return project
+
+
+
+    def createDatabase(self,
+                       name: str,
+                       path: Path):
+
+        from biohub.database import Database
+
+        from xml.etree import ElementTree as ET
+        from xml.dom import minidom
+
+        newName = name
+
+        newId = "bhDatabase_" + "".join(random.choices(CHARACTERS, k = NCHARS))
+
+
+        subprocess.call(f"touch {verifyPath(path)}/{newName}_database.xml",
+                        shell = True,
+                        executable = "/bin/bash")
+
+        database = ET.Element("database")
+        metadata = ET.SubElement(database, "metadata")
+
+        metadata.attrib["date"] = datetime.now().strftime("%Y/%b/%d %H:%M:%S")
+
+        name = ET.SubElement(metadata, "name")
+        name.text = self.verifyName(newName)
+
+        bhId = ET.SubElement(metadata, "id")
+        bhId.text = newId
+
+        for case in ["files", "folders", "processes", "pipelines"]:
+            _ = ET.SubElement(database, case)
+
+        prettyXml = minidom.parseString(ET.tostring(database)\
+                                        .decode("UTF-8").replace("\n", "")\
+                                        .replace("    ", ""))\
+                                        .toprettyxml(indent = "    ")
+
+
+        with open(f"{verifyPath(path)}/{newName}_database.xml", "wb") as biohubFile:
+            biohubFile.write(prettyXml.encode("utf-8"))
+
+        database = Database(path = f"{verifyPath(path)}/{newName}_database.xml")
+
+        return database

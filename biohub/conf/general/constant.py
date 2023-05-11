@@ -6,9 +6,11 @@ ID_CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 ID_PREFIX = {"Subject"  : "bhSubject_",
              "Project"  : "bhProject_",
+             "Database" : "bhDatabase_",
              "File"     : "bhFile_",
              "Process"  : "bhProcess_",
              "Pipeline" : "bhPipeline_",
+             "Folder"   : "bhFolder_",
              "Unknown"  : "bhID_"}
 
 # Alias del entorno conda para BioHub

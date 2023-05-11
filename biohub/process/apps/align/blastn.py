@@ -1,5 +1,5 @@
 from biohub.process import ProcessStoS
-from biohub.process.align import Align
+from biohub.process.apps.align import Align
 
 
 class Blastn(Align, ProcessStoS):

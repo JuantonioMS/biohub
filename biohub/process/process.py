@@ -227,8 +227,9 @@ class Process(BioHubClass,
                              outputs = outputs)
 
         #  14. Retornar los outputs
-        self.entity.logger.info(f"Process {self.id} :: UTILS :: Returning process outputs")
-        return self.extractOutputs(process)
+        #self.entity.logger.info(f"Process {self.id} :: UTILS :: Returning process outputs")
+        #return self.extractOutputs(process)
+        return {}
 
 
     #%%  Comparator
