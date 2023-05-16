@@ -21,7 +21,8 @@ class Options:
                     element["value"] = self.threadsPerTask
 
                 elif element["role"] == "outputDirectory":
-                    element["value"] = self.temporalDirectory
+                    if "value" not in element:
+                        element["value"] = self.temporalDirectory
 
                 auxDefaultOptions[element["role"]] = Option(**element)
 
