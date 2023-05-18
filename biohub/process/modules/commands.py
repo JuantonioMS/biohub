@@ -26,7 +26,10 @@ class Commands:
         outputMsg = (output.stdout.decode("UTF8") + "\n" + output.stderr.decode("UTF8")).strip("\n")
         outputCode = int(output.returncode)
 
-        if verbosity and outputMsg:
+        if verbosity:
+
+            if not outputMsg: outputMsg = "No output"
+
             self.entity.logger.info(f"Process {self.id} :: COMMANDS :: Command -> " + command +
                                     "\n" +
                                     "Output -> " + outputMsg)

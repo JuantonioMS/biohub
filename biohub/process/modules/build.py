@@ -20,13 +20,11 @@ class Build:
 
             for command in self.jsonInfo["build"]:
 
-                print("---->", command)
 
                 while "eval##" in command:
                     sentence = "->" + command.split("->")[1].split("<-")[0] + "<-"
                     result = evalSentence(sentence[2:-2],
                                           self = self)
                     command = command.replace(sentence, str(result))
-                    print(command)
 
                 self.runCommand(command)
