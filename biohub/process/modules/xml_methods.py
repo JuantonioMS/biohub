@@ -5,7 +5,7 @@ from pattern.en import singularize
 
 from xml.etree import ElementTree as ET
 
-from biohub.utils.wrapper import Input, Output, Option
+from biohub.process.wrapper import Input, Output, Option
 
 class XmlMethods:
 

@@ -1,6 +1,5 @@
 from biohub.process import Process
-from biohub.subject import Subject
-from biohub.project import Project
+from biohub.container import Subject
 
 from multiprocessing import Pool
 import time

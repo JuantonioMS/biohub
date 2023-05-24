@@ -1,4 +1,4 @@
-from biohub.utils.wrapper import Option
+from biohub.process.wrapper import Option
 
 class Options:
 

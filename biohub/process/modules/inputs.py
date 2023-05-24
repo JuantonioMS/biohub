@@ -1,7 +1,7 @@
-from biohub.utils.wrapper import Input
+from biohub.process.wrapper import Input
 from biohub.utils import verifyPath
 
-from biohub.file import File
+from biohub.storage import File
 from pathlib import Path
 
 from typing import Union

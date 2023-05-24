@@ -1,5 +1,5 @@
-from biohub.utils.wrapper import Output
-from biohub.file import File
+from biohub.process.wrapper import Output
+from biohub.storage import File
 from pathlib import Path
 
 class Outputs:

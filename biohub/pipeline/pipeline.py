@@ -1,10 +1,7 @@
-from biohub.utils import BioHubClass
+from biohub.core.biohub_class import BioHubClass
 
 import xml.etree.ElementTree as ET
 
 
 class Pipeline(BioHubClass):
-
-
-    def newId(self, buffer = []):
-        return "bhPL" + super().newId(buffer)
+    pass

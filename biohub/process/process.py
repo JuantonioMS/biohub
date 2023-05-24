@@ -3,7 +3,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Any
 
-from biohub.utils import BioHubClass
+from biohub.core.biohub_class import BioHubClass
+
 from biohub.process.modules import Commands, Properties, XmlMethods,\
                                    Build, Options, Inputs, Outputs, \
                                    Utils, Clone, \

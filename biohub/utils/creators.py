@@ -3,8 +3,6 @@ import subprocess
 
 from biohub.utils import verifyPath
 
-from biohub.utils import BioHubClass
-
 from datetime import datetime
 
 import random
@@ -33,7 +31,7 @@ class EntityCreator:
                       name: str,
                       path: Path):
 
-        from biohub.subject import Subject
+        from biohub.container import Subject
 
         from xml.etree import ElementTree as ET
         from xml.dom import minidom
@@ -84,7 +82,7 @@ class EntityCreator:
                       path: Path,
                       subjects: list = []):
 
-        from biohub.project import Project
+        from biohub.container import Project
 
         from xml.etree import ElementTree as ET
         from xml.dom import minidom
@@ -138,7 +136,7 @@ class EntityCreator:
                        name: str,
                        path: Path):
 
-        from biohub.database import Database
+        from biohub.container import Database
 
         from xml.etree import ElementTree as ET
         from xml.dom import minidom

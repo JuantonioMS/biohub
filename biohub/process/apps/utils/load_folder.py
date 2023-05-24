@@ -1,8 +1,8 @@
 from biohub.process.apps.utils import Utils
-from biohub.utils.wrapper import Output
+from biohub.process.wrapper import Output
 
-from biohub.file import File
-from biohub.folder import Folder
+from biohub.storage import File
+from biohub.storage import Folder
 
 class LoadFolder(Utils):
 

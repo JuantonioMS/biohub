@@ -1,4 +1,4 @@
-from biohub.utils.wrapper import Option, Input, Output
+from biohub.process.wrapper import Option, Input, Output
 
 from biohub.utils import evalSentence
 
