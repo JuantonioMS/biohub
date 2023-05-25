@@ -38,38 +38,31 @@ class BioHubContainer(BioHubClass):
 
 
     @property
+    def loggingLocalHandler(self) -> logging.FileHandler:
+
+        handler = logging.FileHandler(f"{self.path}/logging.log", encoding = "utf-8")
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(self.loggingFormatter)
+
+        return handler
+
+
+    @property
+    def loggingFormat(self) -> list:
+        return super().loggingFormat[:1] +\
+               [f"{self.name} {self.__class__.__name__} ({self.id})"] +\
+               super().loggingFormat[1:]
+
+
+    @property
     def logger(self):
 
-        auxLogger = logging.Logger(f"{self.id} ({self.name})")
+        auxLogger = logging.Logger(f"{self.id}")
         auxLogger.setLevel(logging.INFO)
 
-        terminalHandler = logging.StreamHandler()
-        terminalHandler.setLevel(logging.INFO)
-
-        containerHandler = logging.FileHandler(f"{self.path}/logging.log", encoding = "utf-8")
-        containerHandler.setLevel(logging.INFO)
-
-        globalHandler = logging.FileHandler(f"biohub_logging.log", encoding = "utf-8")
-        globalHandler.setLevel(logging.INFO)
-
-        fmt = ["[log]",
-               "%(asctime)s :: %(levelname)s",
-               "%(message)s",
-               "%(filename)s (line %(lineno)s) :: %(name)s\n"]
-
-        formatter = logging.Formatter("\n".join(fmt),
-                                      datefmt = '%d/%b/%Y %H:%M:%S')
-
-        globalFmt = "[log] %(asctime)s :: %(name)s :: %(levelname)s :: %(message)s :: (%(filename)s line:%(lineno)s)"
-        globalFormatter = logging.Formatter(globalFmt, datefmt='%d/%b/%Y %H:%M:%S')
-
-        containerHandler.setFormatter(formatter)
-        terminalHandler.setFormatter(globalFormatter)
-        globalHandler.setFormatter(globalFormatter)
-
-        auxLogger.addHandler(containerHandler)
-        auxLogger.addHandler(terminalHandler)
-        auxLogger.addHandler(globalHandler)
+        auxLogger.addHandler(self.loggingTerminalHandler)
+        auxLogger.addHandler(self.loggingGlobalHandler)
+        auxLogger.addHandler(self.loggingLocalHandler)
 
         return auxLogger
 

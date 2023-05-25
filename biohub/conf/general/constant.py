@@ -13,10 +13,15 @@ ID_PREFIX = {"Subject"  : "bhSubject_",
              "Folder"   : "bhFolder_",
              "Unknown"  : "bhID_"}
 
+#  Logger
+
+LOG_HEADER = "[log] %(levelname)s :: %(asctime)s"
+LOG_BODY = "%(message)s"
+LOG_TAIL = "%(filename)s (line %(lineno)s) :: %(name)s\n"
+
 # Alias del entorno conda para BioHub
 
 CONDA_ENVS_PATH = "~/.biohub/conda_envs"
-
 
 #  Valores por defecto para parámetros relacionados con procesos
 

@@ -2,6 +2,7 @@ from xml.etree import ElementTree as ET
 from pathlib import Path
 from datetime import datetime
 from typing import Any
+import logging
 
 from biohub.core.biohub_class import BioHubClass
 
@@ -56,7 +57,7 @@ class Process(BioHubClass,
         if self.distributedMemory:
             if not hasattr(self, "threadsPerCore"): self.threadsPerCore = 2
             if not hasattr(self, "memoryPerTask"): self.memoryPerTask = "16GB"
-            if not hasattr(self, "timePerTask"): self.timePerTask = "10:00:00"
+            if not hasattr(self, "timePerTask"): self.timePerTask = "24:00:00"
 
         else:
             if not hasattr(self, "concurrentTasks"): self.concurrentTasks = 1
@@ -93,7 +94,53 @@ class Process(BioHubClass,
         super().minimumBuild()
 
 
-    #%%  XML section____________________________________________________________________________________________________
+#%%  LOGGER_____________________________________________________________________________________________________________
+
+
+    @property
+    def loggingEntityHandler(self) -> logging.FileHandler:
+
+        if self.entity is not None:
+
+            handler = logging.FileHandler(f"{self.entity.path}/logging.log", encoding = "utf-8")
+            handler.setLevel(logging.INFO)
+            handler.setFormatter(self.loggingFormatter)
+
+            return handler
+
+        else: return None
+
+
+    @property
+    def loggingFormat(self) -> list:
+
+        msg = f"{self.tool.capitalize()} {self.framework.capitalize()} ({self.id})"
+
+        if self.entity is not None:
+            msg += f" :: {self.entity.name} {self.entity.__class__.__name__} ({self.entity.id})"
+
+        return super().loggingFormat[:1] +\
+               [msg] +\
+               super().loggingFormat[1:]
+
+
+    @property
+    def logger(self):
+
+        auxLogger = logging.Logger(f"{self.id}")
+        auxLogger.setLevel(logging.INFO)
+
+        auxLogger.addHandler(self.loggingTerminalHandler)
+        auxLogger.addHandler(self.loggingGlobalHandler)
+
+        if self.loggingEntityHandler is not None:
+            auxLogger.addHandler(self.loggingEntityHandler)
+
+        return auxLogger
+
+
+
+#%%  XML section________________________________________________________________________________________________________
 
 
     @property
@@ -126,6 +173,32 @@ class Process(BioHubClass,
 #%%  Run methods________________________________________________________________________________________________________
 
 
+    def _runStart(self,
+                  options: dict = {},
+                  inputs: dict = {},
+                  outputsOutlines: set = set(),
+                  processOutlines: set = set(),
+                  **extraAttrs) -> None:
+        pass
+
+
+
+    def _runMiddle(self,
+                   options: dict = {},
+                   inputs: dict = {},
+                   outputsOutlines: set = set(),
+                   processOutlines: set = set(),
+                   **extraAttrs) -> dict:
+        pass
+
+    def _runEnd(self,
+                options: dict = {},
+                inputs: dict = {},
+                outputsOutlines: set = set(),
+                processOutlines: set = set(),
+                **extraAttrs) -> None:
+        pass
+
     def run(self,
             options: dict = {},
             inputs: dict = {},
@@ -133,7 +206,7 @@ class Process(BioHubClass,
             processOutlines: set = set(),
             **extraAttrs) -> dict:
 
-        self.entity.logger.info(f"Process {self.id} :: RUN :: Process description\tFramework: {self.framework}\tTool: {self.tool}")
+        self.logger.info(f"Process {self.id} :: RUN :: Process description\tFramework: {self.framework}\tTool: {self.tool}")
 
         #self.entity.logger.info(f"Process {self.id} :: BUILD :: Ckecking tool setup")
         #self._checkAppBuild()
@@ -141,12 +214,12 @@ class Process(BioHubClass,
         timeStart = datetime.now()
 
         #  1. Seteando las opciones
-        self.entity.logger.info(f"Process {self.id} :: OPTIONS :: Setting options")
+        self.logger.info(f"Process {self.id} :: OPTIONS :: Setting options")
         options = self._setOptions(**options)
 
 
         #  2. Seteando los inputs
-        self.entity.logger.info(f"Process {self.id} :: INPUTS :: Setting inputs")
+        self.logger.info(f"Process {self.id} :: INPUTS :: Setting inputs")
         inputs = self._setInputs(**inputs)
 
         #  Si no se han seteado los inputs correctamente, devuelve un diccionario vacío
@@ -155,27 +228,27 @@ class Process(BioHubClass,
             return {}
 
         #  3. Seteando los outputs
-        self.entity.logger.info(f"Process {self.id} :: OUTPUTS :: Setting outputs")
+        self.logger.info(f"Process {self.id} :: OUTPUTS :: Setting outputs")
         outputs = self._setOutputs(options = options,
                                    inputs = inputs,
                                    outputOutlines = outputOutlines,
                                    **extraAttrs)
 
         #  4. Aplicamos los condicionales para eliminar aquellos que no cumplan la condición
-        self.entity.logger.info(f"Process {self.id} :: UTILS :: Applying eval sentences")
+        self.logger.info(f"Process {self.id} :: UTILS :: Applying eval sentences")
         inputs, outputs, options = self._applyEvalSentences(inputs = inputs,
                                                             outputs = outputs,
                                                             options = options,
                                                             **extraAttrs)
 
         #  5. Eliminamos los elementos condicionales no resueltos satisfactoriamente
-        self.entity.logger.info(f"Process {self.id} :: UTILS :: Removing not successful conditions")
+        self.logger.info(f"Process {self.id} :: UTILS :: Removing not successful conditions")
         inputs, outputs, options = self._purgeConditionals(inputs = inputs,
                                                            outputs = outputs,
                                                            options = options)
 
         #  6. Definiendo el proceso
-        self.entity.logger.info(f"Process {self.id} :: CLONE :: Cloning process info for XML Element")
+        self.logger.info(f"Process {self.id} :: CLONE :: Cloning process info for XML Element")
         process = self._setProcess(inputs = inputs,
                                   outputs = outputs,
                                   options = options,
@@ -189,7 +262,7 @@ class Process(BioHubClass,
         if not self.duplicate:
 
             #  7. Buscando duplicados
-            self.entity.logger.info(f"Process {self.id} :: UTILS :: Looking for duplicated processes")
+            self.logger.info(f"Process {self.id} :: UTILS :: Looking for duplicated processes")
             processDuplicated = self.findDuplicatedProcesses(process)
 
             #  8. Retornando los outputs del duplicado
@@ -198,32 +271,32 @@ class Process(BioHubClass,
                 return self.extractOutputsFromProcess(processDuplicated[0]) #  TODO Implementar el retorno de outputs de procesos duplicados
 
         #  9. Ejecución del proceso
-        self.entity.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Executing process implementation")
+        self.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Executing process implementation")
         self._runProcess(inputs = inputs,
                          outputs = outputs,
                          options = options)
 
         #  10. Mover los archivos resultado del directorio temporal a la carpeta
-        self.entity.logger.info(f"Process {self.id} :: SAVE :: Moving files from temporal directory to BioHub directory")
+        self.logger.info(f"Process {self.id} :: SAVE :: Moving files from temporal directory to BioHub directory")
         self._moveFiles(outputs)
 
         #  11. Chequear los resultados del proceso
-        self.entity.logger.info(f"Process {self.id} :: CHECK :: Checking process status")
+        self.logger.info(f"Process {self.id} :: CHECK :: Checking process status")
         allRight = self._checkStatus(process = process,
                                      outputs = outputs)
 
         if not allRight:
-            self.entity.logger.error(f"Process {self.id} :: CHECK :: Process execution not successful")
+            self.logger.error(f"Process {self.id} :: CHECK :: Process execution not successful")
             return {}
 
         if self.save:
 
             #  12. Se añade la duración del proceso
-            self.entity.logger.info(f"Process {self.id} :: SAVE :: Add process runtime to process info")
+            self.logger.info(f"Process {self.id} :: SAVE :: Add process runtime to process info")
             process = self._addDuration(process, datetime.now())
 
             #  13. Guardar en la entidad tanto el proceso como los outputs
-            self.entity.logger.info(f"Process {self.id} :: SAVE :: Saving process info into BioHub container entity")
+            self.logger.info(f"Process {self.id} :: SAVE :: Saving process info into BioHub container entity")
             self._saveRecord(process = process,
                              outputs = outputs)
 

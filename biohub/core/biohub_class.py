@@ -4,8 +4,10 @@ from typing import Any, Union
 from xml.etree import ElementTree as ET
 from pattern.en import singularize
 
-from biohub.conf.general.constant import ID_LENGTH, ID_CHARACTERS, ID_PREFIX, DEFAULT_DATE_FORMAT
+import logging
 
+from biohub.conf.general.constant import ID_LENGTH, ID_CHARACTERS, ID_PREFIX, DEFAULT_DATE_FORMAT
+from biohub.conf.general.constant import LOG_HEADER, LOG_BODY, LOG_TAIL
 
 class BioHubClass:
 
@@ -70,6 +72,39 @@ class BioHubClass:
 
         if self.date is None:
             self.date = datetime.now()
+
+
+#%%  LOGGER_____________________________________________________________________________________________________________
+
+
+    @property
+    def loggingTerminalHandler(self) -> logging.StreamHandler:
+
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(self.loggingFormatter)
+
+        return handler
+
+
+    @property
+    def loggingGlobalHandler(self) -> logging.FileHandler:
+
+        handler = logging.FileHandler("biohub_logging.log", encoding = "utf-8")
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(self.loggingFormatter)
+
+        return handler
+
+    @property
+    def loggingFormat(self) -> list:
+        return [LOG_HEADER, LOG_BODY, LOG_TAIL]
+
+
+    @property
+    def loggingFormatter(self) -> logging.Formatter:
+        return logging.Formatter("\n".join(self.loggingFormat) + "\n",
+                                 datefmt = DEFAULT_DATE_FORMAT)
 
 
     #%%  XML special tags_______________________________________________________________________________________________
