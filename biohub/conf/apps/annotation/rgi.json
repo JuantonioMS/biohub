@@ -22,12 +22,31 @@
             }
         ],
 
-        "sentences": [
-            {
-                "route": "common",
-                "sentence": "<command> <options> <inputs>"
-            }
-        ]
+        "sentences": {
+
+            "start" : [
+                {
+                    "route" : "common",
+                    "orders" : []
+                }
+            ],
+
+            "middle" : [
+                {
+                    "route" : "common",
+                    "orders" : ["<command> <options> <inputs>"]
+                }
+            ],
+
+            "end" : [
+                {
+                    "route" : "common",
+                    "orders" : []
+                }
+            ]
+
+        }
+
     },
 
     "options": [

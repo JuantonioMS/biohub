@@ -5,7 +5,7 @@
     },
 
     "build": [
-        "conda create -y -p ->eval##self.environment<- resfinder",
+        "mamba create -y -p ->eval##self.environment<- resfinder",
         "git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git db_resfinder",
         "mv db_resfinder/ ->eval##self.environment<-/bin/",
         "git clone https://git@bitbucket.org/genomicepidemiology/pointfinder_db.git db_pointfinder",

@@ -55,10 +55,10 @@ class Implementation:
                     outputs: dict = {},
                     options: dict = {}) -> None:
 
-        self.entity.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Creating temporal directory {self.temporalDirectory}")
+        self.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Creating temporal directory {self.temporalDirectory}")
         self._createTemporalDirectory()
 
-        self.entity.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Running core process")
+        self.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Running core process")
         self._coreProcess(inputs = inputs,
                           outputs = outputs,
                           options = options)
@@ -87,4 +87,4 @@ class Implementation:
 
         elif self.type == "singularity": self.runSingularityPackage(sentence)
 
-        else: self.entity.logger.warning(f"Process {self.id} :: IMPLEMENTATION :: {self.type} is not a valid process type")
+        else: self.logger.warning(f"Process {self.id} :: IMPLEMENTATION :: {self.type} is not a valid process type")

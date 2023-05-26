@@ -6,7 +6,7 @@
     },
 
     "build": [
-        "conda create -y -p ->eval##self.environment<- trim-galore"
+        "mamba create -y -p ->eval##self.environment<- trim-galore"
     ],
 
     "implementation" : {

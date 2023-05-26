@@ -1,11 +1,10 @@
-from biohub.process.wrapper import Input
-from biohub.utils import verifyPath
+import copy
+from pathlib import Path
+from typing import Union
 
 from biohub.storage import File
-from pathlib import Path
-
-from typing import Union
-import copy
+from biohub.process.wrapper import Input
+from biohub.utils import verifyPath
 
 
 class Inputs:
@@ -36,13 +35,13 @@ class Inputs:
 
         #  Merge user inputs with default inputs
 
-        self.entity.logger.info(f"Process {self.id} :: INPUTS :: Creating user inputs")
+        self.logger.info(f"Process {self.id} :: INPUTS :: Creating user inputs")
         inputs = self._createUserInputs(**inputs)
 
-        self.entity.logger.info(f"Process {self.id} :: INPUTS :: Merging user inputs and default inputs")
+        self.logger.info(f"Process {self.id} :: INPUTS :: Merging user inputs and default inputs")
         inputs = self._mergeInputs(inputs, self.defaultInputs)
 
-        self.entity.logger.info(f"Process {self.id} :: INPUTS :: Creating BioHub File objects")
+        self.logger.info(f"Process {self.id} :: INPUTS :: Creating BioHub File objects")
         inputs = self._createPendingInputs(**inputs)
 
         if any(input is None for input in inputs.values()):
@@ -57,7 +56,7 @@ class Inputs:
         auxInputs = {}
         for role, input in inputs.items():
 
-            self.entity.logger.info(f"Process {self.id} :: INPUTS :: User input -> role: {role}; type: {type(input)}; input: {input}")
+            self.logger.info(f"Process {self.id} :: INPUTS :: User input -> role: {role}; type: {type(input)}; input: {input}")
 
             if isinstance(input, Input):
                 auxInputs[role] = input
@@ -72,7 +71,7 @@ class Inputs:
                                         biohubFile = verifyPath(input))
 
             else:
-                self.entity.logger.warning(f"Process {self.id} :: INPUTS :: Not valid input type!")
+                self.logger.warning(f"Process {self.id} :: INPUTS :: Not valid input type!")
 
         return auxInputs
 
@@ -88,7 +87,7 @@ class Inputs:
                 #  Si existe un prefijo para el input y el usuario no lo ha definido previamente (via Wrapper)
                 if defaultInput.name and not inputs[role].name:
 
-                    self.entity.logger.info(f"Process {self.id} :: INPUTS :: Adding input name to user input -> role: {role}; name: {defaultInput.name}")
+                    self.logger.info(f"Process {self.id} :: INPUTS :: Adding input name to user input -> role: {role}; name: {defaultInput.name}")
 
                     inputs[role]._name = defaultInput.name
 
@@ -97,7 +96,7 @@ class Inputs:
             #  Si no ha definido el input
             else:
 
-                self.entity.logger.info(f"Process {self.id} :: INPUTS :: Completing with default input -> role: {role}")
+                self.logger.info(f"Process {self.id} :: INPUTS :: Completing with default input -> role: {role}")
 
                 auxInputs[role] = defaultInput
 
@@ -137,7 +136,7 @@ class Inputs:
 
     def _selectInput(self, info: list) -> Union[File, None]:
 
-        self.entity.logger.info(f"Process {self.id} :: INPUTS :: Selecting input")
+        self.logger.info(f"Process {self.id} :: INPUTS :: Selecting input")
 
         field = {"required" : {},
                  "optimal"  : {}}
@@ -176,7 +175,7 @@ class Inputs:
 
             if candidates:
 
-                self.entity.logger.info(f"Process {self.id} :: INPUTS :: Candidate files found: {len(candidates)}")
+                self.logger.info(f"Process {self.id} :: INPUTS :: Candidate files found: {len(candidates)}")
                 if len(candidates) > 1: self.entity.logger.warning("No unique candidate file found")
 
                 return candidates[0]
@@ -186,7 +185,7 @@ class Inputs:
 
             if len(optimalFieldView) == 0:
 
-                self.entity.logger.warning(f"Process {self.id} :: INPUTS :: No candidate files for role {info.role}")
+                self.logger.warning(f"Process {self.id} :: INPUTS :: No candidate files for role {info.role}")
 
                 break
 

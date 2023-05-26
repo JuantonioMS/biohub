@@ -1,5 +1,6 @@
 from biohub.process.wrapper import Option
 
+
 class Options:
 
 
@@ -36,7 +37,7 @@ class Options:
         Se buscan las opciones por defecto. Cualquier opción indicada por el usuario eliminará la opción por
         defecto correspondiente si es necesario"""
 
-        self.entity.logger.info(f"Process {self.id} :: OPTIONS :: {len(options)} user options")
+        self.logger.info(f"Process {self.id} :: OPTIONS :: {len(options)} user options")
 
         auxOptions = {}
 
@@ -79,6 +80,6 @@ class Options:
 
         #auxOptions.update(options)
 
-        self.entity.logger.info(f"Process {self.id} :: OPTIONS :: {len(auxOptions)} setted options")
+        self.logger.info(f"Process {self.id} :: OPTIONS :: {len(auxOptions)} setted options")
 
         return auxOptions

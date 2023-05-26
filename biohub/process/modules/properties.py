@@ -1,6 +1,7 @@
-from pathlib import Path
-
 import json
+import logging
+
+from pathlib import Path
 
 from biohub.conf.general.constant import DEFAULT_PROCESS_TEMPORAL_NAME
 
@@ -9,9 +10,15 @@ APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../../conf"), "apps")
 class Properties:
 
 
+#%%  TEMPORAL DIRECTORY_________________________________________________________________________________________________
+
+
     @property
     def temporalDirectory(self) -> Path:
         return Path(self.entity.path, f"files/{DEFAULT_PROCESS_TEMPORAL_NAME}")
+
+
+#%%  OUTLINES___________________________________________________________________________________________________________
 
 
     @property
@@ -37,6 +44,9 @@ class Properties:
                             except KeyError: pass
 
         return aux
+
+
+#%%  JSON INFO EXTRACTION_______________________________________________________________________________________________
 
 
     @property

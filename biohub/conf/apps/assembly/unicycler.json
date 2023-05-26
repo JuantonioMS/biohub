@@ -5,7 +5,7 @@
     },
 
     "build": [
-        "conda create -y -p ->eval##self.environment<- unicycler"
+        "mamba create -y -p ->eval##self.environment<- unicycler"
     ],
 
     "implementation" : {

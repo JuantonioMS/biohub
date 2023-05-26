@@ -2,10 +2,9 @@ from datetime import datetime
 import random
 from typing import Any, Union
 from xml.etree import ElementTree as ET
-from pattern.en import singularize
-
 import logging
 
+from biohub.utils import singularize
 from biohub.conf.general.constant import ID_LENGTH, ID_CHARACTERS, ID_PREFIX, DEFAULT_DATE_FORMAT
 from biohub.conf.general.constant import LOG_HEADER, LOG_BODY, LOG_TAIL
 

@@ -4,8 +4,15 @@ from pathlib import Path
 
 import yaml
 
+from biohub.conf.general.constant import SINGULARIZE
 
 #  _________________________Utilitiy functions_________________________
+
+
+
+def singularize(word):
+    return SINGULARIZE[word.lower()]
+
 
 
 def readYaml(file):
@@ -21,12 +28,14 @@ def readYaml(file):
     except FileNotFoundError: return {}
 
 
+
 def verifyPath(path):
 
     if not isinstance(path, Path):
             path = Path(path)
 
     return path
+
 
 
 def verifyDate(date: str) -> datetime:
@@ -37,23 +46,33 @@ def verifyDate(date: str) -> datetime:
     return date
 
 
-    def evalSentence(self, sentence, **kwargs):
-
-        locals().update(kwargs) #  Actualiza las variables locales
-
-        return eval(sentence[6:])
 
 def evalSentence(sentence, **kwargs):
 
     locals().update(kwargs) #  Actualiza las variables locales
 
-    return eval(sentence[6:] if "eval##" in sentence else sentence)
+    while isinstance(sentence, str) and "eval##" in sentence:
+
+        fragment = sentence.split("->")[1].split("<-")[0][6:]
+
+        evaluation = eval(fragment)
+
+        if len(fragment) + 10 == len(sentence): #  Si el fragmento es la sentencia entera (puede devolver no str)
+            return evaluation
+
+        else:
+            sentence = sentence.replace(f"->eval##{fragment}<-",
+                                        str(evaluation))
+
+    return sentence
+
 
 
 def isThisWordThere(word: str,
                     place: dict) -> bool:
 
     return any(word == word for key in place for word in place[key])
+
 
 
 def completeNestedDict(brick: dict,

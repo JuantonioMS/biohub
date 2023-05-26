@@ -13,6 +13,21 @@ ID_PREFIX = {"Subject"  : "bhSubject_",
              "Folder"   : "bhFolder_",
              "Unknown"  : "bhID_"}
 
+#  Singularize
+
+SINGULARIZE = {"subjects" : "subject",
+               "files"    : "file",
+               "folders"  : "folder",
+               "processes": "process",
+               "pipelines": "pipeline",
+               "options"  : "option",
+               "inputs"   : "input",
+               "outputs"  : "output",
+               "outlines" : "outline",
+               "tags"     : "tag",
+               "links"    : "link"}
+
+
 #  Logger
 
 LOG_HEADER = "[log] %(levelname)s :: %(asctime)s"

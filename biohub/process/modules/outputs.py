@@ -1,6 +1,8 @@
-from biohub.process.wrapper import Output
-from biohub.storage import File
 from pathlib import Path
+
+from biohub.storage import File
+from biohub.process.wrapper import Output
+
 
 class Outputs:
 
@@ -67,6 +69,6 @@ class Outputs:
         output.biohubFile = file
         output.pathPrefix = self.entity.path
 
-        self.entity.logger.info(f"Process {self.id} :: OUTPUTS :: Creating output {output}; role {output.role}")
+        self.logger.info(f"Process {self.id} :: OUTPUTS :: Creating output {output}; role {output.role}")
 
         return output

@@ -5,7 +5,7 @@
     },
 
     "build": [
-        "conda create -y -p ->eval##self.environment<- mlst"
+        "mamba create -y -p ->eval##self.environment<- mlst"
     ],
 
     "implementation" : {

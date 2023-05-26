@@ -16,15 +16,12 @@ class Build:
         if not any([self.environment.split("/")[-1] in i for i in result.split("\n")]):
 
 
-            self.entity.logger.info(f"Process {self.id} :: BUILD :: Installing conda env {self.environment}")
+            self.logger.info(f"Process {self.id} :: BUILD :: Installing conda env {self.environment}")
 
             for command in self.jsonInfo["build"]:
 
 
                 while "eval##" in command:
-                    sentence = "->" + command.split("->")[1].split("<-")[0] + "<-"
-                    result = evalSentence(sentence[2:-2],
-                                          self = self)
-                    command = command.replace(sentence, str(result))
+                    command = evalSentence(command, self = self)
 
                 self.runCommand(command)

@@ -1,13 +1,14 @@
 from typing import Any
 from pathlib import Path
 from datetime import timedelta
-from pattern.en import singularize
 
 from xml.etree import ElementTree as ET
 
 from biohub.process.wrapper import Input, Output, Option
-
+from biohub.utils import singularize
 class XmlMethods:
+
+#%%  DURATION___________________________________________________________________________________________________________
 
 
     def __getXmlDuration__(self, attr: Any) -> Any:
@@ -26,6 +27,21 @@ class XmlMethods:
 
         except KeyError: return None
 
+
+
+    def __setXmlDuration__(self, attr: str, value: Any) -> None:
+
+        if isinstance(value, timedelta):
+
+            hours = int(value.total_seconds()//3600)
+            minutes = f"{int(value.total_seconds()/60%60):0>2}"
+            seconds = f"{int(value.total_seconds()%60):0>2}"
+            microseconds = f"{value.microseconds:0>6}"
+
+            self._xmlElement.attrib[attr] = f"{hours}:{minutes}:{seconds}.{microseconds}"
+
+
+#%%  GET INPUTS AND OUTPUTS_____________________________________________________________________________________________
 
 
     def __getXmlIOFiles__(self, attr: Any) -> Any:
@@ -56,6 +72,9 @@ class XmlMethods:
                     aux[subelement.attrib["role"]] = wrapper
 
         return aux
+
+
+#%%  GET OPTIONS________________________________________________________________________________________________________
 
 
     def __getXmlOptions__(self, attr: Any) -> Any:
@@ -94,18 +113,7 @@ class XmlMethods:
         return aux
 
 
-    def __setXmlDuration__(self, attr: str, value: Any) -> None:
-
-        if isinstance(value, timedelta):
-
-            hours = int(value.total_seconds()//3600)
-            minutes = f"{int(value.total_seconds()/60%60):0>2}"
-            seconds = f"{int(value.total_seconds()%60):0>2}"
-            microseconds = f"{value.microseconds:0>6}"
-
-            self._xmlElement.attrib[attr] = f"{hours}:{minutes}:{seconds}.{microseconds}"
-
-
+#%%  SET WRAPPERS_______________________________________________________________________________________________________
 
     def __setXmlWrapper__(self, attr: str, value: Any) -> None:
 

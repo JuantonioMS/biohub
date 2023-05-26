@@ -43,41 +43,31 @@ class Utils:
 
                         for attr in wrap.evalAttributes: #  Para cada atributo que puede tener una sentencia
 
-                            value = getattr(wrap, attr)
+                            sentence = getattr(wrap, attr)
 
-                            if isinstance(value, str) and "eval##" in value:
-
-                                sentence = "->" + value.split("->")[1].split("<-")[0] + "<-"
-
+                            if isinstance(sentence, str) and "eval##" in sentence:
                                 try:
 
-                                    result = evalSentence(sentence[2:-2],
-                                                          entity = self.entity,
-                                                          inputs = inputs,
-                                                          outputs = outputs,
-                                                          options = options,
-                                                          self = self)
+                                    evaluation = evalSentence(sentence,
+                                                            entity = self.entity,
+                                                            inputs = inputs,
+                                                            outputs = outputs,
+                                                            options = options,
+                                                            self = self)
 
                                 except (NameError, AttributeError, KeyError, IndexError): break
 
-                                #  Si la sentencia es toda la expresión (puede generar un dato diferente a str)
-                                if len(sentence) == len(value):
-                                    value = result
-
-                                else: #  Si es una cadena más larga, se remplaza la sentencia por el resultado
-                                    value = value.replace(sentence, str(result))
-
                                 #  Actualización del valor en el wrap
-                                setattr(wrap, attr, value)
+                                setattr(wrap, attr, evaluation)
 
-                                if not wrap.evalPending and wrap.condition: #  Si no quedan más sentencias por evaluar
 
-                                    #  Podemos crear el Output completo
-                                    if isinstance(wrap, Output):
-                                        outputs[role] = self._createOutput(wrap, **extraAttrs)
+                        #  Podemos crear el Output completo
+                        if not wrap.evalPending:
+                            if isinstance(wrap, Output):
+                                outputs[role] = self._createOutput(wrap, **extraAttrs)
 
-                                    #  Podemos crear el Input completo
-                                    elif isinstance(wrap, Input): inputs[role] = self._createInput(wrap)
+                            #  Podemos crear el Input completo
+                            elif isinstance(wrap, Input): inputs[role] = self._createInput(wrap)
 
 
                         else: count += 1 #  Añadimos una señal de que algo se ha conseguido

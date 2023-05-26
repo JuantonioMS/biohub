@@ -30,12 +30,12 @@ class Commands:
 
             if not outputMsg: outputMsg = "No output"
 
-            self.entity.logger.info(f"Process {self.id} :: COMMANDS :: Command -> " + command +
+            self.logger.info(f"Process {self.id} :: COMMANDS :: Command -> " + command +
                                     "\n" +
                                     "Output -> " + outputMsg)
 
         if outputCode != 0:
-            self.entity.logger.warning(f"Process {self.id} :: COMMANDS :: Return code is not 0 (code {outputCode})")
+            self.logger.warning(f"Process {self.id} :: COMMANDS :: Return code is not 0 (code {outputCode})")
 
         return outputCode, outputMsg
 
@@ -52,7 +52,7 @@ class Commands:
             return Path("/".join(subprocess.getoutput("which conda").split("/")[:-2]))
 
         except:
-            self.entity.logger.error(f"Process {self.id} :: COMMANDS :: No Anaconda/Miniconda found")
+            self.logger.error(f"Process {self.id} :: COMMANDS :: No Anaconda/Miniconda found")
             raise ProcessLookupError("No Anaconda/Miniconda installation found, please install. If it is installed " +
                                      "check $PATH")
 
@@ -83,7 +83,7 @@ class Commands:
         Ejecuta comandos recogidos en entornos conda de forma similar al método runCommand
         """
 
-        self.entity.logger.info(f"Process {self.id} :: COMMANDS :: Running conda command")
+        self.logger.info(f"Process {self.id} :: COMMANDS :: Running conda command")
 
         if not environment:
             environment = self.environment
