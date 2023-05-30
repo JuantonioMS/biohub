@@ -172,33 +172,68 @@ class Process(BioHubClass,
 #%%  Run methods________________________________________________________________________________________________________
 
 
-    def _runStart(self,
-                  options: dict = {},
-                  inputs: dict = {},
-                  outputsOutlines: set = set(),
-                  processOutlines: set = set(),
-                  **extraAttrs) -> None:
-        pass
-
-
-
-    def _runMiddle(self,
-                   options: dict = {},
-                   inputs: dict = {},
-                   outputsOutlines: set = set(),
-                   processOutlines: set = set(),
-                   **extraAttrs) -> dict:
-        pass
-
-    def _runEnd(self,
-                options: dict = {},
-                inputs: dict = {},
-                outputsOutlines: set = set(),
-                processOutlines: set = set(),
-                **extraAttrs) -> None:
-        pass
-
     def run(self,
+            options: dict = {},
+            inputs: dict = {},
+            outputOutlines: set = set(),
+            processOutlines: set = set(),
+            **extraAttrs) -> dict:
+
+        self._runHead(options = options,
+                      inputs = inputs,
+                      outputOutlines = outputOutlines,
+                      processOutlines = processOutlines,
+                      **extraAttrs)
+
+        result = self._runBody(options = options,
+                               inputs = inputs,
+                               outputOutlines = outputOutlines,
+                               processOutlines = processOutlines,
+                               **extraAttrs)
+
+        self._runTail(options = options,
+                      inputs = inputs,
+                      outputOutlines = outputOutlines,
+                      processOutlines = processOutlines,
+                      **extraAttrs)
+
+        return result
+
+
+
+    def _runHead(self,
+                 options: dict = {},
+                 inputs: dict = {},
+                 outputOutlines: set = set(),
+                 processOutlines: set = set(),
+                 **extraAttrs) -> None:
+
+        self._runSentences(self.sentencesHead,
+                           options = options,
+                           inputs = inputs,
+                           outputOutlines = outputOutlines,
+                           processOutlines = processOutlines,
+                           **extraAttrs)
+
+
+
+    def _runTail(self,
+                 options: dict = {},
+                 inputs: dict = {},
+                 outputOutlines: set = set(),
+                 processOutlines: set = set(),
+                 **extraAttrs) -> None:
+
+        self._runSentences(self.sentencesTail,
+                           options = options,
+                           inputs = inputs,
+                           outputOutlines = outputOutlines,
+                           processOutlines = processOutlines,
+                           **extraAttrs)
+
+
+
+    def _runBody(self,
             options: dict = {},
             inputs: dict = {},
             outputOutlines: set = set(),

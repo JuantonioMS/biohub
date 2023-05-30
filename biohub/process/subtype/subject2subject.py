@@ -16,11 +16,11 @@ class ProcessStoS(Process):
         result = process.__class__(entity = subject,
                                    threadsPerTask = process.threadsPerTask,
                                    save = process.save,
-                                   duplicate = process.duplicate).run(options = options,
-                                                                      inputs = inputs,
-                                                                      outputOutlines = outputOutlines,
-                                                                      processOutlines = processOutlines,
-                                                                      **extraAttrs)
+                                   duplicate = process.duplicate)._runBody(options = options,
+                                                                           inputs = inputs,
+                                                                           outputOutlines = outputOutlines,
+                                                                           processOutlines = processOutlines,
+                                                                           **extraAttrs)
 
         return result
 
@@ -44,6 +44,12 @@ class ProcessStoS(Process):
         #  Varios procesos
         else:
 
+            self._runHead(options = options,
+                            inputs = inputs,
+                            outputOutlines = outputOutlines,
+                            processOutlines = processOutlines,
+                            *extraAttrs)
+
             #  Memoria compartida
             if not self.distributedMemory:
 
@@ -61,12 +67,11 @@ class ProcessStoS(Process):
                 with Pool(self.concurrentTasks) as pool:
                     results = pool.starmap(self.runWrapper, parameters)
 
+
                 aux = {}
                 #for result, parameter in zip(results, parameters):
 
                     #aux[parameter[0].id] = result
-
-                return aux
 
             #  Memoria distribuida
             else:
@@ -129,4 +134,12 @@ class ProcessStoS(Process):
 
                 self.runCommand(f"rm *_{self.id}.out")
 
-                return {}
+
+            self._runTail(options = options,
+                            inputs = inputs,
+                            outputOutlines = outputOutlines,
+                            processOutlines = processOutlines,
+                            *extraAttrs)
+
+
+            return {}

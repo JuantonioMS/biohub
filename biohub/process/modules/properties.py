@@ -3,11 +3,33 @@ import logging
 
 from pathlib import Path
 
-from biohub.conf.general.constant import DEFAULT_PROCESS_TEMPORAL_NAME
+from biohub.conf.general.constant import DEFAULT_PROCESS_TEMPORAL_NAME, DEFAULT_CLI_SEPARATOR
+
 
 APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../../conf"), "apps")
 
 class Properties:
+
+
+    @property
+    def _CLI_SEPARATOR_OPTIONS(self) -> str:
+
+        try: return self.jsonInfo["implementation"]["cliDetails"]["optionsSeparator"]
+        except KeyError: return DEFAULT_CLI_SEPARATOR
+
+
+    @property
+    def _CLI_SEPARATOR_INPUTS(self) -> str:
+
+        try: return self.jsonInfo["implementation"]["cliDetails"]["inputsSeparator"]
+        except KeyError: return DEFAULT_CLI_SEPARATOR
+
+
+    @property
+    def _CLI_SEPARATOR_OUTPUTS(self) -> str:
+
+        try: return self.jsonInfo["implementation"]["cliDetails"]["outputsSeparator"]
+        except KeyError: return DEFAULT_CLI_SEPARATOR
 
 
 #%%  TEMPORAL DIRECTORY_________________________________________________________________________________________________

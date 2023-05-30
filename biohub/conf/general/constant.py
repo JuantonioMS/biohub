@@ -28,6 +28,10 @@ SINGULARIZE = {"subjects" : "subject",
                "links"    : "link"}
 
 
+#  CLI
+
+DEFAULT_CLI_SEPARATOR = " "
+
 #  Logger
 
 LOG_HEADER = "[log] %(levelname)s :: %(asctime)s"

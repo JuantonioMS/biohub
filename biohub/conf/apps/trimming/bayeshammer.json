@@ -17,7 +17,18 @@
                 "route": "common",
                 "command": "spades.py"
             }
-        ]
+        ],
+
+        "sentences": {
+
+            "body" : [
+                {
+                    "route" : "common",
+                    "sentences" : ["<command> <options> <inputs>"]
+                }
+            ]
+
+        }
     },
 
     "options": [

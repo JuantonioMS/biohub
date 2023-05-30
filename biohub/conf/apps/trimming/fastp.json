@@ -2,11 +2,11 @@
 
     "info" : {
         "type" : "anaconda",
-        "environment": "biohub.trimgalore"
+        "environment": "biohub.fastp"
     },
 
     "build": [
-        "mamba create -y -p ->eval##self.environment<- trim-galore"
+        "mamba create -y -p ->eval##self.environment<- fastp"
     ],
 
     "implementation" : {
@@ -16,7 +16,7 @@
         "commands": [
             {
                 "route": "common",
-                "command": "trim_galore"
+                "command": "fastp"
             }
         ],
 
@@ -25,7 +25,7 @@
             "body" : [
                 {
                     "route" : "common",
-                    "sentences" : ["<command> <options> <inputs>"]
+                    "sentences" : ["<command> <options> <inputs> <outputs>"]
                 }
             ]
 
@@ -33,36 +33,39 @@
     },
 
     "options": [
+
         {
             "route": "common",
             "role": "threads",
-            "name": "--cores",
-            "alternativeName": "-j"
+            "name": "--thread",
+            "alternativeName": "-w"
         },
+
         {
             "route": "common",
-            "role": "outputDirectory",
-            "name": "--output_dir",
-            "alternativeName": "-o"
+            "role": "minimum quality",
+            "name": "--qualified_quality_phred",
+            "alternativeName": "-q",
+            "value": 20
         },
+
         {
             "route": "common",
-            "role": "temporalName",
-            "name": "--basename",
-            "value": "trimmed"
-        },
-        {
-            "route": "paired",
-            "role": "pairedFlag",
-            "name": "--paired",
-            "value": true
+            "role": "minimum length",
+            "name": "--length_required",
+            "alternativeName": "-l",
+            "value": 40
         }
+
     ],
 
     "inputs": [
+
         {
             "route": "paired",
             "role": "forward",
+            "name": "--in1",
+            "alternativeName": "-i",
             "selection": [
                 {
                     "target": "outlines",
@@ -71,9 +74,12 @@
                 }
             ]
         },
+
         {
             "route": "paired",
             "role": "reverse",
+            "name": "--in2",
+            "alternativeName": "-I",
             "selection": [
                 {
                     "target": "outlines",
@@ -82,9 +88,12 @@
                 }
             ]
         },
+
         {
             "route": "single",
             "role": "single",
+            "name": "--in1",
+            "alternativeName": "-i",
             "selection": [
                 {
                     "target": "outlines",
@@ -93,29 +102,61 @@
                 }
             ]
         }
+
     ],
 
     "outputs": [
+
         {
             "route": "paired",
             "role": "forward",
-            "temporal": "->eval##options['temporalName'].value<-_val_1.fq.gz",
-            "extension": ".fq.gz",
+            "name": "--out1",
+            "alternativeName": "-o",
+            "temporal": "forward.fastq.gz",
+            "extension": ".fastq.gz",
             "outlines": ["forward"]
         },
+
         {
             "route": "paired",
             "role": "reverse",
-            "temporal": "->eval##options['temporalName'].value<-_val_2.fq.gz",
-            "extension": ".fq.gz",
+            "name": "--out2",
+            "alternativeName": "-O",
+            "temporal": "reverse.fastq.gz",
+            "extension": ".fastq.gz",
             "outlines": ["reverse"]
         },
+
         {
             "route": "single",
             "role": "single",
-            "temporal": "->eval##options['temporalName'].value<-_trimmed.fq.gz",
-            "extension": ".fq.gz"
+            "name": "--out1",
+            "alternativeName": "-o",
+            "temporal": "single.fastq.gz",
+            "extension": ".fastq.gz",
+            "outlines": ["single"]
+        },
+
+        {
+            "route": "common",
+            "role": "html report",
+            "name": "--html",
+            "alternativeName": "-h",
+            "temporal": "fastp.html",
+            "extension": ".html",
+            "outlines": ["fastp html report"]
+        },
+
+        {
+            "route": "common",
+            "role": "json report",
+            "name": "--json",
+            "alternativeName": "-j",
+            "temporal": "fastp.json",
+            "extension": ".json",
+            "outlines": ["fastp json report"]
         }
+
     ],
 
     "outlines": [

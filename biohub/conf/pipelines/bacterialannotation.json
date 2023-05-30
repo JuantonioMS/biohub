@@ -1,0 +1,77 @@
+{
+    "info": {
+        "type": "subject2subject",
+        "description": "Test pipeline"
+    },
+
+    "processes": [
+
+        {
+            "info": {
+                "framework": "analysis",
+                "tool": "FastQC"
+            },
+
+            "resources": {
+                "threadsPerTask": 2
+            }
+        },
+
+        {
+            "info": {
+                "framework": "trimming",
+                "tool": "BayesHammer"
+            }
+        },
+
+        {
+            "info": {
+                "framework": "assembly",
+                "tool": "Unicycler"
+            }
+        },
+
+        {
+            "info": {
+                "framework": "analysis",
+                "tool": "Quast"
+            }
+        },
+
+        {
+            "info": {
+                "framework": "annotation",
+                "tool": "Prokka"
+            }
+        },
+
+        {
+            "info": {
+                "framework": "annotation",
+                "tool": "ResFinder"
+            }
+        },
+
+        {
+            "info": {
+                "framework": "annotation",
+                "tool": "PlasmidFinder"
+            }
+        },
+
+        {
+            "info": {
+                "framework": "annotation",
+                "tool": "Rgi"
+            }
+        },
+
+        {
+            "info": {
+                "framework": "annotation",
+                "tool": "Mlst"
+            }
+        }
+
+    ]
+}

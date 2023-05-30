@@ -185,7 +185,7 @@ class Inputs:
 
             if len(optimalFieldView) == 0:
 
-                self.logger.warning(f"Process {self.id} :: INPUTS :: No candidate files for role {info.role}")
+                #self.logger.warning(f"Process {self.id} :: INPUTS :: No candidate files for role {info.role}")
 
                 break
 

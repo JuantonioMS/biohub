@@ -5,10 +5,13 @@
     },
 
     "build": [
-        "mamba create -y -p ->eval##self.environment<- rgi",
-        "wget https://card.mcmaster.ca/latest/data -O ->eval##self.environment<-/data",
-        "tar -xvf ->eval##self.environment<-/data --directory ->eval##self.environment<-",
-        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && rgi load --card_json ->eval##self.environment<-/card.json"
+        "mamba create -y -p ->eval##self.environment<- rgi=5.2.0",
+        "wget https://card.mcmaster.ca/latest/data",
+        "tar -xvf data ./card.json",
+        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && rgi load --card_json card.json --local",
+        "rm card.json",
+        "rm data",
+        "mv localDB ->eval##self.environment<-/localDB"
     ],
 
     "implementation" : {
@@ -24,24 +27,24 @@
 
         "sentences": {
 
-            "start" : [
+            "head" : [
                 {
                     "route" : "common",
-                    "orders" : []
+                    "sentences" : ["ln -s ->eval##self.environment<-/localDB localDB"]
                 }
             ],
 
-            "middle" : [
+            "body" : [
                 {
                     "route" : "common",
-                    "orders" : ["<command> <options> <inputs>"]
+                    "sentences" : ["<command> <options> <inputs>"]
                 }
             ],
 
-            "end" : [
+            "tail" : [
                 {
                     "route" : "common",
-                    "orders" : []
+                    "sentences" : ["rm localDB"]
                 }
             ]
 

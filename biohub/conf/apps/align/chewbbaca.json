@@ -19,12 +19,16 @@
             }
         ],
 
-        "sentences": [
-            {
-                "route": "common",
-                "sentence": "<command> <options> <inputs>"
-            }
-        ]
+        "sentences": {
+
+            "body" : [
+                {
+                    "route" : "common",
+                    "sentences" : ["<command> <options> <inputs>"]
+                }
+            ]
+
+        }
     },
 
     "options": [

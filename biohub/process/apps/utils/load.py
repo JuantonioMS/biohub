@@ -24,7 +24,6 @@ class Load(Utils):
             output.path = f"files/{File().newId()}{inputInfo.suffixes}"
             output.outlines = self.defaultOutputOutlines | outputOutlines | outlines
 
-
             outputs[inputRole] = Output(temporal = inputInfo.path,
                                         role = inputRole,
                                         pathPrefix = self.entity.path,
