@@ -5,7 +5,6 @@ from biohub.process.wrapper import Wrapper
 
 class Option(Wrapper):
 
-
     @property
     def name(self) -> str:
 
@@ -44,14 +43,17 @@ class Option(Wrapper):
         return {"value"} | super().evalAttributes
 
 
+
     def __eq__(self, other: object) -> bool:
 
         try: return self.name == other.name and self.value == other.value
         except: return False
 
 
+
     def __hash__(self) -> int:
         return hash((self.name, self.value))
+
 
 
     def __str__(self) -> str:

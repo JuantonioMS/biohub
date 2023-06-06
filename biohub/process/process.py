@@ -240,20 +240,21 @@ class Process(BioHubClass,
             processOutlines: set = set(),
             **extraAttrs) -> dict:
 
-        self.logger.info(f"Process {self.id} :: RUN :: Process description\tFramework: {self.framework}\tTool: {self.tool}")
-
-        #self.entity.logger.info(f"Process {self.id} :: BUILD :: Ckecking tool setup")
-        #self._checkAppBuild()
+        self.logger.info("\n".join([f"Running process body:",
+                                    f"\tFramework: {self.framework}",
+                                    f"\tTool: {self.tool}",
+                                    f"\tID: {self.id}",
+                                    f"\tEntity: {self.entity.id}",
+                                    f"\tThreads: {self.threadsPerTask}"]))
 
         timeStart = datetime.now()
 
         #  1. Seteando las opciones
-        self.logger.info(f"Process {self.id} :: OPTIONS :: Setting options")
+        self.logger.info("OPTIONS :: Setting options")
         options = self._setOptions(**options)
 
-
         #  2. Seteando los inputs
-        self.logger.info(f"Process {self.id} :: INPUTS :: Setting inputs")
+        self.logger.info("INPUTS :: Setting inputs")
         inputs = self._setInputs(**inputs)
 
         #  Si no se han seteado los inputs correctamente, devuelve un diccionario vacío

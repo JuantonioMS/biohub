@@ -12,7 +12,6 @@ DEFAULT_EXTENSION = ".txt"
 
 class FileIO(Wrapper):
 
-
     @property
     def biohubFile(self) -> Any:
 
@@ -41,11 +40,13 @@ class FileIO(Wrapper):
             try: return Path(self.pathPrefix, self.biohubFile.path)
             except AttributeError: return self.biohubFile.path
 
+
     @property
     def pathPrefix(self) -> Path:
 
         try: return self._pathPrefix
         except AttributeError: return Path()
+
 
     @pathPrefix.setter
     def pathPrefix(self, value: Path) -> Path:
@@ -105,6 +106,7 @@ class FileIO(Wrapper):
         else:
             return self.biohubFile.size
 
+
     @property
     def evalAttributes(self) -> set:
         return {"name"} | super().evalAttributes
@@ -125,7 +127,9 @@ class FileIO(Wrapper):
         return self.path.exists() if isinstance(self.biohubFile, Path) else self.biohubFile.exists
 
 
+
     def __hash__(self) -> int: return hash(self.id)
+
 
 
     def __str__(self) -> str:
@@ -135,6 +139,7 @@ class FileIO(Wrapper):
         else: msg = msg.replace("<name>", "")
 
         return msg
+
 
 
     def __eq__(self, other: object) -> bool:
@@ -162,9 +167,7 @@ class Input(FileIO):
 
 
 
-
 class Output(FileIO):
-
 
     @property
     def evalAttributes(self) -> set:
@@ -202,6 +205,7 @@ class Output(FileIO):
 
         try: return self._extension
         except AttributeError: return DEFAULT_EXTENSION
+
 
     @extension.setter
     def extension(self, value: str) -> None:

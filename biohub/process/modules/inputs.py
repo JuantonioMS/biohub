@@ -2,9 +2,11 @@ import copy
 from pathlib import Path
 from typing import Union
 
-from biohub.storage import File
+from biohub.storage import File, Folder
 from biohub.process.wrapper import Input
-from biohub.utils import verifyPath
+from biohub.utils import verifyPath, getDefaultRole
+
+from biohub.conf.general.constant import DEFAULT_PROCESS_ROUTE
 
 
 class Inputs:
@@ -20,11 +22,10 @@ class Inputs:
         try: allInputs = self.jsonInfo["inputs"]
         except KeyError: allInputs = []
 
-        for route in ("common", self.route):
+        for route in (DEFAULT_PROCESS_ROUTE, self.route):
             for element in allInputs:
 
                 if element["route"] == route:
-
                     auxDefaultInputs[element["role"]] = Input(**element)
 
         return auxDefaultInputs
@@ -35,14 +36,14 @@ class Inputs:
 
         #  Merge user inputs with default inputs
 
-        self.logger.info(f"Process {self.id} :: INPUTS :: Creating user inputs")
-        inputs = self._createUserInputs(**inputs)
+        self.logger.info(f"INPUTS :: Wrap User Inputs :: Wrapping {len(inputs)} user inputs")
+        inputs = self._wrapUserInputs(**inputs)
 
-        self.logger.info(f"Process {self.id} :: INPUTS :: Merging user inputs and default inputs")
-        inputs = self._mergeInputs(inputs, self.defaultInputs)
+        self.logger.info(f"INPUTS :: Merge Inputs :: Merging user and default inputs")
+        inputs = self._mergeInputs(**inputs)
 
-        self.logger.info(f"Process {self.id} :: INPUTS :: Creating BioHub File objects")
-        inputs = self._createPendingInputs(**inputs)
+        self.logger.info(f"INPUTS :: Solve inputs :: Solving unresolved inputs")
+        inputs = self._solveInputs(**inputs)
 
         if any(input is None for input in inputs.values()):
             inputs = {}
@@ -51,73 +52,68 @@ class Inputs:
 
 
 
-    def _createUserInputs(self, **inputs):
+    def _wrapUserInputs(self, **inputs) -> dict:
 
         auxInputs = {}
         for role, input in inputs.items():
 
-            self.logger.info(f"Process {self.id} :: INPUTS :: User input -> role: {role}; type: {type(input)}; input: {input}")
+            if isinstance(input, (Path, str)):
+                auxInputs[role] = Input(role = role,
+                                        biohubFile = verifyPath(input))
 
-            if isinstance(input, Input):
-                auxInputs[role] = input
 
-            elif isinstance(input, File):
+            elif isinstance(input, (File, Folder)):
                 auxInputs[role] = Input(role = role,
                                         biohubFile = input,
                                         pathPrefix = self.entity.path)
 
-            elif isinstance(input, (Path, str)):
-                auxInputs[role] = Input(role = role,
-                                        biohubFile = verifyPath(input))
+
+            elif isinstance(input, Input):
+                auxInputs[role] = input
+
 
             else:
-                self.logger.warning(f"Process {self.id} :: INPUTS :: Not valid input type!")
+                self.logger.warning(f"INPUTS :: Wrap User Inputs :: Input {role} type is not valid (type: {type(input)})")
 
         return auxInputs
 
 
-    # TODO revisar la no creación de cosas
-    def _mergeInputs(self, inputs: dict, defaultInputs: dict) -> dict:
+
+    def _mergeInputs(self, **inputs) -> dict:
 
         auxInputs = {}
-        for role, defaultInput in defaultInputs.items():
+        for role, defaultInput in self.defaultInputs.items():
 
             if role in inputs: #  El usuario ha definido el input
 
                 #  Si existe un prefijo para el input y el usuario no lo ha definido previamente (via Wrapper)
                 if defaultInput.name and not inputs[role].name:
-
-                    self.logger.info(f"Process {self.id} :: INPUTS :: Adding input name to user input -> role: {role}; name: {defaultInput.name}")
-
                     inputs[role]._name = defaultInput.name
 
                 auxInputs[role] = inputs[role] #  Cargamos el input
 
             #  Si no ha definido el input
             else:
-
-                self.logger.info(f"Process {self.id} :: INPUTS :: Completing with default input -> role: {role}")
-
                 auxInputs[role] = defaultInput
 
         return auxInputs
 
 
 
-    def _createPendingInputs(self, **inputs) -> dict:
+    def _solveInputs(self, **inputs) -> dict:
 
         auxInputs = {}
         for role, input in inputs.items():
 
+            #  Si el input necesita resolver sentencias evaluables, lo dejamos para después
             if input.evalPending: auxInputs[role] = input
+
             else:
-                if hasattr(input, "_biohubFile"):
-                    auxInputs[role] = input
+                #  Si ya tiene un fichero asignado lo añadimos
+                if hasattr(input, "_biohubFile"): auxInputs[role] = input
 
-                else:
-                    auxInputs[role] = self._createInput(input)
-
-        return auxInputs
+                #  Sino, creamos el input intentando encontrar el fichero indicado
+                else: auxInputs[role] = self._createInput(input)
 
 
 
@@ -136,13 +132,10 @@ class Inputs:
 
     def _selectInput(self, info: list) -> Union[File, None]:
 
-        self.logger.info(f"Process {self.id} :: INPUTS :: Selecting input")
-
         field = {"required" : {},
                  "optimal"  : {}}
 
         for element in info:
-
             for priority in ("required", "optimal"):
 
                 try:

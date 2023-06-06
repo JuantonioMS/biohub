@@ -4,10 +4,19 @@ from pathlib import Path
 
 import yaml
 
-from biohub.conf.general.constant import SINGULARIZE
+from biohub.conf.general.constant import SINGULARIZE, DEFAULT_PROCESS_ROLE
 
 #  _________________________Utilitiy functions_________________________
 
+
+def getDefaultRole(context):
+
+    count = 1
+
+    while True:
+
+        if candidate := f"{DEFAULT_PROCESS_ROLE} {count}" in context: count += 1
+        else: return candidate
 
 
 def singularize(word):
