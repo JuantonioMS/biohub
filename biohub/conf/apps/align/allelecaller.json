@@ -1,0 +1,80 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.blast"
+    },
+
+    "build": [
+        "mamba create -y -p ->eval##self.environment<- blast"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "genome"
+
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "-num_threads"
+        },
+
+        {
+            "route": "common",
+            "role": "output format",
+            "name": "-outfmt",
+            "value": 5
+        }
+    ],
+
+    "inputs": [
+
+        {
+            "route": "genome",
+            "role": "database",
+            "name": "-in",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        },
+
+        {
+            "route": "common",
+            "role": "query",
+            "name": "-query",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["query"]
+                }
+            ]
+        }
+
+    ],
+
+    "outputs": [
+
+        {
+            "route": "common",
+            "role": "result",
+            "temporal": "result.json",
+            "extension": ".json"
+        }
+
+    ],
+
+    "outlines": [
+
+        {
+            "route": "common",
+            "output": ["allele calling"],
+            "process": ["allele calling"]
+        }
+
+    ]
+}

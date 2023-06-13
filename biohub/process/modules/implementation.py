@@ -131,7 +131,6 @@ class Implementation:
 
 
     def _createTemporalDirectory(self) -> None:
-
         self.runCommand(f"mkdir {self.temporalDirectory}")
 
 
@@ -160,4 +159,4 @@ class Implementation:
 
             elif self.type == "singularity": self.runSingularityPackage(sentence)
 
-            else: self.logger.warning(f"Process {self.id} :: IMPLEMENTATION :: {self.type} is not a valid process type")
+            else: self.logger.error(f"IMPLEMENTATION :: {self.type} is not a valid process type")

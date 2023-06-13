@@ -39,11 +39,17 @@ class Inputs:
         self.logger.info(f"INPUTS :: Wrap User Inputs :: Wrapping {len(inputs)} user inputs")
         inputs = self._wrapUserInputs(**inputs)
 
+        print("Inicio", inputs)
+
         self.logger.info(f"INPUTS :: Merge Inputs :: Merging user and default inputs")
         inputs = self._mergeInputs(**inputs)
 
+        print("Medio", inputs)
+
         self.logger.info(f"INPUTS :: Solve inputs :: Solving unresolved inputs")
         inputs = self._solveInputs(**inputs)
+
+        print("Final", inputs)
 
         if any(input is None for input in inputs.values()):
             inputs = {}
@@ -102,6 +108,7 @@ class Inputs:
 
     def _solveInputs(self, **inputs) -> dict:
 
+
         auxInputs = {}
         for role, input in inputs.items():
 
@@ -113,29 +120,37 @@ class Inputs:
                 if hasattr(input, "_biohubFile"): auxInputs[role] = input
 
                 #  Sino, creamos el input intentando encontrar el fichero indicado
-                else: auxInputs[role] = self._createInput(input)
+                else:
+                    auxInputs[role] = self._createInput(input)
+
+            print("EOEOEO", auxInputs)
+
+        return auxInputs
 
 
 
     def _createInput(self, input: Input) -> Union[Input, None]:
 
-        file = self._selectInput(input.selection)
+        file = self._selectInput(input)
 
-        if file: input.biohubFile = file
+        if file:
+            input.biohubFile = file
+            input.pathPrefix = self.entity.path
+
         else: input = None
-
-        input.pathPrefix = self.entity.path
 
         return input
 
 
 
-    def _selectInput(self, info: list) -> Union[File, None]:
+    def _selectInput(self, input: Input) -> Union[File, None]:
+
+        print("selecting file", input.selection)
 
         field = {"required" : {},
                  "optimal"  : {}}
 
-        for element in info:
+        for element in input.selection:
             for priority in ("required", "optimal"):
 
                 try:
@@ -150,30 +165,30 @@ class Inputs:
 
         required, optimal = field["required"], field["optimal"]
 
-        optimalFieldView = [(field, value) for field in optimal for value in optimal[field]]
+        optimalFieldView = []
+        for key, value in optimal.items():
+
+            if isinstance(value, (list, tuple, set)): [optimalFieldView.append((key, element)) for element in value]
+            else: optimalFieldView.append((key, value))
 
         while True:
+            print("!!ALO", self._joinFieldViews(required, optimalFieldView))
 
-            fieldView = copy.deepcopy(required)
-            for field, value in optimalFieldView:
-
-                if field in fieldView:
-                    fieldView[field].add(value)
-
-                else:
-                    if field in ("outlines", "tags"): fieldView[field] = {value}
-                    else: fieldView[field] = value
-
-            candidates = self.entity.selectFile(**fieldView)
+            candidates = self.entity.selectFile(**self._joinFieldViews(required, optimalFieldView))
 
             if candidates:
 
-                self.logger.info(f"Process {self.id} :: INPUTS :: Candidate files found: {len(candidates)}")
-                if len(candidates) > 1: self.entity.logger.warning("No unique candidate file found")
+                self.logger.info(f"INPUTS :: {input.role} candidate file found")
+
+                if len(candidates) > 1:
+                    self.entity.logger.warning(f"INPUTS :: {input.role} non unique candidate")
 
                 return candidates[0]
 
             else:
+
+                if not optimalFieldView: break
+
                 optimalFieldView = optimalFieldView[:-1]
 
             if len(optimalFieldView) == 0:
@@ -183,3 +198,17 @@ class Inputs:
                 break
 
         return None
+
+
+
+    @staticmethod
+    def _joinFieldViews(required: dict, optimalFieldView: list) -> dict:
+
+        fieldView = copy.deepcopy(required)
+
+        for target, value in optimalFieldView:
+
+            if target in fieldView and isinstance(fieldView[target], set): fieldView[target].add(value)
+            else: fieldView[target] = value
+
+        return fieldView

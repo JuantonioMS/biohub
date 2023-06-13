@@ -5,7 +5,7 @@ from biohub.storage import File
 
 class Load(Utils):
 
-    def _mergeInputs(self, inputs: dict, defaultInputs: dict) -> dict:
+    def _mergeInputs(self, **inputs) -> dict:
         return inputs
 
     def _setOutputs(self,

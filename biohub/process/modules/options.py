@@ -19,7 +19,7 @@ class Options:
         for route in (DEFAULT_PROCESS_ROUTE, self.route):
             for option in allOptions:
 
-                if option["role"] == route:
+                if option["route"] == route:
 
                     if option["role"] == "threads": #  Las opciones referidas al número de procesadores se autocompletan
                         option["value"] = self.threadsPerTask

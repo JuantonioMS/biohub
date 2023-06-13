@@ -56,10 +56,19 @@ class ProcessStoS(Process):
                 parameters = []
                 for subject in self.entity.subjects:
 
+                    auxInputs = {}
+                    for role, value in inputs.items():
+
+                        if isinstance(value, dict) and subject.id in value:
+                            auxInputs[role] = value[subject.id]
+
+                        else:
+                            auxInputs[role] = value
+
                     parameters.append([subject,
                                        self,
                                        options,
-                                       inputs[subject.id] if subject.id in inputs else {},
+                                       auxInputs,
                                        outputOutlines,
                                        processOutlines,
                                        extraAttrs])
