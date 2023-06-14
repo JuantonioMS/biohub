@@ -58,7 +58,7 @@ class EntityCreator:
         bhId = ET.SubElement(metadata, "id")
         bhId.text = newId
 
-        for case in ["files", "processes", "pipelines"]:
+        for case in ["files", "folders", "processes", "pipelines"]:
             _ = ET.SubElement(subject, case)
 
 
@@ -114,7 +114,7 @@ class EntityCreator:
             subjectElement = ET.SubElement(subjectsElement, "subject")
             subjectElement.text = f"{subject}"
 
-        for case in ["files", "processes", "pipelines"]:
+        for case in ["files", "folders", "processes", "pipelines"]:
             _ = ET.SubElement(project, case)
 
         prettyXml = minidom.parseString(ET.tostring(project)\

@@ -74,6 +74,7 @@ class BioHubContainer(BioHubClass):
     def addFile(self, file): self.addInfoBlock("files", file)
     def addProcess(self, process): self.addInfoBlock("processes", process)
     def addPipeline(self, pipeline): self.addInfoBlock("pipelines", pipeline)
+    def addFolder(self, folder): self.addInfoBlock("folders", folder)
 
 
     #  Del info_________________________________________________________________________________________________________
@@ -83,6 +84,7 @@ class BioHubContainer(BioHubClass):
     def delFile(self, file): self.delInfoBlock("file", file)
     def delProcess(self, process): self.delInfoBlock("process", process)
     def delPipeline(self, pipeline): self.delInfoBlock("pipeline", pipeline)
+    def delFolder(self, folder): self.delInfoBlock("folder", folder)
 
 
     #  Select info______________________________________________________________________________________________________
@@ -112,6 +114,12 @@ class BioHubContainer(BioHubClass):
     def selectPipeline(self, **filt) -> list: return self.selectInfoBlock("pipeline", **filt)
 
 
+    def selectFolder(self, **filt) -> list:
+
+        from biohub.storage import Folder
+
+        return [Folder(xmlElement = block) for block in self.selectInfoBlock("folder", **filt)]
+
     #%%  XML special tags_______________________________________________________________________________________________
 
 
@@ -119,7 +127,7 @@ class BioHubContainer(BioHubClass):
     def _xmlElementTags(self) -> set: return {"name"} | super()._xmlElementTags
 
     @property
-    def _xmlSpecialTags(self) -> set: return {"files", "processes", "pipelines"} | super()._xmlSpecialTags
+    def _xmlSpecialTags(self) -> set: return {"files", "processes", "pipelines", "folders"} | super()._xmlSpecialTags
 
 
     #%%  Getters built-in methods_______________________________________________________________________________________
@@ -127,10 +135,11 @@ class BioHubContainer(BioHubClass):
 
     def __getXmlSpecialTag__(self, attr: str) -> Any:
 
-        if attr in {"files", "processes", "pipelines"}:
+        if attr in {"files", "processes", "pipelines", "folders"}:
 
             from biohub.storage import File
             from biohub.process import Process
+            from biohub.storage import Folder
 
             aux = {}
             for subelement in self._xml.get(tag = attr)[0]:
@@ -149,7 +158,7 @@ class BioHubContainer(BioHubClass):
 
     def __setXmlSpecialTag__(self, attr: str, value: Any) -> None:
 
-        if attr in {"files", "processes", "pipelines"}:
+        if attr in {"files", "processes", "pipelines", "folders"}:
 
             if getattr(self, attr) is None:
                 ET.SubElement(self._xml.root, attr)

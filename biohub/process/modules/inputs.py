@@ -39,17 +39,11 @@ class Inputs:
         self.logger.info(f"INPUTS :: Wrap User Inputs :: Wrapping {len(inputs)} user inputs")
         inputs = self._wrapUserInputs(**inputs)
 
-        print("Inicio", inputs)
-
         self.logger.info(f"INPUTS :: Merge Inputs :: Merging user and default inputs")
         inputs = self._mergeInputs(**inputs)
 
-        print("Medio", inputs)
-
         self.logger.info(f"INPUTS :: Solve inputs :: Solving unresolved inputs")
         inputs = self._solveInputs(**inputs)
-
-        print("Final", inputs)
 
         if any(input is None for input in inputs.values()):
             inputs = {}
@@ -123,8 +117,6 @@ class Inputs:
                 else:
                     auxInputs[role] = self._createInput(input)
 
-            print("EOEOEO", auxInputs)
-
         return auxInputs
 
 
@@ -144,8 +136,6 @@ class Inputs:
 
 
     def _selectInput(self, input: Input) -> Union[File, None]:
-
-        print("selecting file", input.selection)
 
         field = {"required" : {},
                  "optimal"  : {}}
@@ -172,7 +162,6 @@ class Inputs:
             else: optimalFieldView.append((key, value))
 
         while True:
-            print("!!ALO", self._joinFieldViews(required, optimalFieldView))
 
             candidates = self.entity.selectFile(**self._joinFieldViews(required, optimalFieldView))
 

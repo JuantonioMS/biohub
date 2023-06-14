@@ -7,7 +7,7 @@ from biohub.storage import Folder
 class LoadFolder(Utils):
 
 
-    def _mergeInputs(self, inputs: dict, defaultInputs: dict) -> dict:
+    def _mergeInputs(self, **inputs) -> dict:
         return inputs
 
 
@@ -65,3 +65,8 @@ class LoadFolder(Utils):
             self.runCommand(f"cp -r",
                             f"{output.temporal}",
                             f"{output.path}")
+
+
+
+    def findDuplicatedProcesses(self, process) -> list:
+        pass

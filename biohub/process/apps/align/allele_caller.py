@@ -56,6 +56,3 @@ class AlleleCaller(Align, ProcessStoS):
 
         with open(f"{self.temporalDirectory}/result.json", "w") as outfile:
             json.dump(result, outfile, indent = 4)
-
-    def _deleteTemporalDirectory(self) -> None:
-        pass

@@ -1,3 +1,5 @@
+from biohub.storage import File, Folder
+
 class Save:
 
 
@@ -34,7 +36,14 @@ class Save:
 
         for output in outputs.values():
 
-            self.entity.addFile(output.biohubFile)
+            if isinstance(output.biohubFile, File):
+                self.entity.addFile(output.biohubFile)
+
+            elif isinstance(output.biohubFile, Folder):
+                self.entity.addFolder(output.biohubFile)
+
+            else:
+                self.logger.warning("SAVE :: Not valid output format")
 
         self.entity.save()
 

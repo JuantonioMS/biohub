@@ -58,3 +58,8 @@ class Load(Utils):
             self.runCommand(f"cp",
                             f"{output.temporal}",
                             f"{output.path}")
+
+
+
+    def findDuplicatedProcesses(self, process) -> list:
+        pass

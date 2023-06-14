@@ -6,6 +6,7 @@ from xml.etree import ElementTree as ET
 
 from biohub.process.wrapper import Input, Output, Option
 from biohub.utils import singularize
+
 class XmlMethods:
 
 #%%  DURATION___________________________________________________________________________________________________________
@@ -62,12 +63,35 @@ class XmlMethods:
                 else:
 
                     if attr == "inputs":
-                        wrapper = Input(biohubFile = self.entity.files[subelement.text],
-                                        role = subelement.attrib["role"])
+
+                        try:
+                            wrapper = Input(biohubFile = self.entity.files[subelement.text],
+                                            role = subelement.attrib["role"])
+
+                        except KeyError:
+
+                            try:
+                                wrapper = Input(biohubFile = self.entity.folders[subelement.text],
+                                                role = subelement.attrib["role"])
+
+                            except KeyError:
+                                wrapper = Input(biohubFile = subelement.text,
+                                                role = subelement.attrib["role"])
                     else:
 
-                        wrapper = Output(biohubFile = self.entity.files[subelement.text],
-                                            role = subelement.attrib["role"])
+                        try:
+                            wrapper = Output(biohubFile = self.entity.files[subelement.text],
+                                             role = subelement.attrib["role"])
+
+                        except KeyError:
+
+                            try:
+                                wrapper = Output(biohubFile = self.entity.folders[subelement.text],
+                                                 role = subelement.attrib["role"])
+
+                            except KeyError:
+                                wrapper = Output(biohubFile = subelement.text,
+                                                 role = subelement.attrib["role"])
 
                     aux[subelement.attrib["role"]] = wrapper
 
