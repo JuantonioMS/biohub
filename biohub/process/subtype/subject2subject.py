@@ -103,7 +103,7 @@ class ProcessStoS(Process):
 
                     #  Imports
                     pythonOrder += [f"\\\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};", #  Tool import
-                                    "from biohub.subject import Subject;"]  #  Subject import
+                                    "from biohub.container import Subject;"]  #  Subject import
 
                     #pythonOrder += [f"\\\"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__};",
                     #               "from biohub.utils import EntityCreator;"]
@@ -133,10 +133,11 @@ class ProcessStoS(Process):
 
                     time.sleep(2)
 
-                    _, output = self.runCommand("squeue --format=\"%.100j\"",
+                    _, output = self.runCommand("squeue --nohead --format %j",
                                                    verbosity = False)
 
-                    jobs = set(list(map(lambda x: x.strip(), output.split("\n")))[1:-1])
+                    jobs = set(list(map(lambda x: x.strip(), output.split("\n"))))
+                    print(jobs)
 
                     if len(jobNames & jobs) == 0:
                         break
