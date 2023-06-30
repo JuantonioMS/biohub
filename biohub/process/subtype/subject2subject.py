@@ -187,7 +187,7 @@ class ProcessStoS(Process):
                               f"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__}"]
 
             #  Subject
-            subjectSentence = [f"subject = Subject(path = './{self.entity.path.parent}/../subjects/{subject.id}/biohub_subject.xml');"]
+            subjectSentence = [f"subject = Subject(path = './{self.entity.path.parent}/../subjects/{subject.id}/biohub_subject.xml')"]
 
             #  Process execution
             subjectInputs, subjectOptions = self.splitWrappers(subject, inputs, options)
@@ -212,14 +212,14 @@ class ProcessStoS(Process):
             processSentence = ["".join(["output = ",
                                         f"{self.__class__.__name__}",
                                         f"(entity = subject, threadsPerTask = {self.threadsPerTask})",
-                                        f".run(inputs = pkl.load(open(\".inputs_{pklName}\", \"rb\"))",
-                                        f", options = pkl.load(open(\".options_{pklName}\", \"rb\"))",
-                                        f", outputOutlines = pkl.load(open(\".outputOutlines_{pklName}\", \"rb\"))",
-                                        f", processOutlines = pkl.load(open(\".processOutlines_{pklName}\", \"rb\"))",
-                                        f", **pkl.load(open(\".extraAttrs_{pklName}\", \"rb\"))",
+                                        f".run(inputs = pkl.load(open('.inputs_{pklName}', 'rb'))",
+                                        f", options = pkl.load(open('.options_{pklName}', 'rb'))",
+                                        f", outputOutlines = pkl.load(open('.outputOutlines_{pklName}', 'rb'))",
+                                        f", processOutlines = pkl.load(open('.processOutlines_{pklName}', 'rb'))",
+                                        f", **pkl.load(open('.extraAttrs_{pklName}', 'rb'))",
                                         f")"])]
 
-            outputSentence = [f"outputPkl = open(\".outputs_{pklName}\", \"wb\")",
+            outputSentence = [f"outputPkl = open('.outputs_{pklName}', 'wb')",
                               f"pkl.dump(output, outputPkl)",
                               "outputPkl.close()"]
 
@@ -258,7 +258,7 @@ class ProcessStoS(Process):
                 else: outputs[key][pklName.split("_")[0]] = value
 
         #  Borrando todos los archivos intermedios
-        self.runCommand(f"rm *{self.id}.*")
+        self.runCommand(f"rm .*{self.id}.*")
 
         return outputs
 
