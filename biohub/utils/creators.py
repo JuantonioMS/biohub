@@ -7,8 +7,8 @@ from datetime import datetime
 
 import random
 
-CHARACTERS = "0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
-NCHARS = 15
+from biohub.conf.general.constant import ID_PREFIX, ID_LENGTH, ID_CHARACTERS
+
 
 class EntityCreator:
 
@@ -38,7 +38,7 @@ class EntityCreator:
 
         newName = name
 
-        newId = "bhSubject_" + "".join(random.choices(CHARACTERS, k = NCHARS))
+        newId = f"{ID_PREFIX['Subject']}" + "".join(random.choices(ID_CHARACTERS, k = ID_LENGTH))
 
         subprocess.call(f"mkdir {verifyPath(path)}/{newId}",
                         shell = True,
@@ -89,7 +89,7 @@ class EntityCreator:
 
         newName = name
 
-        newId = "bhProject_" + "".join(random.choices(CHARACTERS, k = NCHARS))
+        newId = f"{ID_PREFIX['Project']}" + "".join(random.choices(ID_CHARACTERS, k = ID_LENGTH))
 
         subprocess.call(f"mkdir {verifyPath(path)}/{newName}",
                         shell = True,
@@ -143,7 +143,7 @@ class EntityCreator:
 
         newName = name
 
-        newId = "bhDatabase_" + "".join(random.choices(CHARACTERS, k = NCHARS))
+        newId = f"{ID_PREFIX['Database']}" + "".join(random.choices(ID_CHARACTERS, k = ID_LENGTH))
 
 
         subprocess.call(f"touch {verifyPath(path)}/{newName}_database.xml",

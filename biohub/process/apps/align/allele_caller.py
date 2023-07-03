@@ -45,14 +45,14 @@ class AlleleCaller(Align, ProcessStoS):
             hsps.sort(key = lambda x: x.identity, reverse = True)
 
             if hsps:
-                hsp = hsps[0]
-                result.append({"allele"       : hsp.query_id,
-                               "identity"     : hsp.identity,
-                               "bitscore"     : hsp.bitscore,
-                               "bitscore_raw" : hsp.bitscore_raw,
-                               "matches"      : hsp.ident_num,
-                               "gaps"         : hsp.gap_num,
-                               "evalue"       : hsp.evalue})
+                for hsp in hsps[:5]:
+                    result.append({"allele"       : hsp.query_id,
+                                "identity"     : hsp.identity,
+                                "bitscore"     : hsp.bitscore,
+                                "bitscore_raw" : hsp.bitscore_raw,
+                                "matches"      : hsp.ident_num,
+                                "gaps"         : hsp.gap_num,
+                                "evalue"       : hsp.evalue})
 
         with open(f"{self.temporalDirectory}/result.json", "w") as outfile:
             json.dump(result, outfile, indent = 4)
