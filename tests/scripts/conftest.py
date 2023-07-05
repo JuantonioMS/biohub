@@ -7,14 +7,12 @@ STORAGE_PATH = Path(Path(__file__).parent, "../material/storage")
 
 
 def pytest_configure(config):
-
     os.system(f"mkdir {STORAGE_PATH}")
     os.system(f"mkdir {STORAGE_PATH}/subjects")
     os.system(f"mkdir {STORAGE_PATH}/projects")
     os.system(f"mkdir {STORAGE_PATH}/databases")
 
 def pytest_unconfigure(config):
-
     os.system(f"rm -rf {STORAGE_PATH}")
 
 
@@ -43,15 +41,20 @@ def subject(SUBJECTS_PATH):
 
     from biohub.utils import EntityCreator
 
-    return EntityCreator().createSubject(f"subject_{random.randint(1,1000):04}",
+    return EntityCreator().createSubject(f"subject_{random.randint(1,1000000):07}",
                                          SUBJECTS_PATH)
 
 
 @pytest.fixture(scope = "function")
-def project(PROJECTS_PATH, subject):
+def project(SUBJECTS_PATH, PROJECTS_PATH):
 
     from biohub.utils import EntityCreator
 
-    return EntityCreator().createProject("project_test",
+    subjects = []
+    for _ in range(3):
+        subjects.append(EntityCreator().createSubject(f"subject_{random.randint(1,1000000):07}",
+                                                      SUBJECTS_PATH).id)
+
+    return EntityCreator().createProject(f"project_{random.randint(1,1000000):07}",
                                          PROJECTS_PATH,
-                                         [subject, subject, subject])
+                                         subjects)

@@ -20,7 +20,7 @@ def test_subjectCreator(subject, SUBJECTS_PATH):
     assert hasattr(subject, "name")
     assert isinstance(subject.name, str)
     assert  "subject_" in subject.name
-    assert len(subject.name) == 12
+    assert len(subject.name) == 15
 
     #  DATE
     assert hasattr(subject, "date")
@@ -62,7 +62,7 @@ def test_projectCreator(project, PROJECTS_PATH):
     #  NAME
     assert hasattr(project, "name")
     assert isinstance(project.name, str)
-    assert  "project_test" == project.name
+    assert len(project.name) == 15
 
     #  DATE
     assert hasattr(project, "date")

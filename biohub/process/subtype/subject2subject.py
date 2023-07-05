@@ -25,7 +25,7 @@ class ProcessStoS(Process):
                                                                            processOutlines = processOutlines,
                                                                            **extraAttrs)
 
-        return result
+        return subject.id, result
 
 
 #%%  Run methods________________________________________________________________________________________________________
@@ -151,8 +151,11 @@ class ProcessStoS(Process):
         with Pool(self.concurrentTasks) as pool:
             results = pool.starmap(self.runWrapper, parameters)
 
+        aux = {}
+        for subject, outputs in results:
+            aux[subject] = outputs
 
-        return {}
+        return aux
 
 
 #%%  Distributed memory methods_________________________________________________________________________________________

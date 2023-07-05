@@ -60,8 +60,8 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward"],
-                    "optimal": ["trimmed", "illumina"]
+                    "required": ["reads", "forward", "illumina"],
+                    "optimal": ["trimmed"]
                 }
             ]
         },
@@ -72,8 +72,8 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse"],
-                    "optimal": ["trimmed", "illumina"]
+                    "required": ["reads", "reverse", "illumina"],
+                    "optimal": ["trimmed"]
                 }
             ]
         },
@@ -84,8 +84,8 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads"],
-                    "optimal": ["trimmed", "illumina"]
+                    "required": ["reads", "illumina"],
+                    "optimal": ["trimmed"]
                 }
             ]
         }
