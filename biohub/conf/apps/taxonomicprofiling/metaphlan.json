@@ -60,7 +60,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward"],
+                    "required": ["reads", "forward", "illumina"],
                     "optimal": ["trimmed"]
                 }
             ]
@@ -71,7 +71,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse"],
+                    "required": ["reads", "reverse", "illumina"],
                     "optimal": ["trimmed"]
                 }
             ]

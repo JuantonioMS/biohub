@@ -1,0 +1,9 @@
+{
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["taxonomy profile"],
+            "process": ["taxonomic profiling"]
+        }
+    ]
+}

@@ -1,0 +1,106 @@
+{
+    "info" : {
+        "type" : "anaconda",
+        "environment": "biohub.deeparg"
+    },
+
+    "build": [
+        "mamba create -y -p ->eval##self.environment<- python=2.7 diamond=0.9.24 pip",
+        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && pip install deeparg==1.0.2",
+        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && deeparg download_data -o localDB",
+        "mv localDB ->eval##self.environment<-/localDB"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "common",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "deeparg predict"
+            }
+        ],
+
+        "sentences": {
+
+            "body" : [
+                {
+                    "route" : "common",
+                    "sentences" : ["<command> <options> <inputs>"]
+                }
+            ]
+
+        }
+
+    },
+
+    "options": [
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--output-file",
+            "alternativeName": "-o",
+            "value": "->eval##self.temporalDirectory<-/output"
+        },
+        {
+            "route": "common",
+            "role": "model",
+            "name": "--model",
+            "value": "SS"
+        },
+        {
+            "route": "common",
+            "role": "input type",
+            "name": "--type",
+            "value": "nucl"
+        },
+        {
+            "route": "common",
+            "role": "database path",
+            "name": "--data-path",
+            "alternativeName": "-d",
+            "value": "->eval##self.environment<-/localDB"
+        }
+    ],
+
+    "inputs": [
+        {
+            "route": "common",
+            "role": "genome",
+            "name": "--input-file",
+            "alternativeName": "-i",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "common",
+            "role": "likely genes",
+            "temporal": "output.mapping.ARG",
+            "extension": ".tsv",
+            "outlines": ["likely genes"]
+        },
+        {
+            "route": "common",
+            "role": "potential genes",
+            "temporal": "output.mapping.potential.ARG",
+            "extension": ".tsv",
+            "outlines": ["potential genes"]
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["resistance genes"],
+            "process": ["resistance genes"]
+        }
+    ]
+}
