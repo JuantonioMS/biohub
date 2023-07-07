@@ -18,7 +18,7 @@ APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../conf"), "apps")
 from biohub.conf.general.constant import DEFAULT_PROCESS_ENVIROMMENT, \
                                          DEFAULT_PROCESS_ROUTE, \
                                          DEFAULT_PROCESS_TYPE, \
-                                         CONDA_ENVS_PATH
+                                         CONDA_ENVS_PATH, SINGULARITY_IMAGES_PATH
 
 
 class Process(BioHubClass,
@@ -83,8 +83,13 @@ class Process(BioHubClass,
 
         if self.environment is None:
 
-            try: self.environment = CONDA_ENVS_PATH + "/" + self.jsonInfo["info"]["environment"]
-            except KeyError: self.environment = DEFAULT_PROCESS_ENVIROMMENT
+            if self.type == "anaconda":
+                try: self.environment = CONDA_ENVS_PATH + "/" + self.jsonInfo["info"]["environment"]
+                except KeyError: self.environment = DEFAULT_PROCESS_ENVIROMMENT
+
+            elif self.type == "singularity":
+                try: self.environment = SINGULARITY_IMAGES_PATH + "/" + self.jsonInfo["info"]["environment"]
+                except KeyError: self.environment = DEFAULT_PROCESS_ENVIROMMENT
 
         if self.route is None:
 

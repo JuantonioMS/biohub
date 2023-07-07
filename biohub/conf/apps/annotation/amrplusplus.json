@@ -1,0 +1,101 @@
+{
+    "info" : {
+        "type" : "singularity",
+        "environment": "amrplusplus_latest.sif"
+    },
+
+    "build": [
+        "singularity pull docker://enriquedoster/amrplusplus:latest",
+        "mv amrplusplus_latest.sif ->eval##self.environment<-"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "common",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "nextflow run main_AMR++.nf"
+            }
+        ],
+
+        "sentences": {
+
+            "body" : [
+                {
+                    "route" : "common",
+                    "sentences" : ["<command> <options> <inputs>"]
+                }
+            ]
+
+        }
+
+    },
+
+    "options": [
+
+        {
+            "route": "common",
+            "role": "outputDirectory",
+            "name": "--output_file",
+            "alternativeName": "-o"
+        },
+
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--num_threads",
+            "alternativeName": "-n"
+        },
+
+        {
+            "route": "common",
+            "role": "clean temporal files",
+            "name": "--clean",
+            "value": true
+        }
+
+    ],
+
+    "inputs": [
+        {
+            "route": "common",
+            "role": "genome",
+            "name": "--input_sequence",
+            "alternativeName": "-i",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["genome"]
+                }
+            ]
+        }
+    ],
+
+    "outputs": [
+        {
+            "route": "common",
+            "role": "json format",
+            "temporal": "output.json",
+            "extension": ".json",
+            "outlines": ["card", "json"]
+        },
+
+        {
+            "route": "common",
+            "role": "txt format",
+            "temporal": "output.txt",
+            "extension": ".txt",
+            "outlines": ["card", "txt"]
+        }
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["resistance genes"],
+            "process": ["resistance genes"]
+        }
+    ]
+}
