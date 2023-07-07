@@ -41,6 +41,7 @@ LOG_TAIL = "%(filename)s (line %(lineno)s) :: %(name)s\n"
 # Alias del entorno conda para BioHub
 
 CONDA_ENVS_PATH = "~/.biohub/conda_envs"
+SINGULARITY_IMAGES_PATH = "~/.biohub/singularity_images"
 
 #  Valores por defecto para parámetros relacionados con procesos
 

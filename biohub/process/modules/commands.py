@@ -2,6 +2,8 @@ import subprocess
 
 from pathlib import Path
 
+from biohub.conf.general.constant import SINGULARITY_IMAGES_PATH
+
 class Commands:
 
 
@@ -96,8 +98,17 @@ class Commands:
 
 
     #  TODO
-    def runSingularityPackage(self):
-        pass
+    def runSingularityPackage(self, *args,
+                              image: str = None,
+                              verbosity: bool = True):
+
+        self.logger.info("COMMANDS :: Running singularity command")
+
+        if not image:
+            image = self.environment
+
+        return self.runCommand(f"singularity exec {image} ", *args,
+                               verbosity = verbosity)
 
 
     #%%  SYSTEM SECTION_________________________________________________________________________________________________
