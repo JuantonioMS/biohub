@@ -190,7 +190,7 @@ class ProcessStoS(Process):
                               f"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__}"]
 
             #  Subject
-            subjectSentence = [f"subject = Subject(path = './{self.entity.path.parent}/../subjects/{subject.id}/biohub_subject.xml')"]
+            subjectSentence = [f"subject = Subject(path = '{self.entity.path.parent}/../subjects/{subject.id}/biohub_subject.xml')"]
 
             #  Process execution
             subjectInputs, subjectOptions = self.splitWrappers(subject, inputs, options)
