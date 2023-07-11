@@ -6,10 +6,11 @@
 
     "build": [
         "mamba create -y -p ->eval##self.environment<- bowtie2",
-        "wget https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.fna.gz",
-        "gzip -d GRCh38_latest_genomic.fna",
-        "mv GRCh38_latest_genomic.fna ->eval##self.environment<-/human_genome.fasta",
-        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && bowtie2-build ->eval##self.environment<-/human_genome.fasta ->eval##self.environment<-/human_index"
+        "wget https://genome-idx.s3.amazonaws.com/bt/GRCh38_noalt_as.zip",
+        "unzip GRCh38_noalt_as.zip",
+        "mv GRCh38_noalt_as/* ->eval##self.environment<-/",
+        "rm -rf GRCh38_noalt_as",
+        "rm -rf GRCh38_noalt_as.zip"
     ],
 
     "implementation" : {
@@ -53,7 +54,7 @@
             "route": "common",
             "role": "bowtie index",
             "name": "-x",
-            "value": "->eval##self.environment<-/human_index"
+            "value": "->eval##self.environment<-/GRCh38_noalt_as"
         }
     ],
 
@@ -65,8 +66,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward", "illumina"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "forward", "trimmed"]
                 }
             ]
         },
@@ -77,8 +77,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse", "illumina"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "reverse", "trimmed"]
                 }
             ]
         }
