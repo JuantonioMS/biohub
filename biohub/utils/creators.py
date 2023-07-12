@@ -7,7 +7,7 @@ from datetime import datetime
 
 import random
 
-from biohub.conf.general.constant import ID_PREFIX, ID_LENGTH, ID_CHARACTERS
+from biohub.conf.core.constants.id import ID_PREFIX, ID_LENGTH, ID_CHARACTERS
 
 
 class EntityCreator:

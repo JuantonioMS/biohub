@@ -3,7 +3,8 @@ import logging
 
 from pathlib import Path
 
-from biohub.conf.general.constant import DEFAULT_PROCESS_TEMPORAL_NAME, DEFAULT_CLI_SEPARATOR
+from biohub.conf.core.constants.process import PROCESS_DEFAULT_TEMPORAL_DIRECTORY_NAME, \
+                                               PROCESS_DEFAULT_SEPARATOR_CLI
 
 
 APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../../conf"), "apps")
@@ -15,21 +16,21 @@ class Properties:
     def _CLI_SEPARATOR_OPTIONS(self) -> str:
 
         try: return self.jsonInfo["implementation"]["cliDetails"]["optionsSeparator"]
-        except KeyError: return DEFAULT_CLI_SEPARATOR
+        except KeyError: return PROCESS_DEFAULT_SEPARATOR_CLI
 
 
     @property
     def _CLI_SEPARATOR_INPUTS(self) -> str:
 
         try: return self.jsonInfo["implementation"]["cliDetails"]["inputsSeparator"]
-        except KeyError: return DEFAULT_CLI_SEPARATOR
+        except KeyError: return PROCESS_DEFAULT_SEPARATOR_CLI
 
 
     @property
     def _CLI_SEPARATOR_OUTPUTS(self) -> str:
 
         try: return self.jsonInfo["implementation"]["cliDetails"]["outputsSeparator"]
-        except KeyError: return DEFAULT_CLI_SEPARATOR
+        except KeyError: return PROCESS_DEFAULT_SEPARATOR_CLI
 
 
 #%%  TEMPORAL DIRECTORY_________________________________________________________________________________________________
@@ -37,7 +38,7 @@ class Properties:
 
     @property
     def temporalDirectory(self) -> Path:
-        return Path(self.entity.path, f"files/{DEFAULT_PROCESS_TEMPORAL_NAME}")
+        return Path(self.entity.path, f"files/{PROCESS_DEFAULT_TEMPORAL_DIRECTORY_NAME}")
 
 
 #%%  OUTLINES___________________________________________________________________________________________________________
@@ -72,7 +73,12 @@ class Properties:
 
 
     @property
+    def jsonFile(self) -> str:
+        return f"{APPS_DIRECTORY}/{self.framework}/{self.tool}.json"
+
+
+    @property
     def jsonInfo(self) -> dict:
 
-        try: return json.load(open(f"{APPS_DIRECTORY}/{self.framework}/{self.tool}.json"))
+        try: return json.load(open(self.jsonFile, "r"))
         except FileNotFoundError: return {}

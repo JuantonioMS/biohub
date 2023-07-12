@@ -3,7 +3,7 @@ from xml.etree import ElementTree as ET
 from pathlib import Path
 
 from biohub.container import Subject, Project, Database
-from biohub.conf.general.constant import ID_PREFIX, ID_LENGTH
+from biohub.conf.core.constants.id import ID_LENGTH, ID_PREFIX
 
 def test_subjectCreator(subject, SUBJECTS_PATH):
 

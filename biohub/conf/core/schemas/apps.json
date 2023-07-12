@@ -1,0 +1,502 @@
+{
+    "$id" : "https://example.com/demo",
+    "$schema" : "https://json-schema.org/draft/2020-12/schema",
+
+    "title" : "JSON schema BioHub apps",
+    "description" : "JSON schema for apps json files validation.",
+
+    "type" : "object",
+    "additionalProperties": false,
+    "properties" :
+    {
+
+
+
+        "info" :
+        {
+            "description" : "Process info section",
+            "type" : "object",
+            "required" : ["type"],
+            "additionalProperties": false,
+            "properties" :
+            {
+
+                "type" :
+                {
+                    "description" : "Type of process. BioHub can handle conda, singularity and raw-system processes",
+                    "type" : "string",
+                    "enum" : ["conda", "singularity", "system"]
+                },
+
+                "environment" :
+                {
+                    "description" : "type==conda -> conda env name; type==singularity -> image name",
+                    "type" : "string"
+                },
+
+                "description" :
+                {
+                    "description" : "Short process description",
+                    "type" : "string"
+                }
+
+            }
+        },
+
+
+
+        "build" :
+        {
+            "description" : "Instructions for process build-up",
+            "type" : "array",
+            "items" :
+            {
+                "description" : "CLI command",
+                "type" : "string"
+            }
+        },
+
+
+
+        "implementation" :
+        {
+            "description" : "Process execution info",
+            "type" : "object",
+            "required" : ["commands", "sentences"],
+            "additionalProperties": false,
+            "properties" :
+            {
+
+                "defaultRoute" :
+                {
+                    "description" : "Process default route, if not setted, default 'common'",
+                    "type" : "string"
+                },
+
+                "commands" :
+                {
+                    "description" : "",
+                    "type" : "array",
+                    "items" :
+                    {
+                        "description" : "",
+                        "type" : "object",
+                        "required" : ["route", "command"],
+                        "additionalProperties": false,
+                        "properties" :
+                        {
+
+                            "route" :
+                            {
+                                "description" : "",
+                                "type" : "string"
+                            },
+
+                            "command" :
+                            {
+                                "description" : "",
+                                "type" : "string"
+                            }
+
+                        }
+                    }
+                },
+
+                "sentences" :
+                {
+                    "description" : "",
+                    "type" : "object",
+                    "required" : ["body"],
+                    "additionalProperties": false,
+                    "properties" :
+                    {
+
+                        "head" :
+                        {
+                            "description" : "",
+                            "type" : "array",
+                            "items" :
+                            {
+                                "description" : "",
+                                "type" : "object",
+                                "required" : ["route", "sentences"],
+                                "additionalProperties": false,
+                                "properties" :
+                                {
+
+                                    "route" :
+                                    {
+                                        "description" : "",
+                                        "type" : "string"
+                                    },
+
+                                    "sentences" :
+                                    {
+                                        "description" : "",
+                                        "type" : "array",
+                                        "items" :
+                                        {
+                                            "description" : "",
+                                            "type" : "string"
+                                        }
+                                    }
+
+                                }
+                            }
+                        },
+
+                        "body" :
+                        {
+                            "description" : "",
+                            "type" : "array",
+                            "items" :
+                            {
+                                "description" : "",
+                                "type" : "object",
+                                "required" : ["route", "sentences"],
+                                "additionalProperties": false,
+                                "properties" :
+                                {
+
+                                    "route" :
+                                    {
+                                        "description" : "",
+                                        "type" : "string"
+                                    },
+
+                                    "sentences" :
+                                    {
+                                        "description" : "",
+                                        "type" : "array",
+                                        "items" :
+                                        {
+                                            "description" : "",
+                                            "type" : "string"
+                                        }
+                                    }
+
+                                }
+                            }
+                        },
+
+                        "tail" :
+                        {
+                            "description" : "",
+                            "type" : "array",
+                            "items" :
+                            {
+                                "description" : "",
+                                "type" : "object",
+                                "required" : ["route", "sentences"],
+                                "additionalProperties": false,
+                                "properties" :
+                                {
+
+                                    "route" :
+                                    {
+                                        "description" : "",
+                                        "type" : "string"
+                                    },
+
+                                    "sentences" :
+                                    {
+                                        "description" : "",
+                                        "type" : "array",
+                                        "items" :
+                                        {
+                                            "description" : "",
+                                            "type" : "string"
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        },
+
+
+
+        "options" :
+        {
+            "description" : "",
+            "type" : "array",
+            "items" :
+            {
+                "description" : "",
+                "type" : "object",
+                "required" : ["route", "role", "name"],
+                "additionalProperties": false,
+                "properties" :
+                {
+
+                    "route" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "role" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "name" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "altName" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "value" :
+                    {
+                        "description" : "",
+                        "type" : ["string", "number", "boolean"]
+                    },
+
+                    "condition" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "format" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    }
+
+                }
+            }
+        },
+
+
+
+        "inputs" :
+        {
+            "description" : "",
+            "type" : "array",
+            "items" :
+            {
+                "description" : "",
+                "type" : "object",
+                "required" : ["route", "role", "selection"],
+                "additionalProperties": false,
+                "properties" :
+                {
+
+                    "route" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "role" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "name" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "altName" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "selection" :
+                    {
+                        "description" : "",
+                        "type" : "array",
+                        "items" :
+                        {
+                            "description" : "",
+                            "type" : "object",
+                            "required" : ["target", "required"],
+                            "additionalProperties" : false,
+                            "properties" :
+                            {
+
+                                "target" :
+                                {
+                                    "description" : "",
+                                    "type" : "string",
+                                    "enum" : ["outlines", "tags", "extension", "tool"]
+                                },
+
+                                "required" :
+                                {
+                                    "description" : "",
+                                    "type" : ["string", "array"]
+                                },
+
+                                "optimal" :
+                                {
+                                    "description" : "",
+                                    "type" : ["string", "array"]
+                                }
+
+                            }
+                        }
+                    },
+
+                    "condition" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "format" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    }
+
+                }
+            }
+        },
+
+
+
+        "outputs" :
+        {
+            "description" : "",
+            "type" : "array",
+            "items" :
+            {
+                "description" : "",
+                "type" : "object",
+                "required" : ["route", "role", "temporal", "extension"],
+                "additionalProperties": false,
+                "properties" :
+                {
+
+                    "route" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "role" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "name" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "altName" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "temporal" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "extension" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "outlines" :
+                    {
+                        "description" : "",
+                        "type" : "array",
+                        "items" :
+                        {
+                            "description" : "",
+                            "type" : "string"
+                        }
+                    },
+
+                    "condition" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "format" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    }
+
+                }
+            }
+        },
+
+
+
+        "outlines" :
+        {
+            "description" : "",
+            "type" : "array",
+            "items" :
+            {
+                "description" : "",
+                "type" : "object",
+                "required" : ["route"],
+                "additionalProperties": false,
+                "properties" :
+                {
+
+                    "route" :
+                    {
+                        "description" : "",
+                        "type" : "string"
+                    },
+
+                    "process" :
+                    {
+                        "description" : "",
+                        "type" : "array",
+                        "items" :
+                        {
+                            "description" : "",
+                            "type" : "string"
+                        }
+                    },
+
+                    "output" :
+                    {
+                        "description" : "",
+                        "type" : "array",
+                        "items" :
+                        {
+                            "description" : "",
+                            "type" : "string"
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+
+    }
+}

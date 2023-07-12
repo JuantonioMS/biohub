@@ -190,7 +190,7 @@ class ProcessStoS(Process):
                               f"from {'.'.join(self.__class__.__module__.split('.')[:-1])} import {self.__class__.__name__}"]
 
             #  Subject
-            subjectSentence = [f"subject = Subject(path = '{self.entity.path.parent}/../subjects/{subject.id}/biohub_subject.xml')"]
+            subjectSentence = [f"subject = Subject(path = './{self.entity.path.parent}/../subjects/{subject.id}/biohub_subject.xml')"]
 
             #  Process execution
             subjectInputs, subjectOptions = self.splitWrappers(subject, inputs, options)
@@ -257,7 +257,7 @@ class ProcessStoS(Process):
             output = pkl.load(open(f".outputs_{pklName}", "rb"))
 
             for key, value in output.items():
-                if not key in outputs: outputs[key] = {pklName.split("_")[0] : value}
+                if key in outputs: outputs[key] = {pklName.split("_")[0] : value}
                 else: outputs[key][pklName.split("_")[0]] = value
 
         #  Borrando todos los archivos intermedios

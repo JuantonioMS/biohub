@@ -2,7 +2,9 @@ from biohub.process.wrapper import Option
 
 from biohub.utils import getDefaultRole
 
-from biohub.conf.general.constant import DEFAULT_PROCESS_ROUTE
+from biohub.conf.core.constants.process import PROCESS_DEFAULT_ROUTE
+
+
 class Options:
 
 
@@ -16,7 +18,7 @@ class Options:
         try: allOptions = self.jsonInfo["options"]
         except KeyError: allOptions = []
 
-        for route in (DEFAULT_PROCESS_ROUTE, self.route):
+        for route in (PROCESS_DEFAULT_ROUTE, self.route):
             for option in allOptions:
 
                 if option["route"] == route:

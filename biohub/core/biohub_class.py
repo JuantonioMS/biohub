@@ -5,8 +5,11 @@ from xml.etree import ElementTree as ET
 import logging
 
 from biohub.utils import singularize
-from biohub.conf.general.constant import ID_LENGTH, ID_CHARACTERS, ID_PREFIX, DEFAULT_DATE_FORMAT
-from biohub.conf.general.constant import LOG_HEADER, LOG_BODY, LOG_TAIL
+
+from biohub.conf.core.constants.id import ID_LENGTH, ID_CHARACTERS, ID_PREFIX
+from biohub.conf.core.constants.core import CORE_DATE_FORMAT
+from biohub.conf.core.constants.log import LOG_HEADER, LOG_BODY, LOG_TAIL
+
 
 class BioHubClass:
 
@@ -103,7 +106,7 @@ class BioHubClass:
     @property
     def loggingFormatter(self) -> logging.Formatter:
         return logging.Formatter("\n".join(self.loggingFormat) + "\n",
-                                 datefmt = DEFAULT_DATE_FORMAT)
+                                 datefmt = CORE_DATE_FORMAT)
 
 
     #%%  XML special tags_______________________________________________________________________________________________
@@ -165,7 +168,7 @@ class BioHubClass:
         if attr == "date":
 
 
-            try: return datetime.strptime(self._xmlElement.attrib[attr], DEFAULT_DATE_FORMAT)
+            try: return datetime.strptime(self._xmlElement.attrib[attr], CORE_DATE_FORMAT)
             except KeyError: return None
 
 
@@ -210,7 +213,7 @@ class BioHubClass:
         if attr == "date":
 
             if isinstance(value, datetime):
-                self._xmlElement.attrib[attr] = value.strftime(DEFAULT_DATE_FORMAT)
+                self._xmlElement.attrib[attr] = value.strftime(CORE_DATE_FORMAT)
 
             elif isinstance(value, str):
                 self._xmlElement.attrib[attr] = value

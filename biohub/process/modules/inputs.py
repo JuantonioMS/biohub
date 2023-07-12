@@ -6,7 +6,7 @@ from biohub.storage import File, Folder
 from biohub.process.wrapper import Input
 from biohub.utils import verifyPath, getDefaultRole
 
-from biohub.conf.general.constant import DEFAULT_PROCESS_ROUTE
+from biohub.conf.core.constants.process import PROCESS_DEFAULT_ROUTE
 
 
 class Inputs:
@@ -22,7 +22,7 @@ class Inputs:
         try: allInputs = self.jsonInfo["inputs"]
         except KeyError: allInputs = []
 
-        for route in (DEFAULT_PROCESS_ROUTE, self.route):
+        for route in (PROCESS_DEFAULT_ROUTE, self.route):
             for element in allInputs:
 
                 if element["route"] == route:

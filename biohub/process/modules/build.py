@@ -2,9 +2,32 @@ import os
 
 from biohub.utils import evalSentence
 
-from biohub.conf.general.constant import SINGULARITY_IMAGES_PATH
+from biohub.conf.core.constants.path import PATH_CONDA_ENVS, \
+                                            PATH_SINGULARITY_IMAGES
+
 
 class Build:
+
+
+    def _checkProcess(self) -> bool:
+        return self._checkProcessConfiguration() and self._checkProcessBuild()
+
+
+
+    def _checkProcessConfiguration(self) -> bool:
+
+        self.logger.info(f"Checking {self.jsonFile} content")
+
+
+
+
+
+    def _checkProcessBuild(self) -> bool: pass
+    def _checkProcessBuildConda(self) -> bool: pass
+    def _checkProcessBuildSingularity(self) -> bool: pass
+    def _checkProcessBuildSystem(self) -> bool: pass
+
+
 
 
     def _checkAppBuild(self) -> None:
@@ -14,6 +37,7 @@ class Build:
 
         if self.type == "singularity":
             self._checkAppBuildSingularity()
+
 
 
     def _checkAppBuildAnaconda(self) -> None:
@@ -36,7 +60,7 @@ class Build:
 
     def _checkAppBuildSingularity(self) -> None:
 
-        if not any([self.environment.split("/")[-1] in i for i in os.listdir(SINGULARITY_IMAGES_PATH)]):
+        if not any([self.environment.split("/")[-1] in i for i in os.listdir(PATH_SINGULARITY_IMAGES)]):
 
             self.logger.info(f"BUILD :: Installing singularity image {self.environment}")
 

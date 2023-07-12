@@ -3,6 +3,8 @@ from pathlib import Path
 from biohub.storage import File
 from biohub.process.wrapper import Output
 
+from biohub.conf.core.constants.process import PROCESS_DEFAULT_ROUTE
+
 
 class Outputs:
 
@@ -25,7 +27,7 @@ class Outputs:
 
         for element in allOutputs:
 
-            if element["route"] in ("common", self.route):
+            if element["route"] in (PROCESS_DEFAULT_ROUTE, self.route):
 
                 element["temporal"] = str(self.temporalDirectory) + "/" + element["temporal"]
 

@@ -1,9 +1,0 @@
-{
-    "outlines": [
-        {
-            "route": "common",
-            "output": ["operation"],
-            "process": ["operation"]
-        }
-    ]
-}

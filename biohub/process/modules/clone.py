@@ -1,6 +1,8 @@
 import copy
 
-from biohub.conf.general.constant import DEFAULT_PROCESS_ROLES_EXCLUDED
+from biohub.conf.core.constants.process import PROCESS_OPTIONS_ROLE_CPUTHREADS, \
+                                               PROCESS_OPTIONS_ROLE_OUTPUTDIRECTORY
+
 
 class Clone:
 
@@ -37,6 +39,7 @@ class Clone:
 
         process.outputs = outputs
 
-        process.options = {key : value for key, value in options.items() if value.role not in DEFAULT_PROCESS_ROLES_EXCLUDED}
+        process.options = {key : value for key, value in options.items() if value.role not in [PROCESS_OPTIONS_ROLE_CPUTHREADS,
+                                                                                               PROCESS_OPTIONS_ROLE_OUTPUTDIRECTORY]}
 
         return process

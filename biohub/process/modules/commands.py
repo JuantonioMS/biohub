@@ -2,7 +2,8 @@ import subprocess
 
 from pathlib import Path
 
-from biohub.conf.general.constant import SINGULARITY_IMAGES_PATH
+from biohub.conf.core.constants.path import PATH_SINGULARITY_IMAGES
+
 
 class Commands:
 

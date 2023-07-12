@@ -1,6 +1,7 @@
 from biohub.utils import evalSentence
 
-from biohub.conf.general.constant import DEFAULT_PROCESS_SENTENCE
+from biohub.conf.core.constants.process import PROCESS_DEFAULT_SENTENCE
+
 
 class Implementation:
 
@@ -57,7 +58,7 @@ class Implementation:
                                 aux = element["sentences"]
                         except KeyError: continue
 
-        if not aux: aux = [DEFAULT_PROCESS_SENTENCE]
+        if not aux: aux = [PROCESS_DEFAULT_SENTENCE]
 
         return aux
 

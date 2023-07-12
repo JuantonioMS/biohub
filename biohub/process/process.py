@@ -15,10 +15,13 @@ from biohub.process.modules import Commands, Properties, XmlMethods,\
 
 APPS_DIRECTORY = Path(Path(Path(__file__).parent, "../conf"), "apps")
 
-from biohub.conf.general.constant import DEFAULT_PROCESS_ENVIROMMENT, \
-                                         DEFAULT_PROCESS_ROUTE, \
-                                         DEFAULT_PROCESS_TYPE, \
-                                         CONDA_ENVS_PATH, SINGULARITY_IMAGES_PATH
+
+from biohub.conf.core.constants.process import PROCESS_DEFAULT_TYPE, \
+                                               PROCESS_DEFAULT_ENVIROMMENT, \
+                                               PROCESS_DEFAULT_ROUTE
+
+from biohub.conf.core.constants.path import PATH_CONDA_ENVS, \
+                                            PATH_SINGULARITY_IMAGES
 
 
 class Process(BioHubClass,
@@ -44,8 +47,10 @@ class Process(BioHubClass,
 
         super().__init__(xmlElement, **attrs)
 
-        self._checkAppBuild()
+        #  Comprobar la congiguración y la instalación del proceso
+        self._abort = not self._checkProcess()
 
+        #  Distribución de recursos computacionales
         self._resourceDistribution()
 
 
@@ -78,23 +83,23 @@ class Process(BioHubClass,
         if self.type is None:
 
             try: self.type = self.jsonInfo["info"]["type"]
-            except KeyError: self.type = DEFAULT_PROCESS_TYPE
+            except KeyError: self.type = PROCESS_DEFAULT_TYPE
 
 
         if self.environment is None:
 
             if self.type == "anaconda":
-                try: self.environment = CONDA_ENVS_PATH + "/" + self.jsonInfo["info"]["environment"]
-                except KeyError: self.environment = DEFAULT_PROCESS_ENVIROMMENT
+                try: self.environment = PATH_CONDA_ENVS + "/" + self.jsonInfo["info"]["environment"]
+                except KeyError: self.environment = PROCESS_DEFAULT_ENVIROMMENT
 
             elif self.type == "singularity":
-                try: self.environment = SINGULARITY_IMAGES_PATH + "/" + self.jsonInfo["info"]["environment"]
-                except KeyError: self.environment = DEFAULT_PROCESS_ENVIROMMENT
+                try: self.environment = PATH_SINGULARITY_IMAGES + "/" + self.jsonInfo["info"]["environment"]
+                except KeyError: self.environment = PROCESS_DEFAULT_ENVIROMMENT
 
         if self.route is None:
 
             try: self.route = self.jsonInfo["implementation"]["defaultRoute"]
-            except KeyError: self.route = DEFAULT_PROCESS_ROUTE
+            except KeyError: self.route = PROCESS_DEFAULT_ROUTE
 
         super().minimumBuild()
 
@@ -130,7 +135,7 @@ class Process(BioHubClass,
 
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
 
         auxLogger = logging.Logger(f"{self.id}")
         auxLogger.setLevel(logging.INFO)
@@ -148,8 +153,9 @@ class Process(BioHubClass,
 
 
     @property
-    def _xmlElementTags(self) -> set: return {"framework", "tool", "route",
-                                              "type", "environment"} | super()._xmlElementTags
+    def _xmlElementTags(self) -> set:
+        return {"framework", "tool", "route",
+                "type", "environment"} | super()._xmlElementTags
 
 
     @property
@@ -183,6 +189,11 @@ class Process(BioHubClass,
             outputOutlines: set = set(),
             processOutlines: set = set(),
             **extraAttrs) -> dict:
+
+        if self._abort: #  Si la configuración del proceso no es correcta, no se ejecuta
+
+            self.logger.error("RUN :: Aborting process. conf or build error.")
+            return {}
 
         self._runHead(options = options,
                       inputs = inputs,
