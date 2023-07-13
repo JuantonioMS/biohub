@@ -1,80 +1,96 @@
 {
-    "info" : {
-        "type" : "anaconda",
-        "environment": "biohub.blast"
+
+
+
+    "info" :
+    {
+        "type" : "conda",
+        "environment" : "biohub.blast"
     },
 
-    "build": [
+
+
+    "build" :
+    [
         "mamba create -y -p ->eval##self.environment<- blast"
     ],
 
-    "implementation" : {
 
-        "defaultRoute": "genome"
 
+    "implementation" :
+    {
+        "defaultRoute" : "genome"
     },
 
-    "options": [
+
+
+    "options" :
+    [
         {
-            "route": "common",
-            "role": "threads",
-            "name": "-num_threads"
+            "route" : "common",
+            "role" : "threads",
+            "name" : "-num_threads"
         },
 
         {
-            "route": "common",
-            "role": "output format",
-            "name": "-outfmt",
-            "value": 5
+            "route" : "common",
+            "role" : "output format",
+            "name" : "-outfmt",
+            "value" : 5
         }
     ],
 
-    "inputs": [
 
+
+    "inputs" :
+    [
         {
-            "route": "genome",
-            "role": "database",
-            "name": "-in",
-            "selection": [
+            "route" : "genome",
+            "role" : "database",
+            "name" : "-in",
+            "selection" :
+            [
                 {
-                    "target": "outlines",
-                    "required": ["genome"]
+                    "target" : "outlines",
+                    "required" : ["genome"]
                 }
             ]
         },
 
         {
-            "route": "common",
-            "role": "query",
-            "name": "-query",
-            "selection": [
+            "route" : "common",
+            "role" : "query",
+            "name" : "-query",
+            "selection" :
+            [
                 {
-                    "target": "outlines",
-                    "required": ["query"]
+                    "target" : "outlines",
+                    "required" : ["query"]
                 }
             ]
         }
-
     ],
 
-    "outputs": [
 
+
+    "outputs" :
+    [
         {
-            "route": "common",
-            "role": "result",
-            "temporal": "result.json",
-            "extension": ".json"
+            "route" : "common",
+            "role" : "result",
+            "temporal" : "result.json",
+            "extension" : ".json"
         }
-
     ],
 
-    "outlines": [
 
+
+    "outlines" :
+    [
         {
-            "route": "common",
-            "output": ["allele calling"],
-            "process": ["allele calling"]
+            "route" : "common",
+            "output" : ["allele calling"],
+            "process" : ["allele calling"]
         }
-
     ]
 }

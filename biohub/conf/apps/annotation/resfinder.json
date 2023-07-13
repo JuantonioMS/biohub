@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.resfinder"
     },
 
@@ -41,13 +41,13 @@
             "route": "common",
             "role": "outputDirectory",
             "name": "--outputPath",
-            "alternativeName": "-o"
+            "altName": "-o"
         },
         {
             "route": "common",
             "role": "acquiredResistanceGenesFlag",
             "name": "--acquired",
-            "alternativeName": "-acq",
+            "altName": "-acq",
             "value": true
         }
     ],

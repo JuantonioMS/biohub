@@ -48,7 +48,7 @@ class Process(BioHubClass,
         super().__init__(xmlElement, **attrs)
 
         #  Comprobar la congiguración y la instalación del proceso
-        self._abort = not self._checkProcess()
+        self._isBuildCorrect = self._checkProcess()
 
         #  Distribución de recursos computacionales
         self._resourceDistribution()
@@ -88,12 +88,12 @@ class Process(BioHubClass,
 
         if self.environment is None:
 
-            if self.type == "anaconda":
-                try: self.environment = PATH_CONDA_ENVS + "/" + self.jsonInfo["info"]["environment"]
+            if self.type == "conda":
+                try: self.environment = str(Path(PATH_CONDA_ENVS, self.jsonInfo["info"]["environment"]))
                 except KeyError: self.environment = PROCESS_DEFAULT_ENVIROMMENT
 
             elif self.type == "singularity":
-                try: self.environment = PATH_SINGULARITY_IMAGES + "/" + self.jsonInfo["info"]["environment"]
+                try: self.environment = str(Path(PATH_SINGULARITY_IMAGES, self.jsonInfo["info"]["environment"]))
                 except KeyError: self.environment = PROCESS_DEFAULT_ENVIROMMENT
 
         if self.route is None:
@@ -190,7 +190,7 @@ class Process(BioHubClass,
             processOutlines: set = set(),
             **extraAttrs) -> dict:
 
-        if self._abort: #  Si la configuración del proceso no es correcta, no se ejecuta
+        if not self._isBuildCorrect: #  Si la configuración del proceso no es correcta, no se ejecuta
 
             self.logger.error("RUN :: Aborting process. conf or build error.")
             return {}

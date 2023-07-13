@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.prokka"
     },
 

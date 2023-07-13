@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.metaphlan"
     },
 
@@ -92,7 +92,7 @@
             "route": "common",
             "role": "taxonomic classification",
             "name": "--output_file",
-            "alternativeName": "-o",
+            "altName": "-o",
             "temporal": "metagenome.tsv",
             "extension": ".tsv",
             "outlines": ["taxonomic classification"]

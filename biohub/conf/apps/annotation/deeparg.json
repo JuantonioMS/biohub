@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.deeparg"
     },
 
@@ -40,7 +40,7 @@
             "route": "common",
             "role": "outputDirectory",
             "name": "--output-file",
-            "alternativeName": "-o",
+            "altName": "-o",
             "value": "->eval##self.temporalDirectory<-/output"
         },
         {
@@ -59,7 +59,7 @@
             "route": "common",
             "role": "database path",
             "name": "--data-path",
-            "alternativeName": "-d",
+            "altName": "-d",
             "value": "->eval##self.environment<-/localDB"
         }
     ],
@@ -69,7 +69,7 @@
             "route": "common",
             "role": "genome",
             "name": "--input-file",
-            "alternativeName": "-i",
+            "altName": "-i",
             "selection": [
                 {
                     "target": "outlines",

@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.rgi"
     },
 
@@ -58,7 +58,7 @@
             "route": "common",
             "role": "outputDirectory",
             "name": "--output_file",
-            "alternativeName": "-o",
+            "altName": "-o",
             "value": "->eval##self.temporalDirectory<-/output"
         },
 
@@ -66,7 +66,7 @@
             "route": "common",
             "role": "threads",
             "name": "--num_threads",
-            "alternativeName": "-n"
+            "altName": "-n"
         },
 
         {
@@ -83,7 +83,7 @@
             "route": "common",
             "role": "genome",
             "name": "--input_sequence",
-            "alternativeName": "-i",
+            "altName": "-i",
             "selection": [
                 {
                     "target": "outlines",

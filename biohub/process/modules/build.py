@@ -1,72 +1,82 @@
 import os
+import json
+import jsonschema
 
 from biohub.utils import evalSentence
 
-from biohub.conf.core.constants.path import PATH_CONDA_ENVS, \
+from biohub.conf.core.constants.path import PATH_CONF_CORE_SCHEMAS_APPS, \
+                                            PATH_CONDA_ENVS, \
                                             PATH_SINGULARITY_IMAGES
 
 
 class Build:
 
 
-    def _checkProcess(self) -> bool:
-        return self._checkProcessConfiguration() and self._checkProcessBuild()
+#  MAIN_________________________________________________________________________________________________________________
 
+
+    def _checkProcess(self) -> bool:
+
+        if self._checkProcessConfiguration():
+            return self._checkProcessBuild()
+
+        else: return False
+
+
+#  JSON CONFIGURATION___________________________________________________________________________________________________
 
 
     def _checkProcessConfiguration(self) -> bool:
 
-        self.logger.info(f"Checking {self.jsonFile} content")
+        self.logger.info(f"BUILD :: Checking {self.jsonFile} content")
+
+        try:
+            jsonschema.validate(self.jsonInfo,
+                                json.load(open(PATH_CONF_CORE_SCHEMAS_APPS, "r")))
+            return True
+
+        except Exception as error:
+            self.logger.error(f"BUILD :: {self.jsonFile} is not properly configured\n{error}")
+            return False
+
+
+#  BUILD________________________________________________________________________________________________________________
+
+
+    def _checkProcessBuild(self) -> bool:
+
+        self.logger.info(f"BUILD :: Checking process build")
+
+        if self.type == "system": status = self._checkProcessBuildSystem()
+        elif self.type == "conda": status = self._checkProcessBuildConda()
+        elif self.type == "singularity": status = self._checkProcessBuildSingularity()
+
+        if not status:
+            self._buildProcess()
+            status = self._checkProcessBuild()
+
+        return status
 
 
 
-
-
-    def _checkProcessBuild(self) -> bool: pass
-    def _checkProcessBuildConda(self) -> bool: pass
-    def _checkProcessBuildSingularity(self) -> bool: pass
-    def _checkProcessBuildSystem(self) -> bool: pass
+    def _checkProcessBuildSystem(self) -> bool:
+        return True
 
 
 
-
-    def _checkAppBuild(self) -> None:
-
-        if self.type == "anaconda":
-            self._checkAppBuildAnaconda()
-
-        if self.type == "singularity":
-            self._checkAppBuildSingularity()
+    def _checkProcessBuildConda(self) -> bool:
+        return any([env in str(self.environment) for env in os.listdir(PATH_CONDA_ENVS)])
 
 
 
-    def _checkAppBuildAnaconda(self) -> None:
-
-        _, result = self.runCommand("conda env list", verbosity = False)
-
-        if not any([self.environment.split("/")[-1] in i for i in result.split("\n")]):
-
-            self.logger.info(f"BUILD :: Installing conda env {self.environment}")
-
-            for command in self.jsonInfo["build"]:
-
-
-                while "eval##" in command:
-                    command = evalSentence(command, self = self)
-
-                self.runCommand(command)
+    def _checkProcessBuildSingularity(self) -> bool:
+        return any([img in str(self.environment) for img in os.listdir(PATH_SINGULARITY_IMAGES)])
 
 
 
-    def _checkAppBuildSingularity(self) -> None:
+    def _buildProcess(self) -> None:
 
-        if not any([self.environment.split("/")[-1] in i for i in os.listdir(PATH_SINGULARITY_IMAGES)]):
+        self.logger.info(f"BUILD :: Installing process dependencies of {self.environment}")
 
-            self.logger.info(f"BUILD :: Installing singularity image {self.environment}")
-
-            for command in self.jsonInfo["build"]:
-
-                while "eval##" in command:
-                    command = evalSentence(command, self = self)
-
-                self.runCommand(command)
+        for command in self.jsonInfo["build"]:
+            self.runCommand(evalSentence(command, self = self))

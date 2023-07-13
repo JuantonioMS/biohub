@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.quast"
     },
 
@@ -36,14 +36,14 @@
             "route": "common",
             "role": "threads",
             "name": "--threads",
-            "alternativeName": "-t"
+            "altName": "-t"
         },
 
         {
             "route": "common",
             "role": "outputDirectory",
             "name": "--output-dir",
-            "alternativeName": "-o"
+            "altName": "-o"
         }
     ],
 

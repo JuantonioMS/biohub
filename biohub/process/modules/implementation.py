@@ -156,7 +156,7 @@ class Implementation:
 
             if self.type == "system": self.runSystemPackage(sentence)
 
-            elif self.type == "anaconda": self.runCondaPackage(sentence)
+            elif self.type == "conda": self.runCondaPackage(sentence)
 
             elif self.type == "singularity": self.runSingularityPackage(sentence)
 

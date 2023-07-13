@@ -38,6 +38,9 @@ class ProcessStoS(Process):
             processOutlines: set = set(),
             **extraAttrs) -> dict:
 
+        if not self._isBuildCorrect:
+            return {}
+
         #  Proceso único
         if isinstance(self.entity, Subject):
             return self._runSubject(options = options,

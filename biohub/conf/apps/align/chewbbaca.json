@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.chewbbaca"
     },
 
@@ -42,7 +42,7 @@
             "route": "common",
             "role": "outputDirectory",
             "name": "--outdir",
-            "alternativeName": "-o"
+            "altName": "-o"
         },
 
         {

@@ -1,7 +1,7 @@
 {
 
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.trimgalore"
     },
 
@@ -37,13 +37,13 @@
             "route": "common",
             "role": "threads",
             "name": "--cores",
-            "alternativeName": "-j"
+            "altName": "-j"
         },
         {
             "route": "common",
             "role": "outputDirectory",
             "name": "--output_dir",
-            "alternativeName": "-o"
+            "altName": "-o"
         },
         {
             "route": "common",

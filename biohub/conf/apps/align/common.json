@@ -1,9 +1,13 @@
 {
-    "outlines": [
+    "outlines" :
+    [
         {
-            "route": "common",
-            "output": ["align"],
-            "process": ["aligned"]
+            "route" : "common",
+            "output" :
+            [
+                "align"
+            ],
+            "process" : ["aligned"]
         }
     ]
 }

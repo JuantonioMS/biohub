@@ -1,6 +1,6 @@
 {
     "info" : {
-        "type" : "anaconda",
+        "type" : "conda",
         "environment": "biohub.plasmidfinder"
     },
 
@@ -37,7 +37,7 @@
             "route": "common",
             "role": "outputDirectory",
             "name": "--outputPath",
-            "alternativeName": "-o"
+            "altName": "-o"
         }
     ],
 
