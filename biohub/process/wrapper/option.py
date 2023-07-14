@@ -14,12 +14,12 @@ class Option(Wrapper):
 
 
     @property
-    def alternativeName(self) -> str:
+    def altName(self) -> str:
 
         """Nombre corto o alternativo. Sino, se retorna el nombre por defecto"""
 
         if hasattr(self, "_alternative"):
-            return self._alternative
+            return self._altName
 
         else:
             return self.name

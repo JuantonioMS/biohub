@@ -18,7 +18,22 @@ class Build:
     def _checkProcess(self) -> bool:
 
         if self._checkProcessConfiguration():
-            return self._checkProcessBuild()
+
+            self.logger.info("BUILD :: Checking process build")
+            if not self._checkProcessBuild():
+
+                self.logger.info(f"BUILD :: Installing process dependencies of {self.environment}")
+                self._buildProcess()
+
+                status = self._checkProcessBuild()
+                if status: self.logger.info("BUILD :: Process build OK")
+                else:      self.logger.error("BUILD :: Process build ERROR")
+
+                return status
+
+            else:
+                self.logger.info("BUILD :: Process build OK")
+                return True
 
         else: return False
 
@@ -33,6 +48,8 @@ class Build:
         try:
             jsonschema.validate(self.jsonInfo,
                                 json.load(open(PATH_CONF_CORE_SCHEMAS_APPS, "r")))
+
+            self.logger.info(f"BUILD :: {self.jsonFile} content OK")
             return True
 
         except Exception as error:
@@ -45,38 +62,21 @@ class Build:
 
     def _checkProcessBuild(self) -> bool:
 
-        self.logger.info(f"BUILD :: Checking process build")
-
-        if self.type == "system": status = self._checkProcessBuildSystem()
-        elif self.type == "conda": status = self._checkProcessBuildConda()
+        if self.type == "system":        status = self._checkProcessBuildSystem()
+        elif self.type == "conda":       status = self._checkProcessBuildConda()
         elif self.type == "singularity": status = self._checkProcessBuildSingularity()
-
-        if not status:
-            self._buildProcess()
-            status = self._checkProcessBuild()
 
         return status
 
 
-
-    def _checkProcessBuildSystem(self) -> bool:
-        return True
-
-
-
-    def _checkProcessBuildConda(self) -> bool:
-        return any([env in str(self.environment) for env in os.listdir(PATH_CONDA_ENVS)])
-
-
-
-    def _checkProcessBuildSingularity(self) -> bool:
-        return any([img in str(self.environment) for img in os.listdir(PATH_SINGULARITY_IMAGES)])
+    #  TODO
+    def _checkProcessBuildSystem(self) -> bool:      return True
+    def _checkProcessBuildConda(self) -> bool:       return any([env in str(self.environment) for env in os.listdir(PATH_CONDA_ENVS)])
+    def _checkProcessBuildSingularity(self) -> bool: return any([img in str(self.environment) for img in os.listdir(PATH_SINGULARITY_IMAGES)])
 
 
 
     def _buildProcess(self) -> None:
-
-        self.logger.info(f"BUILD :: Installing process dependencies of {self.environment}")
 
         for command in self.jsonInfo["build"]:
             self.runCommand(evalSentence(command, self = self))

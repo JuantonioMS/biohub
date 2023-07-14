@@ -191,7 +191,6 @@ class Process(BioHubClass,
             **extraAttrs) -> dict:
 
         if not self._isBuildCorrect: #  Si la configuración del proceso no es correcta, no se ejecuta
-
             self.logger.error("RUN :: Aborting process. conf or build error.")
             return {}
 
@@ -224,6 +223,8 @@ class Process(BioHubClass,
                  processOutlines: set = set(),
                  **extraAttrs) -> None:
 
+        self.logger.info("RUN :: Running process head sentences")
+
         self._runSentences(self.sentencesHead,
                            options = options,
                            inputs = inputs,
@@ -240,6 +241,8 @@ class Process(BioHubClass,
                  processOutlines: set = set(),
                  **extraAttrs) -> None:
 
+        self.logger.info("RUN :: Running process tail sentences")
+
         self._runSentences(self.sentencesTail,
                            options = options,
                            inputs = inputs,
@@ -255,6 +258,8 @@ class Process(BioHubClass,
             outputOutlines: set = set(),
             processOutlines: set = set(),
             **extraAttrs) -> dict:
+
+        self.logger.info("RUN :: Running process body sentences")
 
         self.logger.info("\n".join([f"Running process body:",
                                     f"\tFramework: {self.framework}",
@@ -275,31 +280,31 @@ class Process(BioHubClass,
 
         #  Si no se han seteado los inputs correctamente, devuelve un diccionario vacío
         if not inputs:
-            self.entity.logger.error(f"Process {self.id} :: RUN :: Some input is not working properly")
+            self.entity.logger.error(f"INPUTS {self.id} :: RUN :: Some input is not working properly")
             return {}
 
         #  3. Seteando los outputs
-        self.logger.info(f"Process {self.id} :: OUTPUTS :: Setting outputs")
+        self.logger.info("OUTPUTS :: Setting outputs")
         outputs = self._setOutputs(options = options,
                                    inputs = inputs,
                                    outputOutlines = outputOutlines,
                                    **extraAttrs)
 
         #  4. Aplicamos los condicionales para eliminar aquellos que no cumplan la condición
-        self.logger.info(f"Process {self.id} :: UTILS :: Applying eval sentences")
+        self.logger.info("UTILS :: Completing options, inputs and outputs")
         inputs, outputs, options = self._applyEvalSentences(inputs = inputs,
                                                             outputs = outputs,
                                                             options = options,
                                                             **extraAttrs)
 
         #  5. Eliminamos los elementos condicionales no resueltos satisfactoriamente
-        self.logger.info(f"Process {self.id} :: UTILS :: Removing not successful conditions")
+        self.logger.info("UTILS :: Removing not successful conditions")
         inputs, outputs, options = self._purgeConditionals(inputs = inputs,
                                                            outputs = outputs,
                                                            options = options)
 
         #  6. Definiendo el proceso
-        self.logger.info(f"Process {self.id} :: CLONE :: Cloning process info for XML Element")
+        self.logger.info("CLONE :: Cloning process info for XML Element")
         process = self._setProcess(inputs = inputs,
                                   outputs = outputs,
                                   options = options,
@@ -313,46 +318,46 @@ class Process(BioHubClass,
         if not self.duplicate:
 
             #  7. Buscando duplicados
-            self.logger.info(f"Process {self.id} :: UTILS :: Looking for duplicated processes")
+            self.logger.info("UTILS :: Looking for duplicated processes")
             processDuplicated = self.findDuplicatedProcesses(process)
 
             #  8. Retornando los outputs del duplicado
             if processDuplicated:
-                self.entity.logger.info(f"Process {self.id} :: UTILS :: Process is already done, avoiding execution")
+                self.entity.logger.info("UTILS :: Process is already done, avoiding execution")
                 return self.extractOutputsFromProcess(processDuplicated[0]) #  TODO Implementar el retorno de outputs de procesos duplicados
 
         #  9. Ejecución del proceso
-        self.logger.info(f"Process {self.id} :: IMPLEMENTATION :: Executing process implementation")
+        self.logger.info("IMPLEMENTATION :: Executing process implementation")
         self._runProcess(inputs = inputs,
                          outputs = outputs,
                          options = options)
 
         #  10. Mover los archivos resultado del directorio temporal a la carpeta
-        self.logger.info(f"Process {self.id} :: SAVE :: Moving files from temporal directory to BioHub directory")
+        self.logger.info("SAVE :: Moving files from temporal directory to BioHub directory")
         self._moveFiles(outputs)
 
         #  11. Chequear los resultados del proceso
-        self.logger.info(f"Process {self.id} :: CHECK :: Checking process status")
+        self.logger.info("CHECK :: Checking process status")
         allRight = self._checkStatus(process = process,
                                      outputs = outputs)
 
         if not allRight:
-            self.logger.error(f"Process {self.id} :: CHECK :: Process execution not successful")
+            self.logger.error("CHECK :: Process execution not successful")
             return {}
 
         if self.save:
 
             #  12. Se añade la duración del proceso
-            self.logger.info(f"Process {self.id} :: SAVE :: Add process runtime to process info")
+            self.logger.info("SAVE :: Add process runtime to process info")
             process = self._addDuration(process, datetime.now())
 
             #  13. Guardar en la entidad tanto el proceso como los outputs
-            self.logger.info(f"Process {self.id} :: SAVE :: Saving process info into BioHub container entity")
+            self.logger.info("SAVE :: Saving process info into BioHub container entity")
             self._saveRecord(process = process,
                              outputs = outputs)
 
         #  14. Retornar los outputs
-        self.entity.logger.info(f"Process {self.id} :: UTILS :: Returning process outputs")
+        self.entity.logger.info("UTILS :: Returning process outputs")
         return self.extractOutputs(process)
 
 

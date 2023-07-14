@@ -2,7 +2,9 @@ from biohub.process.wrapper import Option
 
 from biohub.utils import getDefaultRole
 
-from biohub.conf.core.constants.process import PROCESS_DEFAULT_ROUTE
+from biohub.conf.core.constants.process import PROCESS_DEFAULT_ROUTE, \
+                                               PROCESS_OPTIONS_ROLE_CPUTHREADS, \
+                                               PROCESS_OPTIONS_ROLE_OUTPUTDIRECTORY
 
 
 class Options:
@@ -23,10 +25,10 @@ class Options:
 
                 if option["route"] == route:
 
-                    if option["role"] == "threads": #  Las opciones referidas al número de procesadores se autocompletan
+                    if option["role"] == PROCESS_OPTIONS_ROLE_CPUTHREADS: #  Las opciones referidas al número de procesadores se autocompletan
                         option["value"] = self.threadsPerTask
 
-                    elif option["role"] == "outputDirectory": #  La opción referida al directorio de salida se autocompleta
+                    elif option["role"] == PROCESS_OPTIONS_ROLE_OUTPUTDIRECTORY: #  La opción referida al directorio de salida se autocompleta
                         if "value" not in option:
                             option["value"] = self.temporalDirectory
 
@@ -42,9 +44,19 @@ class Options:
         Se buscan las opciones por defecto. Cualquier opción indicada por el usuario eliminará la opción por
         defecto correspondiente si es necesario"""
 
-        auxOptions = {}
-
         self.logger.info(f"OPTIONS :: Wrapping {len(options)} user options")
+        userOptions = self.__wrapUserOptions(**options)
+
+        self.logger.info("OPTIONS :: Merge user and default options")
+        options = self._mergeOptions(userOptions, self.defaultOptions)
+
+        return options
+
+
+
+    def __wrapUserOptions(self, **options) -> dict:
+
+        auxOptions = {}
 
         for key, value in options.items():
 
@@ -59,36 +71,21 @@ class Options:
                                           name = key,
                                           value = value)
 
-        self.logger.info("OPTIONS :: Completing  with default options")
-
-        rolesToDel = []
-        for defaultRole, defaultOption in self.defaultOptions.items():
-
-            #  Chequeando si el nombre de alguna opción por defecto se ha escrito en las opciones del usuario
-            if not any([defaultOption.name in [userOption.name for userOption in auxOptions.values()],
-                        defaultOption.alternativeName in [userOption.name for userOption in auxOptions.values()]]):
-
-                #  No se ha detectado el nombre en las opciones del usuario
-                auxOptions[defaultRole] = defaultOption
-
-
-            else:
-                #  Se ha detectado el nombre
-                for userRole, userOption in auxOptions.items():
-
-                    #  Se intenta completar la información de la opción con la que se tiene por defecto
-                    if any([defaultOption.name == userOption.name, defaultOption.alternativeName == userOption.name]):
-
-                        userOption._role = defaultOption.role #  Corrige el rol
-                        userOption._alternativeName = defaultOption.alternativeName #  Rellena el nombre alternativo
-
-                        auxOptions[defaultRole] = userOption #  Guarda la opción completa
-                        rolesToDel.append(userRole) #  Anotamos el rol antiguo para borrarlo después
-
-        #  Eliminando las opciones que no tienen toda la información completa
-        for roleToDel in rolesToDel:
-            del auxOptions[roleToDel]
-
-        self.logger.info(f"OPTIONS :: Number of options setted {len(auxOptions)}")
-
         return auxOptions
+
+
+
+    def _mergeOptions(self,
+                      userOptions: dict,
+                      defaultOptions: dict) -> dict:
+
+        for defaultRole, defaultOption in defaultOptions.items():
+
+            if not defaultRole in [role for role in userOptions.keys()] and \
+               not defaultRole in [role for role in userOptions.values()] and \
+               not defaultOption.name in [option.name for option in userOptions.values()] and \
+               not defaultOption.altName in [option.altName for option in userOptions.values()]:
+
+                userOptions[defaultRole] = defaultOption
+
+        return userOptions
