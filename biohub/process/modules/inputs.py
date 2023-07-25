@@ -102,7 +102,6 @@ class Inputs:
 
     def _solveInputs(self, **inputs) -> dict:
 
-
         auxInputs = {}
         for role, input in inputs.items():
 

@@ -6,7 +6,8 @@ from biohub.utils import evalSentence
 
 from biohub.conf.core.constants.path import PATH_CONF_CORE_SCHEMAS_APPS, \
                                             PATH_CONDA_ENVS, \
-                                            PATH_SINGULARITY_IMAGES
+                                            PATH_SINGULARITY_IMAGES, \
+                                            PATH_SYSTEM_FOLDERS
 
 
 class Build:
@@ -70,7 +71,7 @@ class Build:
 
 
     #  TODO
-    def _checkProcessBuildSystem(self) -> bool:      return True
+    def _checkProcessBuildSystem(self) -> bool:      return any([env in str(self.environment) for env in os.listdir(PATH_SYSTEM_FOLDERS)])
     def _checkProcessBuildConda(self) -> bool:       return any([env in str(self.environment) for env in os.listdir(PATH_CONDA_ENVS)])
     def _checkProcessBuildSingularity(self) -> bool: return any([img in str(self.environment) for img in os.listdir(PATH_SINGULARITY_IMAGES)])
 

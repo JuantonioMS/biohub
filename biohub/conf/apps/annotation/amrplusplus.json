@@ -1,31 +1,67 @@
 {
-    "info" : {
-        "type" : "singularity",
-        "environment": "amrplusplus_latest.sif"
+
+
+
+    "info" :
+    {
+        "type" : "system",
+        "environment" : "biohub.amrplusplus"
     },
 
-    "build": [
+
+
+    "build" :
+    [
+        "git clone https://github.com/Microbial-Ecology-Group/AMRplusplus.git",
+        "mv AMRplusplus ->eval##self.environment<-",
         "singularity pull docker://enriquedoster/amrplusplus:latest",
-        "mv amrplusplus_latest.sif ->eval##self.environment<-"
+        "mv amrplusplus_latest.sif ->eval##self.environment<-/amrplusplus.sif"
     ],
 
-    "implementation" : {
 
-        "defaultRoute": "common",
 
-        "commands": [
+    "implementation" :
+    {
+
+        "defaultRoute" : "paired illumina",
+
+        "commands" :
+        [
             {
-                "route": "common",
-                "command": "nextflow run main_AMR++.nf"
+                "route" : "common",
+                "command" : "singularity exec"
             }
         ],
 
-        "sentences": {
+        "sentences" :
+        {
 
-            "body" : [
+            "body" :
+            [
+                {
+                    "route" : "paired illumina",
+                    "sentences" :
+                    [
+                        "ln -s ->eval##inputs['forward'].path<- ->eval##self.id<-_R1.fastq.gz",
+                        "ln -s ->eval##inputs['reverse'].path<- ->eval##self.id<-_R2.fastq.gz",
+                        "mkdir ->eval##self.id<-_tmp",
+                        "<command> ->eval##self.environment<-/amrplusplus.sif nextflow run ->eval##self.environment<-/main_AMR++.nf --pipeline resistome --reads \"->eval##self.id<-_R{1,2}.fastq.gz\" --output \"->eval##self.temporalDirectory<-/\" -w ->eval##self.id<-_tmp <options>",
+                        "rm ->eval##self.id<-_R1.fastq.gz",
+                        "rm ->eval##self.id<-_R2.fastq.gz",
+                        "rm -rf ->eval##self.id<-_tmp"
+                    ]
+                }
+            ],
+
+            "tail" :
+            [
                 {
                     "route" : "common",
-                    "sentences" : ["<command> <options> <inputs>"]
+                    "sentences" :
+                    [
+                        "rm -rf .nextflow",
+                        "rm .nextflow.*"
+                    ]
                 }
             ]
 
@@ -33,65 +69,66 @@
 
     },
 
-    "options": [
 
-        {
-            "route": "common",
-            "role": "outputDirectory",
-            "name": "--output_file",
-            "altName": "-o"
-        },
+
+    "options" :
+    [
 
         {
             "route": "common",
             "role": "threads",
-            "name": "--num_threads",
-            "altName": "-n"
-        },
-
-        {
-            "route": "common",
-            "role": "clean temporal files",
-            "name": "--clean",
-            "value": true
+            "name": "--threads"
         }
 
     ],
 
-    "inputs": [
+
+
+    "inputs" :
+    [
+
         {
-            "route": "common",
-            "role": "genome",
-            "name": "--input_sequence",
-            "altName": "-i",
+            "route": "paired illumina",
+            "role": "forward",
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["genome"]
+                    "required": ["reads", "forward", "illumina"],
+                    "optimal": ["trimmed"]
                 }
             ]
-        }
-    ],
-
-    "outputs": [
-        {
-            "route": "common",
-            "role": "json format",
-            "temporal": "output.json",
-            "extension": ".json",
-            "outlines": ["card", "json"]
         },
 
         {
+            "route": "paired illumina",
+            "role": "reverse",
+            "selection": [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse", "illumina"],
+                    "optimal": ["trimmed"]
+                }
+            ]
+        }
+
+    ],
+
+
+
+    "outputs" :
+    [
+        {
             "route": "common",
-            "role": "txt format",
-            "temporal": "output.txt",
-            "extension": ".txt",
-            "outlines": ["card", "txt"]
+            "role": "genes table",
+            "temporal": "Results/AMR_analytic_matrix.csv",
+            "extension": ".csv"
         }
     ],
 
-    "outlines": [
+
+
+    "outlines":
+    [
         {
             "route": "common",
             "output": ["resistance genes"],

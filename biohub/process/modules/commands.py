@@ -33,12 +33,12 @@ class Commands:
 
             if not outputMsg: outputMsg = "No output"
 
-            self.logger.info(f"Process {self.id} :: COMMANDS :: Command -> " + command +
+            self.logger.info(f"COMMANDS :: Command -> " + command +
                                     "\n" +
                                     "Output -> " + outputMsg)
 
         if outputCode != 0:
-            self.logger.warning(f"Process {self.id} :: COMMANDS :: Return code is not 0 (code {outputCode})")
+            self.logger.warning(f"COMMANDS :: Return code is not 0 (code {outputCode})")
 
         return outputCode, outputMsg
 
@@ -86,10 +86,9 @@ class Commands:
         Ejecuta comandos recogidos en entornos conda de forma similar al método runCommand
         """
 
-        self.logger.info(f"Process {self.id} :: COMMANDS :: Running conda command")
+        self.logger.info(f"COMMANDS :: Running conda command")
 
-        if not environment:
-            environment = self.environment
+        if not environment: environment = self.environment
 
         return self.runCommand(prefix, f"{self.condaShell} && conda activate {environment} && ", *args,
                                verbosity = verbosity)
@@ -105,8 +104,7 @@ class Commands:
 
         self.logger.info("COMMANDS :: Running singularity command")
 
-        if not image:
-            image = self.environment
+        if not image: image = self.environment
 
         return self.runCommand(f"singularity exec {image} ", *args,
                                verbosity = verbosity)
@@ -116,5 +114,10 @@ class Commands:
 
 
     #  TODO
-    def runSystemPackage(self):
-        pass
+    def runSystemPackage(self, *args,
+                         verbosity: bool = True):
+
+        self.logger.info("COMMANDS :: Running system command")
+
+        return self.runCommand(*args,
+                               verbosity = verbosity)

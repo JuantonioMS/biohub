@@ -12,6 +12,11 @@ PATH_CONDA_ENVS = Path(PATH_BIOHUB_DIRECTORY, "conda_envs")
 
 PATH_SINGULARITY_IMAGES = Path(PATH_BIOHUB_DIRECTORY, "singularity_imgs")
 
+#  SYSTEM_______________________________________________________________________________________________________________
+
+PATH_SYSTEM_FOLDERS = Path(PATH_BIOHUB_DIRECTORY, "system_folders")
+
+#  CONFIGURATION________________________________________________________________________________________________________
 
 PATH_CONF = Path(__file__).parent.parent.parent
 PATH_CONF_APPS = Path(PATH_CONF, "apps")

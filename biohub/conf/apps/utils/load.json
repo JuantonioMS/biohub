@@ -1,4 +1,10 @@
 {
+    "info" :
+    {
+        "type" : "system"
+    },
+
+
     "outlines": [
         {
             "route": "common",

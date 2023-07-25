@@ -71,6 +71,6 @@ class Outputs:
         output.biohubFile = file
         output.pathPrefix = self.entity.path
 
-        self.logger.info(f"Process {self.id} :: OUTPUTS :: Creating output {output}; role {output.role}")
+        self.logger.info(f"OUTPUTS :: Creating output {output}; role {output.role}")
 
         return output

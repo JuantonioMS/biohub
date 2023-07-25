@@ -13,6 +13,7 @@ from biohub.process.apps.annotation.amrfinder import AMRFinder
 from biohub.process.apps.annotation.abricate import Abricate
 from biohub.process.apps.annotation.rgi import Rgi
 from biohub.process.apps.annotation.deeparg import DeepARG
+from biohub.process.apps.annotation.amrplusplus import AMRplusplus
 
 #  Plasmids
 from biohub.process.apps.annotation.plasmidfinder import PlasmidFinder

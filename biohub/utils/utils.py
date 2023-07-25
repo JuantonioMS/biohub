@@ -60,6 +60,20 @@ def verifyDate(date: str) -> datetime:
 
 def evalSentence(sentence, **kwargs):
 
+    from biohub.conf.core.constants.id import ID_CHARACTERS, \
+                                              ID_LENGTH, \
+                                              ID_PREFIX
+
+    from biohub.conf.core.constants.path import PATH_BIOHUB_DIRECTORY, \
+                                                PATH_CONDA_ENVS, \
+                                                PATH_CONF, \
+                                                PATH_CONF_APPS, \
+                                                PATH_CONF_CORE, \
+                                                PATH_CONF_CORE_SCHEMAS, \
+                                                PATH_CONF_CORE_SCHEMAS_APPS, \
+                                                PATH_SINGULARITY_IMAGES, \
+                                                PATH_SYSTEM_FOLDERS
+
     locals().update(kwargs) #  Actualiza las variables locales
 
     while isinstance(sentence, str) and "eval##" in sentence:

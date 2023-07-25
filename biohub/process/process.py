@@ -21,7 +21,8 @@ from biohub.conf.core.constants.process import PROCESS_DEFAULT_TYPE, \
                                                PROCESS_DEFAULT_ROUTE
 
 from biohub.conf.core.constants.path import PATH_CONDA_ENVS, \
-                                            PATH_SINGULARITY_IMAGES
+                                            PATH_SINGULARITY_IMAGES, \
+                                            PATH_SYSTEM_FOLDERS
 
 
 class Process(BioHubClass,
@@ -95,6 +96,11 @@ class Process(BioHubClass,
             elif self.type == "singularity":
                 try: self.environment = str(Path(PATH_SINGULARITY_IMAGES, self.jsonInfo["info"]["environment"]))
                 except KeyError: self.environment = PROCESS_DEFAULT_ENVIROMMENT
+
+            elif self.type == "system":
+                try: self.environment = str(Path(PATH_SYSTEM_FOLDERS, self.jsonInfo["info"]["environment"]))
+                except KeyError: self.environment = PROCESS_DEFAULT_ENVIROMMENT
+
 
         if self.route is None:
 
@@ -315,6 +321,7 @@ class Process(BioHubClass,
         #  que satisfaga el proceso que se demanda
         #  Si encuentra un duplicado, retornará los outputs del proceso duplicado. Si no encuentra
         #  nada, el proceso se ejecuta de forma normal
+        """
         if not self.duplicate:
 
             #  7. Buscando duplicados
@@ -325,6 +332,7 @@ class Process(BioHubClass,
             if processDuplicated:
                 self.entity.logger.info("UTILS :: Process is already done, avoiding execution")
                 return self.extractOutputsFromProcess(processDuplicated[0]) #  TODO Implementar el retorno de outputs de procesos duplicados
+        """
 
         #  9. Ejecución del proceso
         self.logger.info("IMPLEMENTATION :: Executing process implementation")

@@ -6,6 +6,7 @@ from biohub.storage import Folder
 
 class LoadFolder(Utils):
 
+    def _checkProcess(self) -> bool: return True
 
     def _mergeInputs(self, **inputs) -> dict:
         return inputs

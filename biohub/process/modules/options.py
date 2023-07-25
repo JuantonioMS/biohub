@@ -64,12 +64,7 @@ class Options:
                 auxOptions[value.role] = value
 
             else: #  El usuario ha indicado la opción con el estilo <name> : <value>
-
-                role = getDefaultRole(auxOptions)
-
-                auxOptions[role] = Option(role = role,
-                                          name = key,
-                                          value = value)
+                self.logger.info(f"You must provide options with Option wrapper instance, not {type(value)} instance")
 
         return auxOptions
 

@@ -73,6 +73,34 @@
                     "type" : "string"
                 },
 
+                "cliDetails" :
+                {
+                    "description" : "",
+                    "type" : "object",
+                    "properties" :
+                    {
+
+                        "inputsSeparator" :
+                        {
+                            "description" : "",
+                            "type" : "string"
+                        },
+
+                        "optionsSeparator" :
+                        {
+                            "description" : "",
+                            "type" : "string"
+                        },
+
+                        "outputsSeparator" :
+                        {
+                            "description" : "",
+                            "type" : "string"
+                        }
+
+                    }
+                },
+
                 "commands" :
                 {
                     "description" : "",

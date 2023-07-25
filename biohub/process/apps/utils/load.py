@@ -5,6 +5,8 @@ from biohub.storage import File
 
 class Load(Utils):
 
+    def _checkProcess(self) -> bool: return True
+
     def _mergeInputs(self, **inputs) -> dict:
         return inputs
 
