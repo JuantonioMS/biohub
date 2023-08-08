@@ -98,16 +98,14 @@
             "route": "common",
             "role": "json format",
             "temporal": "output.json",
-            "extension": ".json",
-            "outlines": ["card", "json"]
+            "extension": ".json"
         },
 
         {
             "route": "common",
             "role": "txt format",
             "temporal": "output.txt",
-            "extension": ".txt",
-            "outlines": ["card", "txt"]
+            "extension": ".txt"
         }
     ],
 

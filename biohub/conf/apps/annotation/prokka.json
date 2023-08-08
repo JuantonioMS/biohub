@@ -79,16 +79,14 @@
             "route": "common",
             "role": "genes gbk format",
             "temporal": "->eval##options['prefixName'].value<-.gbk",
-            "extension": ".gbk",
-            "outlines": ["gbk"]
+            "extension": ".gbk"
         },
 
         {
             "route": "common",
             "role": "genes gff format",
             "temporal": "->eval##options['prefixName'].value<-.gff",
-            "extension": ".gff",
-            "outlines": ["gff"]
+            "extension": ".gff"
         }
     ],
 

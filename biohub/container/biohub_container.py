@@ -88,6 +88,8 @@ class BioHubContainer(BioHubClass):
 
 
     #  Select info______________________________________________________________________________________________________
+
+
     def selectInfoBlock(self, case: str, **filt) -> list:
 
         auxFilt = {}
@@ -99,19 +101,64 @@ class BioHubContainer(BioHubClass):
 
         return self._xml.get(case, filt = auxFilt)
 
+
+
     def selectFile(self, **filt) -> list:
 
         from biohub.storage import File
 
-        return [File(xmlElement = block) for block in self.selectInfoBlock("file", **filt)]
+
+        processFilt = {}
+        for word in ("tool", "framework"):
+            if word in filt:
+                processFilt[word] = filt[word]
+                del filt[word]
+
+
+        extensionFilt = ""
+        if "extension" in filt:
+            extensionFilt = filt["extension"]
+            del filt["extension"]
+
+
+        files = [File(xmlElement = block) for block in self.selectInfoBlock("file", **filt)]
+
+        if processFilt:
+            processes = self.selectProcess(**processFilt)
+
+            auxFiles = []
+            for process in processes:
+                for file in files:
+
+                    if file.id in [input.id for input in process.inputs.values()] + [output.id for output in process.outputs.values()]:
+                        if file.id not in [auxFile.id for auxFile in auxFiles]:
+                            auxFiles.append(file)
+
+            files = auxFiles
+
+        if extensionFilt:
+            auxFiles = []
+            for file in files:
+                if file.suffixes == extensionFilt: auxFiles.append(file)
+
+            files = auxFiles
+
+        return files
+
+
 
     def selectProcess(self, **filt) -> list:
 
         from biohub.process import Process
 
-        return [Process(xmlElement = block) for block in self.selectInfoBlock("process", **filt)]
+        return [Process(xmlElement = block, entity = self) for block in self.selectInfoBlock("process", **filt)]
 
-    def selectPipeline(self, **filt) -> list: return self.selectInfoBlock("pipeline", **filt)
+
+
+    def selectPipeline(self, **filt) -> list:
+
+        return self.selectInfoBlock("pipeline", **filt)
+
 
 
     def selectFolder(self, **filt) -> list:
@@ -119,6 +166,7 @@ class BioHubContainer(BioHubClass):
         from biohub.storage import Folder
 
         return [Folder(xmlElement = block) for block in self.selectInfoBlock("folder", **filt)]
+
 
     #%%  XML special tags_______________________________________________________________________________________________
 
