@@ -218,7 +218,7 @@ class ProcessStoS(Process):
             processSentence = ["".join(["output = ",
                                         f"{self.__class__.__name__}",
                                         f"(entity = subject, threadsPerTask = {self.threadsPerTask})",
-                                        f".run(inputs = pkl.load(open('.inputs_{pklName}', 'rb'))",
+                                        f"._runBody(inputs = pkl.load(open('.inputs_{pklName}', 'rb'))",
                                         f", options = pkl.load(open('.options_{pklName}', 'rb'))",
                                         f", outputOutlines = pkl.load(open('.outputOutlines_{pklName}', 'rb'))",
                                         f", processOutlines = pkl.load(open('.processOutlines_{pklName}', 'rb'))",
