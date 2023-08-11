@@ -260,8 +260,8 @@ class ProcessStoS(Process):
             output = pkl.load(open(f".outputs_{pklName}", "rb"))
 
             for key, value in output.items():
-                if key in outputs: outputs[key] = {pklName.split("_")[0] : value}
-                else: outputs[key][pklName.split("_")[0]] = value
+                if not key in outputs: outputs[key] = {"_".join(pklName.split("_")[:2]) : value}
+                else: outputs[key]["_".join(pklName.split("_")[:2])] = value
 
         #  Borrando todos los archivos intermedios
         self.runCommand(f"rm .*{self.id}.*")

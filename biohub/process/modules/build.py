@@ -1,6 +1,7 @@
-import os
 import json
 import jsonschema
+import os
+import subprocess
 
 from biohub.utils import evalSentence
 
@@ -37,6 +38,55 @@ class Build:
                 return True
 
         else: return False
+
+
+#  BIOHUB BUILD_________________________________________________________________________________________________________
+
+
+    def _checkBiohub(self) -> bool:
+
+        if not self._checkBuildBiohub():
+            self._buildBiohub()
+
+        return self._checkBuildBiohub()
+
+
+    def _checkBuildBiohub(self) -> bool:
+
+        checks = []
+
+        self.logger.info("BUILD :: Check mamba installation")
+        checks.append(self._checkMambaInstallation())
+
+        self.logger.info("BUILD :: Check singularity installation")
+        checks.append(self._checkSingularityInstallation())
+
+        self.logger.info("BUILD :: Check conda envs folder")
+        checks.append(self._checkCondaFolder())
+
+        self.logger.info("BUILD :: Check singularity images folder")
+        checks.append(self._checkSingularityFolder())
+
+        self.logger.info("BUILD :: Check system folder")
+        checks.append(self._checkSystemFolder())
+
+        return not any([not check for check in checks])
+
+
+
+    def _checkMambaInstallation(self) -> bool: return not bool(subprocess.run("which mamba", executable = "/bin/bash", shell = True, capture_output = True).returncode)
+    def _checkSingularityInstallation(self) -> bool: return not bool(subprocess.run("which singularity", executable = "/bin/bash", shell = True, capture_output = True).returncode)
+    def _checkCondaFolder(self) -> bool: return PATH_CONDA_ENVS.exists()
+    def _checkSingularityFolder(self) -> bool: return PATH_SINGULARITY_IMAGES.exists()
+    def _checkSystemFolder(self) -> bool: return PATH_SYSTEM_FOLDERS.exists()
+
+
+
+    def _buildBiohub(self) -> None:
+
+        self.runCommand(f"mkdir --parents {PATH_CONDA_ENVS}")
+        self.runCommand(f"mkdir --parents {PATH_SINGULARITY_IMAGES}")
+        self.runCommand(f"mkdir --parents {PATH_SYSTEM_FOLDERS}")
 
 
 #  JSON CONFIGURATION___________________________________________________________________________________________________
