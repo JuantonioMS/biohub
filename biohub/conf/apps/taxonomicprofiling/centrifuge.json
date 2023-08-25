@@ -1,0 +1,123 @@
+{
+    "info" :
+    {
+        "type" : "conda",
+        "environment": "biohub.centrifuge"
+    },
+
+
+
+    "build":
+    [
+        "mamba create -y -p ->eval##self.environment<- centrifuge"
+    ],
+
+
+
+    "implementation" :
+    {
+
+        "defaultRoute": "paired illumina",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "centrifuge"
+            }
+        ],
+
+        "sentences": {
+
+            "body" : [
+                {
+                    "route" : "common",
+                    "sentences" : ["<command> <options> <inputs> <outputs>"]
+                }
+            ]
+
+        }
+    },
+
+
+
+    "options": [
+
+        {
+            "route" : "common",
+            "role" : "threads",
+            "name" : "--threads",
+            "altName" : "-p"
+        }
+
+    ],
+
+
+
+    "inputs" :
+    [
+
+        {
+            "route" : "common",
+            "role" : "database",
+            "name" : "-x",
+            "selection" :
+            [
+                {
+                    "target" : "outlines",
+                    "required" : ["metagenomic", "database"]
+                }
+            ]
+        },
+
+        {
+            "route" : "paired illumina",
+            "role" : "forward",
+            "name" : "-1",
+            "selection" :
+            [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward", "illumina", "no host"],
+                    "optimal": ["trimmed"]
+                }
+            ]
+        },
+
+        {
+            "route" : "paired illumina",
+            "role" : "reverse",
+            "name" : "-2",
+            "selection" :
+            [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse", "illumina", "no host"],
+                    "optimal": ["trimmed"]
+                }
+            ]
+        }
+    ],
+
+
+
+    "outputs" :
+    [
+        {
+            "route": "common",
+            "role": "report",
+            "name": "--report-file",
+            "temporal": "report.tsv",
+            "extension": ".tsv",
+            "outlines": ["report"]
+        },
+
+        {
+            "route": "common",
+            "role": "output",
+            "name": "-S",
+            "temporal": "output.out",
+            "extension": ".out",
+            "outlines": ["output"]
+        }
+    ]
+}

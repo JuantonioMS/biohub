@@ -1,0 +1,164 @@
+{
+
+    "info" : {
+        "type" : "conda",
+        "environment": "biohub.humanhostreadsdepletion"
+    },
+
+    "build": [
+        "mamba create -y -p ->eval##self.environment<- bowtie2",
+        "wget https://genome-idx.s3.amazonaws.com/bt/GRCh38_noalt_as.zip",
+        "unzip GRCh38_noalt_as.zip",
+        "mv GRCh38_noalt_as ->eval##self.environment<-/share/GRCh38_noalt_as"
+    ],
+
+    "implementation" : {
+
+        "defaultRoute": "paired illumina",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "bowtie2"
+            }
+        ],
+
+        "sentences": {
+
+            "body" : [
+                {
+                    "route" : "common",
+                    "sentences" : ["<command> <options> <inputs> > ->eval##self.temporalDirectory<-/reads.sam"]
+                }
+            ]
+
+        }
+    },
+
+    "options": [
+
+        {
+            "route" : "common",
+            "role" : "bowtie2 index",
+            "name" : "-x",
+            "value" : "->eval##self.environment<-/share/GRCh38_noalt_as"
+        },
+
+        {
+            "route": "common",
+            "role": "threads",
+            "name": "--threads",
+            "altName": "-p"
+        },
+
+        {
+            "route": "paired illumina",
+            "role": "unaligned reads",
+            "name": "--un-conc-gz",
+            "value": "unaligned"
+        },
+
+        {
+            "route": "paired illumina",
+            "role": "aligned reads",
+            "name": "--al-conc-gz",
+            "value": "aligned"
+        }
+
+    ],
+
+    "inputs": [
+
+        {
+            "route" : "paired illumina",
+            "role" : "forward",
+            "name" : "-1",
+            "selection" :
+            [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward", "illumina", "no host"],
+                    "optimal": ["trimmed"]
+                }
+            ]
+        },
+
+        {
+            "route" : "paired illumina",
+            "role" : "reverse",
+            "name" : "-2",
+            "selection" :
+            [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse", "illumina", "no host"],
+                    "optimal": ["trimmed"]
+                }
+            ]
+        }
+
+    ],
+
+    "outputs": [
+
+        {
+            "route": "paired",
+            "role": "forward",
+            "name": "--out1",
+            "altName": "-o",
+            "temporal": "forward.fastq.gz",
+            "extension": ".fastq.gz",
+            "outlines": ["forward"]
+        },
+
+        {
+            "route": "paired",
+            "role": "reverse",
+            "name": "--out2",
+            "altName": "-O",
+            "temporal": "reverse.fastq.gz",
+            "extension": ".fastq.gz",
+            "outlines": ["reverse"]
+        },
+
+        {
+            "route": "single",
+            "role": "single",
+            "name": "--out1",
+            "altName": "-o",
+            "temporal": "single.fastq.gz",
+            "extension": ".fastq.gz",
+            "outlines": ["single"]
+        },
+
+        {
+            "route": "common",
+            "role": "html report",
+            "name": "--html",
+            "altName": "-h",
+            "temporal": "fastp.html",
+            "extension": ".html",
+            "outlines": ["fastp html report"]
+        },
+
+        {
+            "route": "common",
+            "role": "json report",
+            "name": "--json",
+            "altName": "-j",
+            "temporal": "fastp.json",
+            "extension": ".json",
+            "outlines": ["fastp json report"]
+        }
+
+    ],
+
+    "outlines": [
+        {
+            "route": "common",
+            "output": ["reads"],
+            "process": ["reads"]
+        }
+    ]
+
+}

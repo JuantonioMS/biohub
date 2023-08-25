@@ -1,0 +1,134 @@
+{
+    "info" :
+    {
+        "type" : "conda",
+        "environment": "biohub.krakenuniq"
+    },
+
+
+
+    "build":
+    [
+        "mamba create -y -p ->eval##self.environment<- krakenuniq"
+    ],
+
+
+
+    "implementation" :
+    {
+
+        "defaultRoute": "paired illumina",
+
+        "commands": [
+            {
+                "route": "common",
+                "command": "kraken2"
+            }
+        ],
+
+        "sentences": {
+
+            "body" : [
+                {
+                    "route" : "common",
+                    "sentences" : ["<command> <options> <outputs> <inputs>"]
+                }
+            ]
+
+        }
+    },
+
+
+
+    "options": [
+
+        {
+            "route" : "common",
+            "role" : "threads",
+            "name" : "--threads"
+        },
+
+        {
+            "route" : "common",
+            "role" : "preload memory size",
+            "name" : "--preload-size",
+            "value" : "->eval##self.memoryPerTask<-"
+        },
+
+        {
+            "route" : "paired illumina",
+            "role" : "paired file flag",
+            "name" : "--paired",
+            "value" : true
+        }
+
+    ],
+
+
+
+    "inputs" :
+    [
+
+        {
+            "route" : "common",
+            "role" : "database",
+            "name" : "--db",
+            "selection" :
+            [
+                {
+                    "target" : "outlines",
+                    "required" : ["metagenomic", "database"]
+                }
+            ]
+        },
+
+        {
+            "route" : "paired illumina",
+            "role" : "forward",
+            "selection" :
+            [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "forward", "illumina", "no host"],
+                    "optimal": ["trimmed"]
+                }
+            ]
+        },
+
+        {
+            "route" : "paired illumina",
+            "role" : "reverse",
+            "selection" :
+            [
+                {
+                    "target": "outlines",
+                    "required": ["reads", "reverse", "illumina", "no host"],
+                    "optimal": ["trimmed"]
+                }
+            ]
+        }
+    ],
+
+
+
+    "outputs" :
+    [
+        {
+            "route": "common",
+            "role": "report",
+            "name": "--report-file",
+            "temporal": "report.tsv",
+            "extension": ".tsv",
+            "outlines": ["report"]
+        },
+
+        {
+            "route": "common",
+            "role": "output",
+            "name": "--output",
+            "temporal": "output.out",
+            "extension": ".out",
+            "outlines": ["output"]
+        }
+    ]
+}

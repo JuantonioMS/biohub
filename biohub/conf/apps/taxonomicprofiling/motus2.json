@@ -1,26 +1,22 @@
 {
     "info" : {
         "type" : "conda",
-        "environment": "biohub.metaphlan"
+        "environment": "biohub.motus2"
     },
 
     "build": [
-        "mamba create -y -p ->eval##self.environment<- metaphlan",
-        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && metaphlan --install"
+        "mamba create -y -p ->eval##self.environment<- motus",
+        ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && motus downloadDB"
     ],
 
     "implementation" : {
 
         "defaultRoute": "paired illumina",
 
-        "cliDetails": {
-            "inputsSeparator": ","
-        },
-
         "commands": [
             {
                 "route": "common",
-                "command": "metaphlan"
+                "command": "motus profile"
             }
         ],
 
@@ -41,14 +37,14 @@
         {
             "route": "common",
             "role": "threads",
-            "name": "--nproc"
+            "name": "-t"
         },
 
         {
-            "route": "paired illumina",
-            "role": "input type",
-            "name": "--input_type",
-            "value": "fastq"
+            "route": "common",
+            "role": "NCBI taxonomy flag",
+            "name": "-p",
+            "value": true
         }
 
     ],
@@ -57,6 +53,7 @@
         {
             "route": "paired illumina",
             "role": "forward",
+            "name" : "-f",
             "selection": [
                 {
                     "target": "outlines",
@@ -68,6 +65,7 @@
         {
             "route": "paired illumina",
             "role": "reverse",
+            "name" : "-r",
             "selection": [
                 {
                     "target": "outlines",
@@ -82,20 +80,11 @@
     "outputs": [
         {
             "route": "common",
-            "role": "temporal bowtie cache",
-            "name": "--bowtie2out",
-            "temporal": "metagenome.bowtie2.bz2",
-            "extension": ".bowtie2.bz2",
-            "outlines": ["temporal bowtie cache"]
-        },
-        {
-            "route": "common",
-            "role": "taxonomic classification",
-            "name": "--output_file",
-            "altName": "-o",
-            "temporal": "metagenome.tsv",
-            "extension": ".tsv",
-            "outlines": ["taxonomic classification"]
+            "role": "output",
+            "name": "-o",
+            "temporal": "output.out",
+            "extension": ".out",
+            "outlines": ["output"]
         }
     ]
 }
