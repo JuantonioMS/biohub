@@ -77,8 +77,7 @@
             [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "forward", "no host"]
                 }
             ]
         },
@@ -91,8 +90,7 @@
             [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "reverse", "no host"]
                 }
             ]
         }
@@ -104,20 +102,20 @@
     [
         {
             "route": "common",
-            "role": "report",
+            "role": "taxonomic classification",
             "name": "--report-file",
-            "temporal": "report.tsv",
+            "temporal": "taxonomic_classification.tsv",
             "extension": ".tsv",
-            "outlines": ["report"]
+            "outlines": ["taxonomic classification"]
         },
 
         {
             "route": "common",
-            "role": "output",
+            "role": "report",
             "name": "-S",
-            "temporal": "output.out",
+            "temporal": "report.out",
             "extension": ".out",
-            "outlines": ["output"]
+            "outlines": ["report"]
         }
     ]
 }

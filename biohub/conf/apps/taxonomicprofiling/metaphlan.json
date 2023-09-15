@@ -4,7 +4,8 @@
         "environment": "biohub.metaphlan"
     },
 
-    "build": [
+    "build":
+    [
         "mamba create -y -p ->eval##self.environment<- metaphlan",
         ". ->eval##self.condaShell<- && conda activate ->eval##self.environment<- && metaphlan --install"
     ],
@@ -60,8 +61,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "forward", "no host"]
                 }
             ]
         },
@@ -71,8 +71,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "reverse", "no host"]
                 }
             ]
         }

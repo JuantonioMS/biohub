@@ -30,8 +30,8 @@
 
             "body" : [
                 {
-                    "route" : "common",
-                    "sentences" : ["<command> <options> <outputs> <inputs>"]
+                    "route" : "paired illumina",
+                    "sentences" : ["<command> <options> <outputs> ->eval##inputs['database']<- ->eval##inputs['forward']<- ->eval##inputs['reverse']<-"]
                 }
             ]
 
@@ -82,8 +82,7 @@
             [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "forward", "no host"]
                 }
             ]
         },
@@ -95,8 +94,7 @@
             [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "reverse", "no host"]
                 }
             ]
         }
@@ -108,20 +106,20 @@
     [
         {
             "route": "common",
-            "role": "report",
+            "role": "reads classification",
             "name": "--report",
-            "temporal": "report.tsv",
+            "temporal": "reads_classification.tsv",
             "extension": ".tsv",
-            "outlines": ["report"]
+            "outlines": ["reads classification"]
         },
 
         {
             "route": "common",
-            "role": "output",
+            "role": "report",
             "name": "--output",
-            "temporal": "output.out",
+            "temporal": "report.out",
             "extension": ".out",
-            "outlines": ["output"]
+            "outlines": ["report"]
         }
     ]
 }

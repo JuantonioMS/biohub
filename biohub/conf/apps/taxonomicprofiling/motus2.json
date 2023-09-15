@@ -57,8 +57,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "forward", "no host"]
                 }
             ]
         },
@@ -69,8 +68,7 @@
             "selection": [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse", "illumina", "no host"],
-                    "optimal": ["trimmed"]
+                    "required": ["reads", "reverse", "no host"]
                 }
             ]
         }
@@ -82,9 +80,9 @@
             "route": "common",
             "role": "output",
             "name": "-o",
-            "temporal": "output.out",
-            "extension": ".out",
-            "outlines": ["output"]
+            "temporal": "output.tsv",
+            "extension": ".tsv",
+            "outlines": ["taxonomic classification"]
         }
     ]
 }

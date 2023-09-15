@@ -67,6 +67,8 @@
 
     ],
 
+
+
     "inputs": [
 
         {
@@ -77,7 +79,7 @@
             [
                 {
                     "target": "outlines",
-                    "required": ["reads", "forward", "illumina", "no host"],
+                    "required": ["reads", "forward", "illumina"],
                     "optimal": ["trimmed"]
                 }
             ]
@@ -91,7 +93,7 @@
             [
                 {
                     "target": "outlines",
-                    "required": ["reads", "reverse", "illumina", "no host"],
+                    "required": ["reads", "reverse", "illumina"],
                     "optimal": ["trimmed"]
                 }
             ]
@@ -99,65 +101,47 @@
 
     ],
 
-    "outputs": [
 
+    "outputs" :
+    [
         {
-            "route": "paired",
+            "route": "paired illumina",
             "role": "forward",
-            "name": "--out1",
-            "altName": "-o",
-            "temporal": "forward.fastq.gz",
+            "temporal": "unaligned.1",
             "extension": ".fastq.gz",
-            "outlines": ["forward"]
+            "outlines": ["forward", "no host"]
         },
 
         {
-            "route": "paired",
+            "route": "paired illumina",
             "role": "reverse",
-            "name": "--out2",
-            "altName": "-O",
-            "temporal": "reverse.fastq.gz",
+            "temporal": "unaligned.2",
             "extension": ".fastq.gz",
-            "outlines": ["reverse"]
+            "outlines": ["reverse", "no host"]
         },
 
         {
-            "route": "single",
-            "role": "single",
-            "name": "--out1",
-            "altName": "-o",
-            "temporal": "single.fastq.gz",
+            "route": "paired illumina",
+            "role": "forward",
+            "temporal": "aligned.1",
             "extension": ".fastq.gz",
-            "outlines": ["single"]
+            "outlines": ["forward", "host"]
         },
 
         {
-            "route": "common",
-            "role": "html report",
-            "name": "--html",
-            "altName": "-h",
-            "temporal": "fastp.html",
-            "extension": ".html",
-            "outlines": ["fastp html report"]
-        },
-
-        {
-            "route": "common",
-            "role": "json report",
-            "name": "--json",
-            "altName": "-j",
-            "temporal": "fastp.json",
-            "extension": ".json",
-            "outlines": ["fastp json report"]
+            "route": "paired illumina",
+            "role": "reverse",
+            "temporal": "aligned.2",
+            "extension": ".fastq.gz",
+            "outlines": ["reverse", "host"]
         }
-
     ],
 
     "outlines": [
         {
             "route": "common",
-            "output": ["reads"],
-            "process": ["reads"]
+            "output": ["reads", "illumina"],
+            "process": ["reads", "host depletion"]
         }
     ]
 
